@@ -135,7 +135,8 @@ export const PlayerList = ({
 
     // Show role reveal modal for the hunter's target
     setAwaitingRoleReveal(targetPlayer);
-    // The alert will be cleared after the role is revealed
+    // Clear the alert so the modal can be seen
+    setEliminationAlert(null);
   };
 
   return (
