@@ -17,7 +17,9 @@ Werewolves of Miller's Hollow is a social deduction party game where players are
 - **Interactive Setup Screen**
   - Player count selector (8-30 players)
   - Visual role selection organised by team
-  - Real-time validation of role count vs player count
+  - Quantity selectors for Villagers (up to 9) and Simple Werewolves (up to 4)
+  - Multi-card role support (Three Brothers = 3 slots, Two Sisters = 2 slots)
+  - Real-time validation preventing role count exceeding player count
   
 - **Night Phase Narrator**
   - Text-to-speech narration using Web Speech API
@@ -27,19 +29,34 @@ Werewolves of Miller's Hollow is a social deduction party game where players are
 
 - **Enhanced Role Guidance**
   - Detailed action checklists for each role
-  - Step-by-step narrator prompts
+  - Interactive checkboxes to track completed actions
+  - Per-role, per-night completion state tracking
+  - Step-by-step narrator prompts with visual feedback
   - Important actions highlighted
   
 - **Player Management**
   - Track all players (alive/dead status)
+  - Role reveal modal when eliminating players
+  - Track both revealed and actual role for each player
   - Add notes for each player (suspicions, claims, etc.)
-  - Record revealed roles
-  - Eliminate/revive players
+  - Eliminate/revive players with full role tracking
+  
+- **Elimination Consequence System**
+  - Automatic chain eliminations:
+    - Cupid's Lovers die together
+    - Knight's Rusty Sword strikes right-hand neighbour
+  - Interactive death abilities:
+    - Hunter selects dying shot target
+    - Supports recursive consequence chains
+  - Informational alerts:
+    - Sibling notifications (Two Sisters/Three Brothers)
+    - Wild Child transformation when role model dies
   
 - **Game Event Log**
   - Chronological history of all game events
+  - Automatic logging of all eliminations with role information
   - Filter by event type (elimination, role action, voting, special)
-  - Timestamp tracking
+  - Timestamp and night number tracking
 
 - **Day Phase Timer**
   - Configurable discussion timer (3, 5, 7, or 10 minutes)
@@ -172,13 +189,15 @@ See `/public/ICONS_README.md` for details.
 
 ## 🔮 Future Enhancements
 
-- **Quantity Selectors**: Add/remove multiple Villagers and Werewolves
-- **Interactive Checklists**: Check off completed narrator actions
-- **Role Reveal Modal**: Prompt for role when eliminating players
-- **Dawn Phase**: Special role actions at sunrise (Hunter, Bear Tamer)
+See [ENHANCEMENTS.md](./ENHANCEMENTS.md) for the complete roadmap.
+
+### Upcoming Features
+- **Auto-Generate Balanced Role Setup**: Algorithm to create balanced role distributions based on player count
+- **Dawn Phase**: Special role actions at sunrise (Bear Tamer, Knight with Rusty Sword)
+- **Visual Redesign**: One Night Ultimate Werewolf inspired UI with illustrated role cards
 - **Sound Effects**: Audio cues for phase transitions
-- **Game Statistics**: Track game history and statistics
-- **Multiple Languages**: Internationalisation support
+- **Game Statistics**: Track game history and win rates
+- **Multiple Languages**: Internationalisation support (French, Spanish, German)
 
 ## 📝 License
 

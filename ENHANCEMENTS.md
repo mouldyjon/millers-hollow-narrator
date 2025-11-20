@@ -42,28 +42,42 @@ This document tracks planned improvements and feature requests for the Miller's 
 - [x] Display +/- controls for multi-select roles ✅
 - [x] Show Add/Remove buttons for single-select roles ✅
 
-#### 2. Interactive Narrator Checklists
-**Status**: Not Started  
-**Work Required**:
-- [ ] Make narrator action items checkable (tick boxes)
-- [ ] Persist checked state during the current night
-- [ ] Reset checkboxes when moving to next role
-- [ ] Visual feedback when all actions completed
-- [ ] Optional: Save checklist completion history
+#### 3. Interactive Narrator Checklists
+**Status**: Completed ✅  
+**Completed Work**:
+- [x] Make narrator action items checkable (tick boxes) ✅
+- [x] Persist checked state during the current night ✅
+- [x] Track per role per night using completedActions state ✅
+- [x] Visual feedback with green checkmarks and strikethrough text ✅
+- [x] Hover effects for better UX ✅
 
-#### 3. Role Reveal on Player Elimination
-**Status**: Not Started  
-**Work Required**:
-- [ ] Create modal/dialog when player is eliminated
-- [ ] Role selector dropdown in elimination modal
-- [ ] Automatically mark player as dead and record revealed role
-- [ ] Add elimination to event log
-- [ ] Handle special death effects:
-  - Hunter: Prompt for who they shoot
-  - Lovers: Automatically eliminate partner
-  - Knight with Rusty Sword: Note infected werewolf
+#### 4. Role Reveal on Player Elimination
+**Status**: Completed ✅  
+**Completed Work**:
+- [x] Create modal/dialog when player is eliminated ✅
+- [x] Role selector modal showing all game roles grouped by team ✅
+- [x] Automatically mark player as dead and record revealed role ✅
+- [x] Track both revealed role name and actual role ID ✅
+- [x] Add elimination to event log with format "Player X (Role) was eliminated" ✅
 
-#### 4. Dawn Phase Implementation
+#### 5. Elimination Consequence System
+**Status**: Completed ✅  
+**Completed Work**:
+- [x] Comprehensive consequence checking system ✅
+- [x] Chain eliminations:
+  - Cupid's Lovers: Other lover dies of heartbreak ✅
+  - Knight with Rusty Sword: Right-hand neighbour is struck ✅
+- [x] Interactive death abilities:
+  - Hunter: Select target for dying shot ✅
+  - Supports recursive chains (Hunter shoots Hunter) ✅
+- [x] Informational alerts:
+  - Two Sisters/Three Brothers: Sibling notifications ✅
+  - Wild Child: Transformation when role model dies ✅
+- [x] All chain eliminations require role revelation ✅
+- [x] Proper modal flow to prevent UI blocking ✅
+- [x] Full event logging for all eliminations ✅
+
+#### 6. Dawn Phase Implementation
 **Status**: Not Started  
 **Work Required**:
 - [ ] Add new "dawn" phase between night and day
