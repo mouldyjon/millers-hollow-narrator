@@ -36,6 +36,7 @@ build
 
 # DevBox
 .devbox
+devbox.lock
 
 # OS Files
 .DS_Store
