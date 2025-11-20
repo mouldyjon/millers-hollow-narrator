@@ -49,8 +49,43 @@ export const useGameState = () => {
       // Roles that can have multiple instances
       const multiSelectRoles: RoleId[] = ["villager", "simple-werewolf"];
 
+      // Helper to calculate total role slots
+      const getRoleSlots = (roleId: RoleId): number => {
+        if (roleId === "two-sisters") return 2;
+        if (roleId === "three-brothers") return 3;
+        return 1;
+      };
+
+      const calculateTotalSlots = (roles: RoleId[]): number => {
+        return roles.reduce((sum, id) => sum + getRoleSlots(id), 0);
+      };
+
       if (multiSelectRoles.includes(roleId)) {
-        // For multi-select roles, just add another instance
+        // Check current count of this role
+        const currentCount = prev.setup.selectedRoles.filter(
+          (id) => id === roleId,
+        ).length;
+
+        // Check maximum limits
+        const maxLimits: Record<string, number> = {
+          villager: 9,
+          "simple-werewolf": 4,
+        };
+        const maxLimit = maxLimits[roleId];
+
+        if (maxLimit && currentCount >= maxLimit) {
+          // Already at maximum, don't add more
+          return prev;
+        }
+
+        // Check if adding this role would exceed player count
+        const currentTotalSlots = calculateTotalSlots(prev.setup.selectedRoles);
+        if (currentTotalSlots >= prev.setup.playerCount) {
+          // Would exceed player count
+          return prev;
+        }
+
+        // For multi-select roles, add another instance
         const selectedRoles = [...prev.setup.selectedRoles, roleId];
         return {
           ...prev,
@@ -61,17 +96,41 @@ export const useGameState = () => {
         };
       } else {
         // For single-instance roles, toggle on/off
-        const selectedRoles = prev.setup.selectedRoles.includes(roleId)
-          ? prev.setup.selectedRoles.filter((id) => id !== roleId)
-          : [...prev.setup.selectedRoles, roleId];
+        const isCurrentlySelected = prev.setup.selectedRoles.includes(roleId);
 
-        return {
-          ...prev,
-          setup: {
-            ...prev.setup,
-            selectedRoles,
-          },
-        };
+        if (isCurrentlySelected) {
+          // Remove the role
+          const selectedRoles = prev.setup.selectedRoles.filter(
+            (id) => id !== roleId,
+          );
+          return {
+            ...prev,
+            setup: {
+              ...prev.setup,
+              selectedRoles,
+            },
+          };
+        } else {
+          // Check if adding this role would exceed player count
+          const currentTotalSlots = calculateTotalSlots(
+            prev.setup.selectedRoles,
+          );
+          const newRoleSlots = getRoleSlots(roleId);
+          if (currentTotalSlots + newRoleSlots > prev.setup.playerCount) {
+            // Would exceed player count
+            return prev;
+          }
+
+          // Add the role
+          const selectedRoles = [...prev.setup.selectedRoles, roleId];
+          return {
+            ...prev,
+            setup: {
+              ...prev.setup,
+              selectedRoles,
+            },
+          };
+        }
       }
     });
   };
