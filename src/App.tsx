@@ -19,6 +19,7 @@ function App() {
     togglePlayerAlive,
     updatePlayerNotes,
     setPlayerRevealedRole,
+    toggleActionComplete,
     resetGame,
   } = useGameState();
 
@@ -50,6 +51,7 @@ function App() {
           onTogglePlayerAlive={togglePlayerAlive}
           onUpdatePlayerNotes={updatePlayerNotes}
           onSetPlayerRevealedRole={setPlayerRevealedRole}
+          onToggleActionComplete={toggleActionComplete}
         />
       )}
 

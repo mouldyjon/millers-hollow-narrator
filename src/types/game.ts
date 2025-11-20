@@ -52,6 +52,7 @@ export interface NightState {
   stutteringJudgeDoubleVoteUsed: boolean;
   currentNightNumber: number;
   whiteWerewolfNight: boolean;
+  completedActions: Record<string, boolean[]>;
 }
 
 export interface Player {

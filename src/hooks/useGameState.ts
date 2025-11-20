@@ -23,6 +23,7 @@ const initialGameState: GameState = {
     stutteringJudgeDoubleVoteUsed: false,
     currentNightNumber: 0,
     whiteWerewolfNight: false,
+    completedActions: {},
   },
   players: createInitialPlayers(8),
   eliminatedPlayers: [],
@@ -332,6 +333,26 @@ export const useGameState = () => {
     }));
   };
 
+  const toggleActionComplete = (roleId: RoleId, stepIndex: number) => {
+    setGameState((prev) => {
+      const key = `${roleId}-${prev.nightState.currentNightNumber}`;
+      const currentActions = prev.nightState.completedActions[key] || [];
+      const newActions = [...currentActions];
+      newActions[stepIndex] = !newActions[stepIndex];
+
+      return {
+        ...prev,
+        nightState: {
+          ...prev.nightState,
+          completedActions: {
+            ...prev.nightState.completedActions,
+            [key]: newActions,
+          },
+        },
+      };
+    });
+  };
+
   return {
     gameState,
     setPlayerCount,
@@ -356,5 +377,6 @@ export const useGameState = () => {
     updatePlayerNotes,
     setPlayerRevealedRole,
     addGameEvent,
+    toggleActionComplete,
   };
 };

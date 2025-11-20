@@ -29,6 +29,7 @@ interface NightPhaseProps {
   onTogglePlayerAlive: (playerNumber: number) => void;
   onUpdatePlayerNotes: (playerNumber: number, notes: string) => void;
   onSetPlayerRevealedRole: (playerNumber: number, role: string) => void;
+  onToggleActionComplete: (roleId: RoleId, stepIndex: number) => void;
 }
 
 export const NightPhase = ({
@@ -45,6 +46,7 @@ export const NightPhase = ({
   onTogglePlayerAlive,
   onUpdatePlayerNotes,
   onSetPlayerRevealedRole,
+  onToggleActionComplete,
 }: NightPhaseProps) => {
   const [isPaused, setIsPaused] = useState(true);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -271,7 +273,19 @@ export const NightPhase = ({
                 )}
 
                 {/* Role Action Guide */}
-                {currentRole && <RoleActionGuide roleId={currentRole.id} />}
+                {currentRole && (
+                  <RoleActionGuide
+                    roleId={currentRole.id}
+                    completedActions={
+                      nightState.completedActions[
+                        `${currentRole.id}-${nightState.currentNightNumber}`
+                      ] || []
+                    }
+                    onStepComplete={(stepIndex) =>
+                      onToggleActionComplete(currentRole.id, stepIndex)
+                    }
+                  />
+                )}
               </div>
             ) : null}
           </div>
