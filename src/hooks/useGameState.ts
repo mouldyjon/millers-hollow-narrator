@@ -185,6 +185,13 @@ export const useGameState = () => {
     }));
   };
 
+  const startDawn = () => {
+    setGameState((prev) => ({
+      ...prev,
+      phase: "dawn",
+    }));
+  };
+
   const startDay = () => {
     setGameState((prev) => ({
       ...prev,
@@ -473,6 +480,7 @@ export const useGameState = () => {
     removeRole,
     setSelectedRoles,
     startGame,
+    startDawn,
     startDay,
     startNight,
     nextNightStep,

@@ -26,7 +26,7 @@ export type RoleId =
 
 export type Team = "village" | "werewolf" | "solo";
 
-export type GamePhase = "setup" | "night" | "day" | "ended";
+export type GamePhase = "setup" | "night" | "dawn" | "day" | "ended";
 
 export interface Role {
   id: RoleId;

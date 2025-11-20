@@ -1,6 +1,7 @@
 import { useGameState } from "./hooks/useGameState";
 import { SetupScreen } from "./components/SetupScreen";
 import { NightPhase } from "./components/NightPhase";
+import { DawnPhase } from "./components/DawnPhase";
 import { DayPhase } from "./components/DayPhase";
 
 function App() {
@@ -10,6 +11,7 @@ function App() {
     toggleRole,
     removeRole,
     startGame,
+    startDawn,
     startDay,
     startNight,
     nextNightStep,
@@ -46,7 +48,7 @@ function App() {
           players={gameState.players}
           gameEvents={gameState.gameEvents}
           onNextStep={nextNightStep}
-          onEndNight={startDay}
+          onEndNight={startDawn}
           onUseWitchHealingPotion={useWitchHealingPotion}
           onUseWitchDeathPotion={useWitchDeathPotion}
           onUseCursedWolfFatherInfection={useCursedWolfFatherInfection}
@@ -56,6 +58,15 @@ function App() {
           onToggleActionComplete={toggleActionComplete}
           onCheckEliminationConsequences={checkEliminationConsequences}
           onAddGameEvent={addGameEvent}
+        />
+      )}
+
+      {gameState.phase === "dawn" && (
+        <DawnPhase
+          selectedRoles={gameState.setup.selectedRoles}
+          players={gameState.players}
+          sheriff={gameState.sheriff}
+          onStartDay={startDay}
         />
       )}
 
