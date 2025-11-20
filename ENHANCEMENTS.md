@@ -6,17 +6,41 @@ This document tracks planned improvements and feature requests for the Miller's 
 
 ### High Priority
 
-#### 1. Multi-Card Role Handling
-**Status**: Partially Complete (metadata added)  
-**Remaining Work**:
-- [ ] Update game state to properly count roles with multiple cards
-  - Three Brothers should count as 3 slots, not 1
-  - Two Sisters should count as 2 slots, not 1
-- [ ] Add quantity selectors for variable roles
-  - Villagers (up to 9)
-  - Simple Werewolves (up to 4)
-- [ ] Update role selection validation to account for actual card counts
-- [ ] Display card count badges on role buttons (e.g., "×3", "×2")
+#### 1. Auto-Generate Balanced Role Setup
+**Status**: Not Started  
+**Priority**: High  
+**Work Required**:
+- [ ] Create role generation algorithm based on player count
+- [ ] Define recommended role distributions:
+  - 8-10 players: 2 werewolves, 1-2 special roles, rest villagers
+  - 11-15 players: 3 werewolves, 2-3 special roles, rest villagers
+  - 16-20 players: 4 werewolves, 3-4 special roles, rest villagers
+  - 21+ players: 5+ werewolves, 4-5 special roles, rest villagers
+- [ ] Ensure minimum 2 werewolf roles always included
+- [ ] Balance power roles (Seer, Witch, etc.) appropriately
+- [ ] Add "Generate Roles" button on setup screen
+- [ ] Add "Regenerate" option to get different random setup
+- [ ] Option to save/load custom presets
+- [ ] Display role distribution preview before applying
+
+**Game Balance Guidelines**:
+- Werewolf ratio: ~25-30% of total players
+- Always include at least one Seer or investigative role
+- Mix simple and complex roles for variety
+- Avoid too many one-shot abilities in small games
+
+#### 2. Multi-Card Role Handling
+**Status**: Completed ✅  
+**Completed Work**:
+- [x] Update game state to properly count roles with multiple cards
+  - Three Brothers counts as 3 slots ✅
+  - Two Sisters counts as 2 slots ✅
+- [x] Add quantity selectors for variable roles
+  - Villagers (up to 9) ✅
+  - Simple Werewolves (up to 4) ✅
+- [x] Update role selection validation to account for actual card counts ✅
+- [x] Display +/- controls for multi-select roles ✅
+- [x] Show Add/Remove buttons for single-select roles ✅
 
 #### 2. Interactive Narrator Checklists
 **Status**: Not Started  
