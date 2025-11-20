@@ -38,6 +38,8 @@ export interface Role {
   wakeEveryNight: boolean;
   wakeFirstNightOnly: boolean;
   hasLimitedUse: boolean;
+  allowMultiple?: boolean;
+  maxQuantity?: number;
 }
 
 export interface GameSetup {

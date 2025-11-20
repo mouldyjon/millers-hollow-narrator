@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import {
   Moon,
-  Play,
   Pause,
   SkipForward,
   Volume2,
@@ -9,7 +8,7 @@ import {
   PanelLeftOpen,
   PanelLeftClose,
 } from "lucide-react";
-import { roles, rolesByNightOrder } from "../data/roles";
+import { rolesByNightOrder } from "../data/roles";
 import type { RoleId, NightState, Player, GameEvent } from "../types/game";
 import { RoleActionGuide } from "./RoleActionGuide";
 import { PlayerList } from "./PlayerList";
@@ -48,7 +47,6 @@ export const NightPhase = ({
   onSetPlayerRevealedRole,
   onToggleActionComplete,
 }: NightPhaseProps) => {
-  const [isPaused, setIsPaused] = useState(true);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [showSidebar, setShowSidebar] = useState(true);
 
@@ -143,11 +141,9 @@ export const NightPhase = ({
   const handlePlayPause = () => {
     if (isSpeaking) {
       stopSpeaking();
-      setIsPaused(true);
     } else if (currentRole) {
       const text = getNarrationText(currentRole);
       speak(text);
-      setIsPaused(false);
     }
   };
 
@@ -157,14 +153,6 @@ export const NightPhase = ({
       onEndNight();
     } else {
       onNextStep();
-      setIsPaused(true);
-    }
-  };
-
-  const handleAutoPlay = () => {
-    if (currentRole && !isSpeaking) {
-      const text = getNarrationText(currentRole);
-      speak(text);
     }
   };
 
@@ -350,6 +338,7 @@ export const NightPhase = ({
               <PlayerList
                 playerCount={players.length}
                 players={players}
+                selectedRoles={selectedRoles}
                 onToggleAlive={onTogglePlayerAlive}
                 onSetRevealedRole={onSetPlayerRevealedRole}
                 onUpdateNotes={onUpdatePlayerNotes}
