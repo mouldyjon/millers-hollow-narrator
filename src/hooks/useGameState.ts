@@ -81,7 +81,7 @@ export const useGameState = () => {
 
         // Check if adding this role would exceed player count
         const currentTotalSlots = calculateTotalSlots(prev.setup.selectedRoles);
-        if (currentTotalSlots >= prev.setup.playerCount) {
+        if (currentTotalSlots + 1 > prev.setup.playerCount) {
           // Would exceed player count
           return prev;
         }
