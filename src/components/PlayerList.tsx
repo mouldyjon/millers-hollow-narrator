@@ -38,6 +38,10 @@ interface PlayerListProps {
     message: string;
     requiresPlayerSelection: boolean;
   };
+  onAddGameEvent: (
+    type: "elimination" | "role_action" | "day_vote" | "special",
+    description: string,
+  ) => void;
 }
 
 export const PlayerList = ({
@@ -48,6 +52,7 @@ export const PlayerList = ({
   onSetRevealedRole,
   onUpdateNotes,
   onCheckEliminationConsequences,
+  onAddGameEvent,
 }: PlayerListProps) => {
   const [eliminatingPlayer, setEliminatingPlayer] = useState<number | null>(
     null,
@@ -90,6 +95,12 @@ export const PlayerList = ({
     onToggleAlive(playerNumber);
     setEliminatingPlayer(null);
     setAwaitingRoleReveal(null);
+
+    // Log the elimination
+    onAddGameEvent(
+      "elimination",
+      `Player ${playerNumber} (${role}) was eliminated`,
+    );
 
     // Check for elimination consequences
     const consequences = onCheckEliminationConsequences(playerNumber, roleId);

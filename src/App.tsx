@@ -21,6 +21,7 @@ function App() {
     setPlayerRevealedRole,
     toggleActionComplete,
     checkEliminationConsequences,
+    addGameEvent,
     resetGame,
   } = useGameState();
 
@@ -54,6 +55,7 @@ function App() {
           onSetPlayerRevealedRole={setPlayerRevealedRole}
           onToggleActionComplete={toggleActionComplete}
           onCheckEliminationConsequences={checkEliminationConsequences}
+          onAddGameEvent={addGameEvent}
         />
       )}
 

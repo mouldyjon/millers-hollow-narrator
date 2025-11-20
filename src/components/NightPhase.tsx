@@ -48,6 +48,10 @@ interface NightPhaseProps {
     message: string;
     requiresPlayerSelection: boolean;
   };
+  onAddGameEvent: (
+    type: "elimination" | "role_action" | "day_vote" | "special",
+    description: string,
+  ) => void;
 }
 
 export const NightPhase = ({
@@ -66,6 +70,7 @@ export const NightPhase = ({
   onSetPlayerRevealedRole,
   onToggleActionComplete,
   onCheckEliminationConsequences,
+  onAddGameEvent,
 }: NightPhaseProps) => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [showSidebar, setShowSidebar] = useState(true);
@@ -363,6 +368,7 @@ export const NightPhase = ({
                 onSetRevealedRole={onSetPlayerRevealedRole}
                 onUpdateNotes={onUpdatePlayerNotes}
                 onCheckEliminationConsequences={onCheckEliminationConsequences}
+                onAddGameEvent={onAddGameEvent}
               />
               <EventLog events={gameEvents} />
             </div>
