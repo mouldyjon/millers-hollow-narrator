@@ -27,8 +27,27 @@ interface NightPhaseProps {
   onUseCursedWolfFatherInfection: () => void;
   onTogglePlayerAlive: (playerNumber: number) => void;
   onUpdatePlayerNotes: (playerNumber: number, notes: string) => void;
-  onSetPlayerRevealedRole: (playerNumber: number, role: string) => void;
+  onSetPlayerRevealedRole: (
+    playerNumber: number,
+    role: string,
+    roleId?: RoleId,
+  ) => void;
   onToggleActionComplete: (roleId: RoleId, stepIndex: number) => void;
+  onCheckEliminationConsequences: (
+    playerNumber: number,
+    roleId?: RoleId,
+  ) => {
+    type:
+      | "none"
+      | "lovers"
+      | "knight-rusty-sword"
+      | "hunter"
+      | "siblings"
+      | "wild-child-transform";
+    affectedPlayers: number[];
+    message: string;
+    requiresPlayerSelection: boolean;
+  };
 }
 
 export const NightPhase = ({
@@ -46,6 +65,7 @@ export const NightPhase = ({
   onUpdatePlayerNotes,
   onSetPlayerRevealedRole,
   onToggleActionComplete,
+  onCheckEliminationConsequences,
 }: NightPhaseProps) => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [showSidebar, setShowSidebar] = useState(true);
@@ -342,6 +362,7 @@ export const NightPhase = ({
                 onToggleAlive={onTogglePlayerAlive}
                 onSetRevealedRole={onSetPlayerRevealedRole}
                 onUpdateNotes={onUpdatePlayerNotes}
+                onCheckEliminationConsequences={onCheckEliminationConsequences}
               />
               <EventLog events={gameEvents} />
             </div>

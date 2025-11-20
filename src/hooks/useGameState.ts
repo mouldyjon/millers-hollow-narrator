@@ -292,11 +292,17 @@ export const useGameState = () => {
     }));
   };
 
-  const setPlayerRevealedRole = (playerNumber: number, role: string) => {
+  const setPlayerRevealedRole = (
+    playerNumber: number,
+    role: string,
+    roleId?: RoleId,
+  ) => {
     setGameState((prev) => ({
       ...prev,
       players: prev.players.map((p) =>
-        p.number === playerNumber ? { ...p, revealedRole: role } : p,
+        p.number === playerNumber
+          ? { ...p, revealedRole: role, actualRole: roleId }
+          : p,
       ),
     }));
   };
@@ -353,6 +359,113 @@ export const useGameState = () => {
     });
   };
 
+  const checkEliminationConsequences = (
+    playerNumber: number,
+    roleId?: RoleId,
+  ): {
+    type:
+      | "none"
+      | "lovers"
+      | "knight-rusty-sword"
+      | "hunter"
+      | "siblings"
+      | "wild-child-transform";
+    affectedPlayers: number[];
+    message: string;
+    requiresPlayerSelection: boolean;
+  } => {
+    const state = gameState;
+
+    // Check if eliminated player is a lover
+    if (
+      state.cupidLovers &&
+      state.cupidLovers.includes(playerNumber as 1 | 2)
+    ) {
+      const otherLover = state.cupidLovers.find((p) => p !== playerNumber);
+      if (otherLover) {
+        const otherPlayer = state.players.find((p) => p.number === otherLover);
+        if (otherPlayer?.isAlive) {
+          return {
+            type: "lovers",
+            affectedPlayers: [otherLover],
+            message: `Player ${otherLover} was in love with Player ${playerNumber} and dies of heartbreak!`,
+            requiresPlayerSelection: false,
+          };
+        }
+      }
+    }
+
+    // Check if eliminated player is Wild Child's role model
+    if (state.wildChildRoleModel === playerNumber) {
+      const wildChild = state.players.find(
+        (p) => p.actualRole === "wild-child" && p.isAlive,
+      );
+      if (wildChild) {
+        return {
+          type: "wild-child-transform",
+          affectedPlayers: [wildChild.number],
+          message: `Player ${wildChild.number} (Wild Child) loses their role model and transforms into a werewolf!`,
+          requiresPlayerSelection: false,
+        };
+      }
+    }
+
+    // Check role-specific consequences
+    if (roleId === "knight-rusty-sword") {
+      // Find right-hand neighbour (next player number, wrapping around)
+      const rightNeighbour =
+        playerNumber === state.setup.playerCount ? 1 : playerNumber + 1;
+      const neighbour = state.players.find((p) => p.number === rightNeighbour);
+      if (neighbour?.isAlive) {
+        return {
+          type: "knight-rusty-sword",
+          affectedPlayers: [rightNeighbour],
+          message: `The Knight's rusty sword breaks and strikes Player ${rightNeighbour} (right-hand neighbour)!`,
+          requiresPlayerSelection: false,
+        };
+      }
+    }
+
+    if (roleId === "hunter") {
+      const alivePlayers = state.players
+        .filter((p) => p.isAlive && p.number !== playerNumber)
+        .map((p) => p.number);
+      if (alivePlayers.length > 0) {
+        return {
+          type: "hunter",
+          affectedPlayers: [],
+          message: `The Hunter fires their dying shot! Choose who to eliminate:`,
+          requiresPlayerSelection: true,
+        };
+      }
+    }
+
+    // Check for siblings (informational only)
+    if (roleId === "two-sisters" || roleId === "three-brothers") {
+      const siblingsAlive = state.players.filter(
+        (p) =>
+          p.actualRole === roleId && p.isAlive && p.number !== playerNumber,
+      );
+      if (siblingsAlive.length > 0) {
+        const siblingNumbers = siblingsAlive.map((p) => p.number);
+        const siblingWord = roleId === "two-sisters" ? "sister" : "brother";
+        return {
+          type: "siblings",
+          affectedPlayers: siblingNumbers,
+          message: `Player ${playerNumber}'s ${siblingWord}(s) (${siblingNumbers.join(", ")}) should be informed of this death.`,
+          requiresPlayerSelection: false,
+        };
+      }
+    }
+
+    return {
+      type: "none",
+      affectedPlayers: [],
+      message: "",
+      requiresPlayerSelection: false,
+    };
+  };
+
   return {
     gameState,
     setPlayerCount,
@@ -378,5 +491,6 @@ export const useGameState = () => {
     setPlayerRevealedRole,
     addGameEvent,
     toggleActionComplete,
+    checkEliminationConsequences,
   };
 };

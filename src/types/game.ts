@@ -61,6 +61,7 @@ export interface Player {
   number: number;
   isAlive: boolean;
   revealedRole?: string;
+  actualRole?: RoleId;
   notes?: string;
 }
 

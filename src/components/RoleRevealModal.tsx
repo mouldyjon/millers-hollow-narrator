@@ -5,7 +5,7 @@ import type { RoleId } from "../types/game";
 interface RoleRevealModalProps {
   playerNumber: number;
   selectedRoles: RoleId[];
-  onConfirm: (playerNumber: number, role: string) => void;
+  onConfirm: (playerNumber: number, roleName: string, roleId: RoleId) => void;
   onCancel: () => void;
 }
 
@@ -17,7 +17,7 @@ export const RoleRevealModal = ({
 }: RoleRevealModalProps) => {
   const handleRoleSelect = (roleId: RoleId) => {
     const role = roles[roleId];
-    onConfirm(playerNumber, role.name);
+    onConfirm(playerNumber, role.name, roleId);
   };
 
   // Group roles by team

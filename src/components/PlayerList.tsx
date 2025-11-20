@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { User, Skull, Eye } from "lucide-react";
 import { RoleRevealModal } from "./RoleRevealModal";
+import { EliminationAlert } from "./EliminationAlert";
 import type { RoleId } from "../types/game";
 
 interface Player {
   number: number;
   isAlive: boolean;
   revealedRole?: string;
+  actualRole?: RoleId;
   notes?: string;
 }
 
@@ -15,8 +17,27 @@ interface PlayerListProps {
   players: Player[];
   selectedRoles: RoleId[];
   onToggleAlive: (playerNumber: number) => void;
-  onSetRevealedRole: (playerNumber: number, role: string) => void;
+  onSetRevealedRole: (
+    playerNumber: number,
+    role: string,
+    roleId?: RoleId,
+  ) => void;
   onUpdateNotes: (playerNumber: number, notes: string) => void;
+  onCheckEliminationConsequences: (
+    playerNumber: number,
+    roleId?: RoleId,
+  ) => {
+    type:
+      | "none"
+      | "lovers"
+      | "knight-rusty-sword"
+      | "hunter"
+      | "siblings"
+      | "wild-child-transform";
+    affectedPlayers: number[];
+    message: string;
+    requiresPlayerSelection: boolean;
+  };
 }
 
 export const PlayerList = ({
@@ -26,10 +47,25 @@ export const PlayerList = ({
   onToggleAlive,
   onSetRevealedRole,
   onUpdateNotes,
+  onCheckEliminationConsequences,
 }: PlayerListProps) => {
   const [eliminatingPlayer, setEliminatingPlayer] = useState<number | null>(
     null,
   );
+  const [eliminationAlert, setEliminationAlert] = useState<{
+    type:
+      | "lovers"
+      | "knight-rusty-sword"
+      | "hunter"
+      | "siblings"
+      | "wild-child-transform";
+    message: string;
+    affectedPlayers: number[];
+    requiresPlayerSelection: boolean;
+    availablePlayers: number[];
+    eliminatedPlayerNumber: number;
+    eliminatedRoleId?: RoleId;
+  } | null>(null);
 
   const handleEliminateClick = (playerNumber: number) => {
     const player = players.find((p) => p.number === playerNumber);
@@ -42,10 +78,88 @@ export const PlayerList = ({
     }
   };
 
-  const handleRoleReveal = (playerNumber: number, role: string) => {
-    onSetRevealedRole(playerNumber, role);
+  const handleRoleReveal = (
+    playerNumber: number,
+    role: string,
+    roleId: RoleId,
+  ) => {
+    onSetRevealedRole(playerNumber, role, roleId);
     onToggleAlive(playerNumber);
     setEliminatingPlayer(null);
+
+    // Check for elimination consequences
+    const consequences = onCheckEliminationConsequences(playerNumber, roleId);
+    if (consequences.type !== "none") {
+      const alivePlayers = players
+        .filter((p) => p.isAlive && p.number !== playerNumber)
+        .map((p) => p.number);
+
+      setEliminationAlert({
+        type: consequences.type as any,
+        message: consequences.message,
+        affectedPlayers: consequences.affectedPlayers,
+        requiresPlayerSelection: consequences.requiresPlayerSelection,
+        availablePlayers: alivePlayers,
+        eliminatedPlayerNumber: playerNumber,
+        eliminatedRoleId: roleId,
+      });
+    }
+  };
+
+  const handleAlertConfirm = () => {
+    if (!eliminationAlert) return;
+
+    // Handle chain eliminations
+    if (
+      eliminationAlert.type === "lovers" ||
+      eliminationAlert.type === "knight-rusty-sword"
+    ) {
+      // Eliminate affected players
+      eliminationAlert.affectedPlayers.forEach((playerNum) => {
+        onToggleAlive(playerNum);
+      });
+    }
+
+    setEliminationAlert(null);
+  };
+
+  const handleHunterTargetSelect = (targetPlayer: number) => {
+    if (!eliminationAlert) return;
+
+    // Eliminate the hunter's target
+    onToggleAlive(targetPlayer);
+
+    // Check if the target has consequences too
+    const targetPlayerData = players.find((p) => p.number === targetPlayer);
+    if (targetPlayerData?.actualRole) {
+      const targetConsequences = onCheckEliminationConsequences(
+        targetPlayer,
+        targetPlayerData.actualRole,
+      );
+      if (targetConsequences.type !== "none") {
+        const alivePlayers = players
+          .filter(
+            (p) =>
+              p.isAlive &&
+              p.number !== targetPlayer &&
+              p.number !== eliminationAlert.eliminatedPlayerNumber,
+          )
+          .map((p) => p.number);
+
+        setEliminationAlert({
+          type: targetConsequences.type as any,
+          message: targetConsequences.message,
+          affectedPlayers: targetConsequences.affectedPlayers,
+          requiresPlayerSelection: targetConsequences.requiresPlayerSelection,
+          availablePlayers: alivePlayers,
+          eliminatedPlayerNumber: targetPlayer,
+          eliminatedRoleId: targetPlayerData.actualRole,
+        });
+        return;
+      }
+    }
+
+    setEliminationAlert(null);
   };
 
   return (
@@ -56,6 +170,18 @@ export const PlayerList = ({
           selectedRoles={selectedRoles}
           onConfirm={handleRoleReveal}
           onCancel={() => setEliminatingPlayer(null)}
+        />
+      )}
+
+      {eliminationAlert && (
+        <EliminationAlert
+          type={eliminationAlert.type}
+          message={eliminationAlert.message}
+          affectedPlayers={eliminationAlert.affectedPlayers}
+          onConfirm={handleAlertConfirm}
+          onSelectPlayer={handleHunterTargetSelect}
+          requiresPlayerSelection={eliminationAlert.requiresPlayerSelection}
+          availablePlayers={eliminationAlert.availablePlayers}
         />
       )}
 

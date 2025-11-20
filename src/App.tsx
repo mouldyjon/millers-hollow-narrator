@@ -20,6 +20,7 @@ function App() {
     updatePlayerNotes,
     setPlayerRevealedRole,
     toggleActionComplete,
+    checkEliminationConsequences,
     resetGame,
   } = useGameState();
 
@@ -52,6 +53,7 @@ function App() {
           onUpdatePlayerNotes={updatePlayerNotes}
           onSetPlayerRevealedRole={setPlayerRevealedRole}
           onToggleActionComplete={toggleActionComplete}
+          onCheckEliminationConsequences={checkEliminationConsequences}
         />
       )}
 
