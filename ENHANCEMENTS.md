@@ -65,39 +65,119 @@ This document tracks planned improvements and feature requests for the Miller's 
 - [ ] Color-code players by suspected team
 - [ ] Undo/redo for player status changes
 
-## 🎨 Enhancement Category B: Better Visual Design
+## 🎨 Enhancement Category B: Better Visual Design (One Night Ultimate Werewolf Style)
 
 **Status**: Not Started  
-**Priority**: Medium
+**Priority**: High  
+**Inspiration**: One Night Ultimate Werewolf Android app + Miller's Hollow board game art
 
-### Planned Improvements
-- [ ] **Colour Enhancements**
-  - Gradient backgrounds for role cards
-  - Team-colored borders (blue for village, red for werewolf, purple for special)
-  - Hover effects with colour transitions
+### Design System Overhaul
+
+#### Colour Palette & Backgrounds
+- [ ] **Textured Dark Blue Background**
+  - Weathered/grunge texture overlay (like screenshots)
+  - Dark blue-grey base (#2c3e50 range)
+  - Subtle vignette effect at edges
+  - Parchment/aged paper texture
   
-- [ ] **Card Layouts**
-  - Box shadows and depth for 3D card effect
-  - Flip animations when selecting roles
-  - Card hover lift effect
+- [ ] **Typography**
+  - "ONE NIGHT" style header (golden/tan serif font)
+  - Clean sans-serif for body text (off-white/cream)
+  - Yellow/gold text for role names and important info
+  - High contrast white for timer numbers
+
+#### Role Cards Redesign
+- [ ] **Card Style**
+  - Illustrated character art for each role (inspired by Miller's Hollow box art)
+  - Rounded corners with subtle border
+  - Card frame/border design
+  - Slight 3D depth with shadow
+  - Semi-transparent dark overlay for unselected cards
   
-- [ ] **Animations**
-  - Smooth phase transitions (fade/slide)
-  - Role card entrance animations
-  - Progress bar pulse during speaking
-  - Moon phase animation during night
+- [ ] **Card Grid Layout**
+  - Grid of role cards (like setup screen screenshot)
+  - Hover effect: brighten/lift card
+  - Selected state: full brightness + border glow
+  - Quantity badge in corner for multi-card roles
   
-- [ ] **Thematic Elements**
-  - Moon phase indicator (new moon → full moon over game progression)
-  - Werewolf silhouette imagery
-  - Village/forest background illustrations
-  - Dawn/dusk colour gradients for phase transitions
+- [ ] **Role Display During Night**
+  - Large centered character card (like werewolf screenshot)
+  - Role name in bold above/on card
+  - Role instructions in yellow text below card
+  - Atmospheric background matching role theme
+
+#### Buttons
+- [ ] **Primary Buttons** (PLAY, STOP, PAUSE style)
+  - Rounded pill shape
+  - Dark grey/charcoal background (#1a1a1a - #2a2a2a)
+  - White text, bold, uppercase
+  - Subtle inner shadow
+  - Press effect: darker + slight scale
+  - Border: thin light grey outline
   
-- [ ] **Micro-interactions**
-  - Button press feedback
-  - Loading spinners
-  - Success/error toast notifications
-  - Confetti on game end
+- [ ] **Secondary Buttons**
+  - Same style but slightly smaller
+  - Consistent rounded pill design throughout app
+
+#### Timer Display
+- [ ] **Large Countdown Style**
+  - Massive white numbers (like 04:56 screenshot)
+  - "VOTE NOW" / "TIME" header text above
+  - "REMAINING BEFORE VOTE" subtext
+  - Center of screen, highly visible
+  - Pulse animation when < 30 seconds
+  
+#### Thematic Elements
+- [ ] **Miller's Hollow Aesthetic**
+  - Werewolf silhouette art (from box art)
+  - Medieval/rustic theming
+  - Moon phases for night progression
+  - Claw marks or scratch effects
+  - Weathered/vintage look
+  
+- [ ] **Atmospheric Touches**
+  - Dark foggy forest background option
+  - Lantern light effects
+  - Gothic/medieval UI elements
+  - Aged parchment for text areas
+
+#### Animations
+- [ ] **Card Interactions**
+  - Flip animation when revealing roles
+  - Slide-in for role cards during night
+  - Fade transitions between phases
+  - Card shuffle animation on setup
+  
+- [ ] **Phase Transitions**
+  - Fade to black between phases
+  - Moon rising animation for night start
+  - Sun rising animation for day start
+  - Smooth cross-fades throughout
+
+#### Component-Specific Updates
+
+**Setup Screen**
+- [ ] Replace current role buttons with illustrated role cards in grid
+- [ ] Add textured background
+- [ ] Style "PLAY" button to match reference
+- [ ] Add role count badge overlay on cards
+
+**Night Phase**
+- [ ] Center large role card with character illustration
+- [ ] Background darkens around card focus
+- [ ] Role instructions in yellow below card
+- [ ] STOP/PAUSE buttons at bottom in pill style
+
+**Day Phase**  
+- [ ] Huge centered timer display
+- [ ] "VOTE NOW" header styling
+- [ ] Textured background continues
+- [ ] Minimal UI, timer is focus
+
+**Sidebar**
+- [ ] Semi-transparent dark overlay
+- [ ] Weathered paper texture for content areas
+- [ ] Gothic-style section dividers
 
 ## 🎮 Enhancement Category C: Role Guidance System
 
