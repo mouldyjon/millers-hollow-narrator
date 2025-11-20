@@ -66,6 +66,9 @@ export const PlayerList = ({
     eliminatedPlayerNumber: number;
     eliminatedRoleId?: RoleId;
   } | null>(null);
+  const [awaitingRoleReveal, setAwaitingRoleReveal] = useState<number | null>(
+    null,
+  );
 
   const handleEliminateClick = (playerNumber: number) => {
     const player = players.find((p) => p.number === playerNumber);
@@ -86,6 +89,7 @@ export const PlayerList = ({
     onSetRevealedRole(playerNumber, role, roleId);
     onToggleAlive(playerNumber);
     setEliminatingPlayer(null);
+    setAwaitingRoleReveal(null);
 
     // Check for elimination consequences
     const consequences = onCheckEliminationConsequences(playerNumber, roleId);
@@ -109,15 +113,18 @@ export const PlayerList = ({
   const handleAlertConfirm = () => {
     if (!eliminationAlert) return;
 
-    // Handle chain eliminations
+    // Handle chain eliminations - need to reveal role first
     if (
       eliminationAlert.type === "lovers" ||
       eliminationAlert.type === "knight-rusty-sword"
     ) {
-      // Eliminate affected players
-      eliminationAlert.affectedPlayers.forEach((playerNum) => {
-        onToggleAlive(playerNum);
-      });
+      // Show role reveal modal for the first affected player
+      if (eliminationAlert.affectedPlayers.length > 0) {
+        setAwaitingRoleReveal(eliminationAlert.affectedPlayers[0]);
+        // Clear the alert so the modal can be seen
+        setEliminationAlert(null);
+        return;
+      }
     }
 
     setEliminationAlert(null);
@@ -126,50 +133,23 @@ export const PlayerList = ({
   const handleHunterTargetSelect = (targetPlayer: number) => {
     if (!eliminationAlert) return;
 
-    // Eliminate the hunter's target
-    onToggleAlive(targetPlayer);
-
-    // Check if the target has consequences too
-    const targetPlayerData = players.find((p) => p.number === targetPlayer);
-    if (targetPlayerData?.actualRole) {
-      const targetConsequences = onCheckEliminationConsequences(
-        targetPlayer,
-        targetPlayerData.actualRole,
-      );
-      if (targetConsequences.type !== "none") {
-        const alivePlayers = players
-          .filter(
-            (p) =>
-              p.isAlive &&
-              p.number !== targetPlayer &&
-              p.number !== eliminationAlert.eliminatedPlayerNumber,
-          )
-          .map((p) => p.number);
-
-        setEliminationAlert({
-          type: targetConsequences.type as any,
-          message: targetConsequences.message,
-          affectedPlayers: targetConsequences.affectedPlayers,
-          requiresPlayerSelection: targetConsequences.requiresPlayerSelection,
-          availablePlayers: alivePlayers,
-          eliminatedPlayerNumber: targetPlayer,
-          eliminatedRoleId: targetPlayerData.actualRole,
-        });
-        return;
-      }
-    }
-
-    setEliminationAlert(null);
+    // Show role reveal modal for the hunter's target
+    setAwaitingRoleReveal(targetPlayer);
+    // The alert will be cleared after the role is revealed
   };
 
   return (
     <>
-      {eliminatingPlayer !== null && (
+      {(eliminatingPlayer !== null || awaitingRoleReveal !== null) && (
         <RoleRevealModal
-          playerNumber={eliminatingPlayer}
+          playerNumber={eliminatingPlayer || awaitingRoleReveal || 0}
           selectedRoles={selectedRoles}
           onConfirm={handleRoleReveal}
-          onCancel={() => setEliminatingPlayer(null)}
+          onCancel={() => {
+            setEliminatingPlayer(null);
+            setAwaitingRoleReveal(null);
+            setEliminationAlert(null);
+          }}
         />
       )}
 
