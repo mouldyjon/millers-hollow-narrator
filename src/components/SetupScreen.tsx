@@ -1,4 +1,4 @@
-import { Users, Play } from "lucide-react";
+import { Users, Play, Plus, Minus } from "lucide-react";
 import { roles } from "../data/roles";
 import type { RoleId } from "../types/game";
 
@@ -7,6 +7,7 @@ interface SetupScreenProps {
   selectedRoles: RoleId[];
   onPlayerCountChange: (count: number) => void;
   onToggleRole: (roleId: RoleId) => void;
+  onRemoveRole: (roleId: RoleId) => void;
   onStartGame: () => void;
 }
 
@@ -15,19 +16,28 @@ export const SetupScreen = ({
   selectedRoles,
   onPlayerCountChange,
   onToggleRole,
+  onRemoveRole,
   onStartGame,
 }: SetupScreenProps) => {
-  const isValidSetup = selectedRoles.length === playerCount && playerCount >= 8;
-
   const getRoleCount = (roleId: RoleId): number => {
     if (roleId === "two-sisters") return 2;
     if (roleId === "three-brothers") return 3;
     return 1;
   };
 
+  const getSelectedCount = (roleId: RoleId): number => {
+    return selectedRoles.filter((id) => id === roleId).length;
+  };
+
+  const isMultiSelectRole = (roleId: RoleId): boolean => {
+    return roleId === "villager" || roleId === "simple-werewolf";
+  };
+
   const totalRoleSlots = selectedRoles.reduce((sum, roleId) => {
     return sum + getRoleCount(roleId);
   }, 0);
+
+  const isValidSetup = totalRoleSlots === playerCount && playerCount >= 8;
 
   const villageTeamRoles = Object.values(roles).filter(
     (r) => r.team === "village",
@@ -88,29 +98,68 @@ export const SetupScreen = ({
               Village Team
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {villageTeamRoles.map((role) => (
-                <button
-                  key={role.id}
-                  onClick={() => onToggleRole(role.id)}
-                  className={`p-4 rounded-lg text-left transition-colors ${
-                    selectedRoles.includes(role.id)
-                      ? "bg-blue-600 hover:bg-blue-700"
-                      : "bg-slate-700 hover:bg-slate-600"
-                  }`}
-                >
-                  <div className="font-semibold mb-1">
-                    {role.name}
-                    {getRoleCount(role.id) > 1 && (
-                      <span className="ml-2 text-xs bg-slate-900 px-2 py-1 rounded">
-                        ×{getRoleCount(role.id)}
-                      </span>
-                    )}
+              {villageTeamRoles.map((role) => {
+                const selectedCount = getSelectedCount(role.id);
+                const isMultiSelect = isMultiSelectRole(role.id);
+
+                return (
+                  <div
+                    key={role.id}
+                    className={`p-4 rounded-lg transition-colors ${
+                      selectedCount > 0 ? "bg-blue-600" : "bg-slate-700"
+                    }`}
+                  >
+                    <div className="flex items-start justify-between mb-1">
+                      <div className="flex-1">
+                        <div className="font-semibold">
+                          {role.name}
+                          {getRoleCount(role.id) > 1 && !isMultiSelect && (
+                            <span className="ml-2 text-xs bg-slate-900 px-2 py-1 rounded">
+                              ×{getRoleCount(role.id)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      {isMultiSelect ? (
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (selectedCount > 0) onRemoveRole(role.id);
+                            }}
+                            disabled={selectedCount === 0}
+                            className="p-1 rounded bg-slate-800 hover:bg-slate-900 disabled:opacity-30 disabled:cursor-not-allowed"
+                          >
+                            <Minus className="w-4 h-4" />
+                          </button>
+                          <span className="min-w-[2ch] text-center font-bold">
+                            {selectedCount}
+                          </span>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onToggleRole(role.id);
+                            }}
+                            className="p-1 rounded bg-slate-800 hover:bg-slate-900"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => onToggleRole(role.id)}
+                          className="text-sm underline"
+                        >
+                          {selectedCount > 0 ? "Remove" : "Add"}
+                        </button>
+                      )}
+                    </div>
+                    <div className="text-xs text-slate-300">
+                      {role.description}
+                    </div>
                   </div>
-                  <div className="text-xs text-slate-300">
-                    {role.description}
-                  </div>
-                </button>
-              ))}
+                );
+              })}
             </div>
           </div>
 
@@ -120,22 +169,61 @@ export const SetupScreen = ({
               Werewolf Team
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {werewolfTeamRoles.map((role) => (
-                <button
-                  key={role.id}
-                  onClick={() => onToggleRole(role.id)}
-                  className={`p-4 rounded-lg text-left transition-colors ${
-                    selectedRoles.includes(role.id)
-                      ? "bg-red-600 hover:bg-red-700"
-                      : "bg-slate-700 hover:bg-slate-600"
-                  }`}
-                >
-                  <div className="font-semibold mb-1">{role.name}</div>
-                  <div className="text-xs text-slate-300">
-                    {role.description}
+              {werewolfTeamRoles.map((role) => {
+                const selectedCount = getSelectedCount(role.id);
+                const isMultiSelect = isMultiSelectRole(role.id);
+
+                return (
+                  <div
+                    key={role.id}
+                    className={`p-4 rounded-lg transition-colors ${
+                      selectedCount > 0 ? "bg-red-600" : "bg-slate-700"
+                    }`}
+                  >
+                    <div className="flex items-start justify-between mb-1">
+                      <div className="flex-1">
+                        <div className="font-semibold">{role.name}</div>
+                      </div>
+                      {isMultiSelect ? (
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (selectedCount > 0) onRemoveRole(role.id);
+                            }}
+                            disabled={selectedCount === 0}
+                            className="p-1 rounded bg-slate-800 hover:bg-slate-900 disabled:opacity-30 disabled:cursor-not-allowed"
+                          >
+                            <Minus className="w-4 h-4" />
+                          </button>
+                          <span className="min-w-[2ch] text-center font-bold">
+                            {selectedCount}
+                          </span>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onToggleRole(role.id);
+                            }}
+                            className="p-1 rounded bg-slate-800 hover:bg-slate-900"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => onToggleRole(role.id)}
+                          className="text-sm underline"
+                        >
+                          {selectedCount > 0 ? "Remove" : "Add"}
+                        </button>
+                      )}
+                    </div>
+                    <div className="text-xs text-slate-300">
+                      {role.description}
+                    </div>
                   </div>
-                </button>
-              ))}
+                );
+              })}
             </div>
           </div>
 
@@ -145,22 +233,33 @@ export const SetupScreen = ({
               Special Roles
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {soloTeamRoles.map((role) => (
-                <button
-                  key={role.id}
-                  onClick={() => onToggleRole(role.id)}
-                  className={`p-4 rounded-lg text-left transition-colors ${
-                    selectedRoles.includes(role.id)
-                      ? "bg-purple-600 hover:bg-purple-700"
-                      : "bg-slate-700 hover:bg-slate-600"
-                  }`}
-                >
-                  <div className="font-semibold mb-1">{role.name}</div>
-                  <div className="text-xs text-slate-300">
-                    {role.description}
+              {soloTeamRoles.map((role) => {
+                const selectedCount = getSelectedCount(role.id);
+
+                return (
+                  <div
+                    key={role.id}
+                    className={`p-4 rounded-lg transition-colors ${
+                      selectedCount > 0 ? "bg-purple-600" : "bg-slate-700"
+                    }`}
+                  >
+                    <div className="flex items-start justify-between mb-1">
+                      <div className="flex-1">
+                        <div className="font-semibold">{role.name}</div>
+                      </div>
+                      <button
+                        onClick={() => onToggleRole(role.id)}
+                        className="text-sm underline"
+                      >
+                        {selectedCount > 0 ? "Remove" : "Add"}
+                      </button>
+                    </div>
+                    <div className="text-xs text-slate-300">
+                      {role.description}
+                    </div>
                   </div>
-                </button>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>

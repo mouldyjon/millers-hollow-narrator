@@ -46,9 +46,53 @@ export const useGameState = () => {
 
   const toggleRole = (roleId: RoleId) => {
     setGameState((prev) => {
-      const selectedRoles = prev.setup.selectedRoles.includes(roleId)
-        ? prev.setup.selectedRoles.filter((id) => id !== roleId)
-        : [...prev.setup.selectedRoles, roleId];
+      // Roles that can have multiple instances
+      const multiSelectRoles: RoleId[] = ["villager", "simple-werewolf"];
+
+      if (multiSelectRoles.includes(roleId)) {
+        // For multi-select roles, just add another instance
+        const selectedRoles = [...prev.setup.selectedRoles, roleId];
+        return {
+          ...prev,
+          setup: {
+            ...prev.setup,
+            selectedRoles,
+          },
+        };
+      } else {
+        // For single-instance roles, toggle on/off
+        const selectedRoles = prev.setup.selectedRoles.includes(roleId)
+          ? prev.setup.selectedRoles.filter((id) => id !== roleId)
+          : [...prev.setup.selectedRoles, roleId];
+
+        return {
+          ...prev,
+          setup: {
+            ...prev.setup,
+            selectedRoles,
+          },
+        };
+      }
+    });
+  };
+
+  const removeRole = (roleId: RoleId, index?: number) => {
+    setGameState((prev) => {
+      let selectedRoles;
+      if (index !== undefined) {
+        // Remove specific instance at index
+        selectedRoles = prev.setup.selectedRoles.filter((_, i) => i !== index);
+      } else {
+        // Remove first instance of this role
+        const roleIndex = prev.setup.selectedRoles.indexOf(roleId);
+        if (roleIndex >= 0) {
+          selectedRoles = prev.setup.selectedRoles.filter(
+            (_, i) => i !== roleIndex,
+          );
+        } else {
+          selectedRoles = prev.setup.selectedRoles;
+        }
+      }
 
       return {
         ...prev,
@@ -233,6 +277,7 @@ export const useGameState = () => {
     gameState,
     setPlayerCount,
     toggleRole,
+    removeRole,
     setSelectedRoles,
     startGame,
     startDay,

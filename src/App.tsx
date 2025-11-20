@@ -8,6 +8,7 @@ function App() {
     gameState,
     setPlayerCount,
     toggleRole,
+    removeRole,
     startGame,
     startDay,
     startNight,
@@ -29,6 +30,7 @@ function App() {
           selectedRoles={gameState.setup.selectedRoles}
           onPlayerCountChange={setPlayerCount}
           onToggleRole={toggleRole}
+          onRemoveRole={removeRole}
           onStartGame={startGame}
         />
       )}
