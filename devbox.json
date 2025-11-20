@@ -1,0 +1,18 @@
+{
+  "packages": ["nodejs@22"],
+  "shell": {
+    "init_hook": [
+      "echo 'Millers Hollow Narrator - Development Environment'",
+      "echo 'Node version:' && node --version",
+      "echo 'NPM version:' && npm --version",
+      "npm install",
+      "npm install -D @tailwindcss/postcss tailwindcss@latest postcss autoprefixer"
+    ],
+    "scripts": {
+      "install": "npm install",
+      "dev": "npm run dev",
+      "build": "npm run build",
+      "preview": "npm run preview"
+    }
+  }
+}
