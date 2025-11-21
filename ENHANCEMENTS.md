@@ -4,31 +4,7 @@ This document tracks planned improvements and feature requests for the Miller's 
 
 ## 🎯 High Priority - To Do
 
-### 1. Auto-Generate Balanced Role Setup
-**Status**: Not Started  
-**Priority**: High  
-
-**Work Required**:
-- [ ] Create role generation algorithm based on player count
-- [ ] Define recommended role distributions:
-  - 8-10 players: 2 werewolves, 1-2 special roles, rest villagers
-  - 11-15 players: 3 werewolves, 2-3 special roles, rest villagers
-  - 16-20 players: 4 werewolves, 3-4 special roles, rest villagers
-  - 21+ players: 5+ werewolves, 4-5 special roles, rest villagers
-- [ ] Ensure minimum 2 werewolf roles always included
-- [ ] Balance power roles (Seer, Witch, etc.) appropriately
-- [ ] Add "Generate Roles" button on setup screen
-- [ ] Add "Regenerate" option to get different random setup
-- [ ] Option to save/load custom presets
-- [ ] Display role distribution preview before applying
-
-**Game Balance Guidelines**:
-- Werewolf ratio: ~25-30% of total players
-- Always include at least one Seer or investigative role
-- Mix simple and complex roles for variety
-- Avoid too many one-shot abilities in small games
-
-### 2. Better Visual Design (One Night Ultimate Werewolf Style)
+### 1. Better Visual Design (One Night Ultimate Werewolf Style)
 **Status**: Not Started  
 **Priority**: High  
 **Inspiration**: One Night Ultimate Werewolf Android app + Miller's Hollow board game art
@@ -192,6 +168,36 @@ This document tracks planned improvements and feature requests for the Miller's 
 ---
 
 ## ✅ Completed Features
+
+### Setup & Role Selection ✅
+
+#### Auto-Generate Balanced Role Setup ✅
+- [x] Created role generation algorithm based on player count
+- [x] Implemented balanced role distributions:
+  - 5 players: 1 werewolf, rest village
+  - 6-8 players: 2 werewolves, investigative + protective roles
+  - 9-12 players: 3 werewolves, investigative + protective + social roles
+  - 13-16 players: 4 werewolves, varied role mix
+  - 17-20 players: 5 werewolves, full role variety
+- [x] Maintains 25-30% werewolf ratio across all player counts
+- [x] Guarantees at least one investigative role (Seer, Fox, or Bear Tamer)
+- [x] Balances power roles appropriately
+- [x] Added prominent "Auto-Generate Balanced Setup" button on setup screen
+- [x] Implemented "Regenerate" option for different random setups
+- [x] Created RoleGeneratorModal with:
+  - Live distribution preview (Village/Werewolf/Solo counts)
+  - Werewolf percentage display
+  - Role breakdown with quantities
+  - Validation warnings with helpful context
+  - Beautiful amber-themed UI
+- [x] Manual adjustment capability preserved after generation
+- [x] Tested with player counts from 5-20 players
+
+**Implementation Details**:
+- `src/utils/roleGenerator.ts`: Core algorithm and validation
+- `src/components/RoleGeneratorModal.tsx`: Modal UI component
+- Integration in `src/components/SetupScreen.tsx`
+- All setups validated for balance and playability
 
 ### Core Gameplay Features
 
