@@ -4,7 +4,85 @@ This document tracks planned improvements and feature requests for the Miller's 
 
 ## 🎯 High Priority - To Do
 
-### 1. Better Visual Design (One Night Ultimate Werewolf Style)
+### 1. Role Card Visual Redesign
+**Status**: Not Started  
+**Priority**: High  
+**Effort**: Medium-High | **Impact**: High
+
+**Why**: Makes setup phase more engaging and intuitive, transforms role selection from a list into an interactive card game experience.
+
+**Work Required**:
+- [ ] Design card-based layout system (grid instead of list)
+- [ ] Create visual icons/illustrations for each role
+- [ ] Implement card flip animations when selecting/deselecting
+- [ ] Add hover effects (lift, brighten, glow)
+- [ ] Enhance team colour prominence (blue for village, red for werewolf, purple for solo)
+- [ ] Add subtle shadows and depth effects
+- [ ] Implement quantity badges for multi-card roles (villager, simple werewolf)
+- [ ] Create selected state with border glow
+- [ ] Ensure responsive grid layout (mobile, tablet, desktop)
+- [ ] Add card shuffle animation on initial load
+
+**Design Notes**:
+- Inspiration from card games and One Night Ultimate Werewolf
+- Cards should feel tactile and satisfying to interact with
+- Clear visual feedback for all states (unselected, selected, disabled)
+
+### 2. Phase Transition Animations
+**Status**: Not Started  
+**Priority**: High  
+**Effort**: Low-Medium | **Impact**: Medium-High
+
+**Why**: Creates atmosphere, builds tension, and provides natural breaks between game phases. Reduces cognitive load by clearly separating game states.
+
+**Work Required**:
+- [ ] Implement fade-to-black transition between phases
+- [ ] Create "Night falls..." animation with moon rising
+- [ ] Create "Dawn breaks..." animation with sun rising
+- [ ] Add "Day begins..." transition
+- [ ] Implement atmospheric sound effects (optional toggle in settings)
+- [ ] Add subtle ambient sounds (wolves howling at night, birds at dawn)
+- [ ] Create smooth cross-fade animations throughout
+- [ ] Add loading state animations
+- [ ] Ensure transitions don't block game flow (skippable if needed)
+- [ ] Test performance on mobile devices
+
+**Animation Timings**:
+- Fade out: 500ms
+- Hold (black screen): 300ms
+- Fade in with text: 800ms
+- Total: ~1.6s per transition (or skip button)
+
+### 3. Setup Validation & Warnings
+**Status**: Not Started  
+**Priority**: High  
+**Effort**: Low | **Impact**: Medium
+
+**Why**: Prevents narrator errors before game starts, educates new narrators about balanced setups, reduces frustration from unbalanced games.
+
+**Work Required**:
+- [ ] Implement real-time balance validation during role selection
+- [ ] Add warning banners for common issues:
+  - "No investigative role - village will struggle to find werewolves"
+  - "Too many werewolves (>35%) - game unbalanced"
+  - "Too few werewolves (<20%) - village will dominate"
+  - "No protective roles - high elimination rate"
+- [ ] Highlight recommended roles in green
+- [ ] Show role synergies (e.g., "Cupid works well with larger games")
+- [ ] Add "Why?" tooltips explaining warnings
+- [ ] Create severity levels (error, warning, info)
+- [ ] Block game start on critical errors
+- [ ] Allow override with confirmation on warnings
+- [ ] Integrate with auto-generator for comparison
+
+**Validation Rules**:
+- Must have at least 1 werewolf
+- Should have 20-35% werewolves
+- Should have at least 1 investigative role (6+ players)
+- Warn if no protective roles (8+ players)
+- Warn about unused special mechanics
+
+### 4. Better Visual Design (One Night Ultimate Werewolf Style)
 **Status**: Not Started  
 **Priority**: High  
 **Inspiration**: One Night Ultimate Werewolf Android app + Miller's Hollow board game art
@@ -69,6 +147,116 @@ This document tracks planned improvements and feature requests for the Miller's 
 - [ ] Smooth cross-fades throughout
 
 ## 🎨 Medium Priority - To Do
+
+### 1. Quick Action Buttons During Night
+**Status**: Not Started  
+**Priority**: Medium-High  
+**Effort**: Medium | **Impact**: High
+
+**Why**: Reduces modal fatigue, speeds up gameplay, makes the narrator experience smoother and less clicking-heavy.
+
+**Work Required**:
+- [ ] Implement floating action buttons for common tasks during night phase
+- [ ] Add quick-toggle checkboxes for narrator actions (without opening modals)
+- [ ] Implement swipe gestures for mobile (swipe left to mark dead, swipe right to add note)
+- [ ] Add keyboard shortcuts for power users:
+  - `Space` - Mark current action complete
+  - `N` - Next role
+  - `E` - Mark player eliminated
+  - `R` - Reveal role
+  - `?` - Show keyboard shortcuts
+- [ ] Create context menu on player cards (right-click/long-press)
+- [ ] Add quick-access player selector (type number to highlight player)
+- [ ] Implement undo/redo for recent actions
+- [ ] Show floating "Recent Actions" panel with undo buttons
+- [ ] Add gesture hints on first use
+- [ ] Ensure accessibility (keyboard navigation, screen reader support)
+
+**UX Improvements**:
+- Reduce clicks from 3-4 to 1-2 for common actions
+- Less modal interruption = smoother flow
+- Power users can navigate without touching mouse
+- Mobile users get native-feeling gestures
+
+### 2. Player Status At-a-Glance
+**Status**: Not Started  
+**Priority**: Medium-High  
+**Effort**: Low-Medium | **Impact**: Medium-High
+
+**Why**: Reduces information overload during game, helps narrator track game state quickly, improves scannability.
+
+**Work Required**:
+- [ ] Create visual status icons system:
+  - ❤️ Alive (green heart)
+  - 💀 Dead (grey skull)
+  - 👁️ Role revealed (eye icon)
+  - 🎯 Targeted/marked (target icon)
+  - 💑 Lover (heart with link)
+- [ ] Add colour-coded team indicators when role revealed:
+  - Blue border for village team
+  - Red border for werewolf team
+  - Purple border for solo roles
+- [ ] Implement compact card view option (toggle between list and cards)
+- [ ] Add quick filter buttons:
+  - "Show alive only"
+  - "Show dead only"
+  - "Show revealed only"
+  - "Show all" (default)
+- [ ] Create player count summary banner:
+  - "12 alive | 3 dead | 5 roles revealed"
+- [ ] Add search/filter by player number
+- [ ] Implement sorting options (by status, by number, by team)
+- [ ] Show role icons next to revealed players
+- [ ] Add hover tooltips with full player details
+- [ ] Ensure mobile-friendly compact view
+
+**Visual Design**:
+- Icons should be clear at small sizes
+- Colour-blind friendly (icons + colours)
+- High contrast for readability
+- Consistent with overall app theme
+
+### 3. Night Phase Voice Narration
+**Status**: Not Started  
+**Priority**: Medium  
+**Effort**: Medium | **Impact**: Very High (when implemented)
+
+**Why**: Transforms narrator experience from reading a screen to truly guiding the game. Allows narrator to watch players instead of reading instructions. Makes app feel professional and polished.
+
+**Note**: Skipped for now - will be implemented in a future phase.
+
+**Work Required**:
+- [ ] Implement Web Speech API for Text-to-Speech
+- [ ] Add "Speak" button next to each role instruction
+- [ ] Create auto-advance mode with configurable timing
+- [ ] Add voice settings:
+  - Voice selection (male/female, language)
+  - Speed control (0.5x to 2x)
+  - Volume control
+  - Pitch adjustment
+- [ ] Implement auto-play mode:
+  - Automatically read instructions
+  - Auto-advance after configurable delay (5s, 10s, 15s)
+  - Pause/resume controls
+- [ ] Add narration script preview
+- [ ] Create fallback for browsers without TTS support
+- [ ] Add visual indicator when speaking (pulsing icon)
+- [ ] Implement "quiet mode" toggle (text only, no speech)
+- [ ] Save narrator preferences (voice, speed, auto-play)
+- [ ] Test across browsers (Chrome, Safari, Firefox)
+
+**Narration Flow**:
+1. Click "Begin Night" → Auto-narrate "Close your eyes..."
+2. Auto-advance through each role with timing
+3. Visual + audio feedback for current role
+4. Narrator can manually skip/pause/replay
+5. Ends with "Morning comes..." transition
+
+**Browser Compatibility**:
+- Chrome/Edge: Full support
+- Safari: Partial support (limited voices)
+- Firefox: Good support
+- Mobile: Test iOS/Android separately
 
 ### Player & Event Tracking Enhancements
 - [ ] Quick filters for event log (eliminations only, role actions only, etc.)
