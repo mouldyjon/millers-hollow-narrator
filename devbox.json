@@ -6,7 +6,7 @@
       "echo 'Node version:' && node --version",
       "echo 'NPM version:' && npm --version",
       "npm install",
-      "npm install -D @tailwindcss/postcss tailwindcss@latest postcss autoprefixer"
+      "npm install -D @tailwindcss/postcss tailwindcss@latest postcss autoprefixer vite-plugin-pwa"
     ],
     "scripts": {
       "install": "npm install",
