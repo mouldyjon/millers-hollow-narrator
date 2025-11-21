@@ -1,0 +1,24 @@
+<svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Dark background matching app theme -->
+  <rect width="512" height="512" fill="#0f172a" rx="64"/>
+
+  <!-- Moon (werewolf theme) -->
+  <circle cx="256" cy="200" r="80" fill="#fbbf24" opacity="0.9"/>
+  <circle cx="276" cy="190" r="80" fill="#0f172a"/>
+
+  <!-- Stylized werewolf paw print -->
+  <g fill="#d97706" transform="translate(256, 320)">
+    <!-- Main pad -->
+    <ellipse cx="0" cy="20" rx="45" ry="35"/>
+
+    <!-- Toe pads -->
+    <ellipse cx="-35" cy="-15" rx="20" ry="28"/>
+    <ellipse cx="-12" cy="-20" rx="20" ry="28"/>
+    <ellipse cx="12" cy="-20" rx="20" ry="28"/>
+    <ellipse cx="35" cy="-15" rx="20" ry="28"/>
+  </g>
+
+  <!-- Optional: Add text -->
+  <text x="256" y="480" font-family="Arial, sans-serif" font-size="48" font-weight="bold"
+        fill="#f1f5f9" text-anchor="middle">MH</text>
+</svg>

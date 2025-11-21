@@ -3,6 +3,12 @@ import { Users, Play, Plus, Minus, Sparkles } from "lucide-react";
 import { roles } from "../data/roles";
 import type { RoleId } from "../types/game";
 import { RoleGeneratorModal } from "./RoleGeneratorModal";
+import { ValidationBanner } from "./ValidationBanner";
+import {
+  validateSetup,
+  getRecommendedRoles,
+  canStartGame,
+} from "../utils/setupValidation";
 
 interface SetupScreenProps {
   playerCount: number;
@@ -47,7 +53,10 @@ export const SetupScreen = ({
     return sum + getRoleCount(roleId);
   }, 0);
 
-  const isValidSetup = totalRoleSlots === playerCount && playerCount >= 5;
+  // Validation
+  const validationMessages = validateSetup(selectedRoles, playerCount);
+  const recommendedRoles = getRecommendedRoles(selectedRoles, playerCount);
+  const isValidSetup = canStartGame(selectedRoles, playerCount);
 
   const villageTeamRoles = Object.values(roles).filter(
     (r) => r.team === "village",
@@ -125,6 +134,11 @@ export const SetupScreen = ({
           </div>
         </div>
 
+        {/* Validation Messages */}
+        {selectedRoles.length > 0 && (
+          <ValidationBanner messages={validationMessages} />
+        )}
+
         {/* Role Selection */}
         <div className="space-y-6">
           {/* Village Team */}
@@ -136,21 +150,31 @@ export const SetupScreen = ({
               {villageTeamRoles.map((role) => {
                 const selectedCount = getSelectedCount(role.id);
                 const isMultiSelect = isMultiSelectRole(role.id);
+                const isRecommended = recommendedRoles.includes(role.id);
 
                 return (
                   <div
                     key={role.id}
-                    className={`p-4 rounded-lg transition-colors ${
-                      selectedCount > 0 ? "bg-blue-600" : "bg-slate-700"
+                    className={`p-4 rounded-lg transition-all ${
+                      selectedCount > 0
+                        ? "bg-blue-600"
+                        : isRecommended
+                          ? "bg-slate-700 border-2 border-green-500 shadow-lg shadow-green-500/20"
+                          : "bg-slate-700"
                     }`}
                   >
                     <div className="flex items-start justify-between mb-1">
                       <div className="flex-1">
-                        <div className="font-semibold">
+                        <div className="font-semibold flex items-center gap-2">
                           {role.name}
                           {getRoleCount(role.id) > 1 && !isMultiSelect && (
-                            <span className="ml-2 text-xs bg-slate-900 px-2 py-1 rounded">
+                            <span className="text-xs bg-slate-900 px-2 py-1 rounded">
                               ×{getRoleCount(role.id)}
+                            </span>
+                          )}
+                          {isRecommended && selectedCount === 0 && (
+                            <span className="text-xs bg-green-600 text-white px-2 py-1 rounded font-semibold">
+                              Recommended
                             </span>
                           )}
                         </div>
@@ -207,17 +231,29 @@ export const SetupScreen = ({
               {werewolfTeamRoles.map((role) => {
                 const selectedCount = getSelectedCount(role.id);
                 const isMultiSelect = isMultiSelectRole(role.id);
+                const isRecommended = recommendedRoles.includes(role.id);
 
                 return (
                   <div
                     key={role.id}
-                    className={`p-4 rounded-lg transition-colors ${
-                      selectedCount > 0 ? "bg-red-600" : "bg-slate-700"
+                    className={`p-4 rounded-lg transition-all ${
+                      selectedCount > 0
+                        ? "bg-red-600"
+                        : isRecommended
+                          ? "bg-slate-700 border-2 border-green-500 shadow-lg shadow-green-500/20"
+                          : "bg-slate-700"
                     }`}
                   >
                     <div className="flex items-start justify-between mb-1">
                       <div className="flex-1">
-                        <div className="font-semibold">{role.name}</div>
+                        <div className="font-semibold flex items-center gap-2">
+                          {role.name}
+                          {isRecommended && selectedCount === 0 && (
+                            <span className="text-xs bg-green-600 text-white px-2 py-1 rounded font-semibold">
+                              Recommended
+                            </span>
+                          )}
+                        </div>
                       </div>
                       {isMultiSelect ? (
                         <div className="flex items-center gap-2">

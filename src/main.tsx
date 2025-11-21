@@ -4,15 +4,13 @@ import "./index.css";
 import App from "./App.tsx";
 import { ErrorBoundary } from "./components/ErrorBoundary.tsx";
 
-// Register service worker for PWA functionality
-if ("serviceWorker" in navigator) {
+// Register service worker for PWA functionality (production only)
+if ("serviceWorker" in navigator && import.meta.env.PROD) {
   window.addEventListener("load", () => {
     navigator.serviceWorker
       .register("/sw.js")
       .then((registration) => {
-        if (import.meta.env.DEV) {
-          console.log("SW registered:", registration);
-        }
+        console.log("SW registered:", registration);
       })
       .catch((error) => {
         console.error("SW registration failed:", error);
