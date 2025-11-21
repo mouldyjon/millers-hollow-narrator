@@ -1,19 +1,249 @@
+import { useState } from "react";
 import { Sunrise, AlertTriangle, Shield, Skull } from "lucide-react";
 import type { RoleId, Player } from "../types/game";
+import { RoleRevealModal } from "./RoleRevealModal";
+import { EliminationAlert } from "./EliminationAlert";
 
 interface DawnPhaseProps {
   selectedRoles: RoleId[];
   players: Player[];
+  pendingRoleReveals: number[];
   sheriff?: number;
   onStartDay: () => void;
+  onSetPlayerRevealedRole: (
+    playerNumber: number,
+    role: string,
+    roleId?: RoleId,
+  ) => void;
+  onTogglePlayerAlive: (playerNumber: number) => void;
+  onClearPendingReveals: () => void;
+  onCheckEliminationConsequences: (
+    playerNumber: number,
+    roleId?: RoleId,
+  ) => {
+    type:
+      | "none"
+      | "lovers"
+      | "knight-rusty-sword"
+      | "hunter"
+      | "siblings"
+      | "wild-child-transform";
+    affectedPlayers: number[];
+    message: string;
+    requiresPlayerSelection: boolean;
+  };
+  onAddGameEvent: (
+    type: "elimination" | "role_action" | "day_vote" | "special",
+    description: string,
+  ) => void;
 }
 
 export const DawnPhase = ({
   selectedRoles,
   players,
+  pendingRoleReveals,
   sheriff,
   onStartDay,
+  onSetPlayerRevealedRole,
+  onTogglePlayerAlive,
+  onClearPendingReveals,
+  onCheckEliminationConsequences,
+  onAddGameEvent,
 }: DawnPhaseProps) => {
+  const [currentRevealIndex, setCurrentRevealIndex] = useState(0);
+  const [eliminationAlert, setEliminationAlert] = useState<{
+    type:
+      | "lovers"
+      | "knight-rusty-sword"
+      | "hunter"
+      | "siblings"
+      | "wild-child-transform";
+    message: string;
+    affectedPlayers: number[];
+    requiresPlayerSelection: boolean;
+    availablePlayers: number[];
+    eliminatedPlayerNumber: number;
+    eliminatedRoleId?: RoleId;
+  } | null>(null);
+  const [awaitingRoleReveal, setAwaitingRoleReveal] = useState<number | null>(
+    null,
+  );
+
+  // Handle role reveal for the current player
+  const handleRoleReveal = (
+    playerNumber: number,
+    role: string,
+    roleId: RoleId,
+  ) => {
+    onSetPlayerRevealedRole(playerNumber, role, roleId);
+    onAddGameEvent(
+      "elimination",
+      `Player ${playerNumber} (${role}) was eliminated`,
+    );
+
+    // Check for elimination consequences
+    const consequences = onCheckEliminationConsequences(playerNumber, roleId);
+    if (consequences.type !== "none") {
+      const alivePlayers = players
+        .filter((p) => p.isAlive && p.number !== playerNumber)
+        .map((p) => p.number);
+
+      setEliminationAlert({
+        type: consequences.type as any,
+        message: consequences.message,
+        affectedPlayers: consequences.affectedPlayers,
+        requiresPlayerSelection: consequences.requiresPlayerSelection,
+        availablePlayers: alivePlayers,
+        eliminatedPlayerNumber: playerNumber,
+        eliminatedRoleId: roleId,
+      });
+      return; // Don't move to next reveal yet
+    }
+
+    // Move to next pending reveal or clear if done
+    if (currentRevealIndex + 1 < pendingRoleReveals.length) {
+      setCurrentRevealIndex(currentRevealIndex + 1);
+    } else {
+      // All roles revealed, clear the pending list
+      onClearPendingReveals();
+    }
+  };
+
+  const handleAlertConfirm = () => {
+    if (!eliminationAlert) return;
+
+    // Handle chain eliminations - need to kill player then reveal role
+    if (
+      eliminationAlert.type === "lovers" ||
+      eliminationAlert.type === "knight-rusty-sword"
+    ) {
+      // Show role reveal modal for the first affected player
+      if (eliminationAlert.affectedPlayers.length > 0) {
+        const affectedPlayerNumber = eliminationAlert.affectedPlayers[0];
+        // Kill the player first
+        onTogglePlayerAlive(affectedPlayerNumber);
+        // Then show role reveal
+        setAwaitingRoleReveal(affectedPlayerNumber);
+        setEliminationAlert(null);
+        return;
+      }
+    }
+
+    setEliminationAlert(null);
+
+    // Move to next pending reveal or clear if done
+    if (currentRevealIndex + 1 < pendingRoleReveals.length) {
+      setCurrentRevealIndex(currentRevealIndex + 1);
+    } else {
+      onClearPendingReveals();
+    }
+  };
+
+  const handleHunterTargetSelect = (targetPlayer: number) => {
+    if (!eliminationAlert) return;
+
+    // Kill the hunter's target first
+    onTogglePlayerAlive(targetPlayer);
+    // Then show role reveal modal for the hunter's target
+    setAwaitingRoleReveal(targetPlayer);
+    setEliminationAlert(null);
+  };
+
+  const handleChainRoleReveal = (
+    playerNumber: number,
+    role: string,
+    roleId: RoleId,
+  ) => {
+    onSetPlayerRevealedRole(playerNumber, role, roleId);
+    onAddGameEvent(
+      "elimination",
+      `Player ${playerNumber} (${role}) was eliminated`,
+    );
+    setAwaitingRoleReveal(null);
+
+    // Check for more consequences
+    const consequences = onCheckEliminationConsequences(playerNumber, roleId);
+    if (consequences.type !== "none") {
+      const alivePlayers = players
+        .filter((p) => p.isAlive && p.number !== playerNumber)
+        .map((p) => p.number);
+
+      setEliminationAlert({
+        type: consequences.type as any,
+        message: consequences.message,
+        affectedPlayers: consequences.affectedPlayers,
+        requiresPlayerSelection: consequences.requiresPlayerSelection,
+        availablePlayers: alivePlayers,
+        eliminatedPlayerNumber: playerNumber,
+        eliminatedRoleId: roleId,
+      });
+      return;
+    }
+
+    // Continue with next reveal
+    if (currentRevealIndex + 1 < pendingRoleReveals.length) {
+      setCurrentRevealIndex(currentRevealIndex + 1);
+    } else {
+      onClearPendingReveals();
+    }
+  };
+
+  // Show elimination alert if there is one
+  if (eliminationAlert) {
+    return (
+      <EliminationAlert
+        type={eliminationAlert.type}
+        message={eliminationAlert.message}
+        affectedPlayers={eliminationAlert.affectedPlayers}
+        onConfirm={handleAlertConfirm}
+        onSelectPlayer={handleHunterTargetSelect}
+        requiresPlayerSelection={eliminationAlert.requiresPlayerSelection}
+        availablePlayers={eliminationAlert.availablePlayers}
+      />
+    );
+  }
+
+  // Show role reveal for chain eliminations
+  if (awaitingRoleReveal !== null) {
+    return (
+      <RoleRevealModal
+        playerNumber={awaitingRoleReveal}
+        selectedRoles={selectedRoles}
+        onConfirm={handleChainRoleReveal}
+        onCancel={() => {
+          setAwaitingRoleReveal(null);
+          // Continue with next reveal
+          if (currentRevealIndex + 1 < pendingRoleReveals.length) {
+            setCurrentRevealIndex(currentRevealIndex + 1);
+          } else {
+            onClearPendingReveals();
+          }
+        }}
+      />
+    );
+  }
+
+  // Show role reveal modal if there are pending reveals
+  if (
+    pendingRoleReveals.length > 0 &&
+    currentRevealIndex < pendingRoleReveals.length
+  ) {
+    return (
+      <RoleRevealModal
+        playerNumber={pendingRoleReveals[currentRevealIndex]}
+        selectedRoles={selectedRoles}
+        onConfirm={handleRoleReveal}
+        onCancel={() => {
+          // Skip this reveal and move to next
+          if (currentRevealIndex + 1 < pendingRoleReveals.length) {
+            setCurrentRevealIndex(currentRevealIndex + 1);
+          } else {
+            onClearPendingReveals();
+          }
+        }}
+      />
+    );
+  }
   const announcements: {
     icon: React.ReactNode;
     title: string;
@@ -23,44 +253,20 @@ export const DawnPhase = ({
 
   // Check for Bear Tamer
   if (selectedRoles.includes("bear-tamer")) {
-    const bearTamerPlayer = players.find((p) => p.actualRole === "bear-tamer");
-    if (bearTamerPlayer?.isAlive) {
-      // Check if any werewolf is adjacent (player number +/- 1, wrapping around)
-      const playerCount = players.length;
-      const bearTamerNum = bearTamerPlayer.number;
-      const leftNeighbour =
-        bearTamerNum === 1 ? playerCount : bearTamerNum - 1;
-      const rightNeighbour =
-        bearTamerNum === playerCount ? 1 : bearTamerNum + 1;
+    // Check if Bear Tamer is still alive (if we know who they are)
+    const bearTamerRevealed = players.find(
+      (p) => p.actualRole === "bear-tamer" && !p.isAlive,
+    );
 
-      const leftPlayer = players.find((p) => p.number === leftNeighbour);
-      const rightPlayer = players.find((p) => p.number === rightNeighbour);
-
-      const isWerewolf = (player?: Player) => {
-        if (!player?.isAlive) return false;
-        return (
-          player.actualRole === "simple-werewolf" ||
-          player.actualRole === "big-bad-wolf" ||
-          player.actualRole === "white-werewolf" ||
-          player.actualRole === "cursed-wolf-father"
-        );
-      };
-
-      if (isWerewolf(leftPlayer) || isWerewolf(rightPlayer)) {
-        announcements.push({
-          icon: <AlertTriangle className="w-12 h-12 text-yellow-400" />,
-          title: "The Bear Growls!",
-          message: `Grrrrr! The Bear Tamer's bear is growling. A werewolf is adjacent to Player ${bearTamerNum}!`,
-          type: "warning",
-        });
-      } else {
-        announcements.push({
-          icon: <AlertTriangle className="w-12 h-12 text-green-400" />,
-          title: "The Bear is Calm",
-          message: `The Bear Tamer's bear is quiet and peaceful. No werewolves are adjacent to Player ${bearTamerNum}.`,
-          type: "info",
-        });
-      }
+    if (!bearTamerRevealed) {
+      // Bear Tamer hasn't been revealed as dead, so they might be alive
+      announcements.push({
+        icon: <AlertTriangle className="w-12 h-12 text-yellow-400" />,
+        title: "Bear Tamer Announcement",
+        message:
+          "NARRATOR: If the Bear Tamer is adjacent to a werewolf, announce: 'Grrrrr! The bear is growling!' Otherwise announce: 'The bear is calm and quiet.'",
+        type: "warning",
+      });
     }
   }
 
@@ -77,22 +283,18 @@ export const DawnPhase = ({
     }
   }
 
-  // Check for Knight with Rusty Sword infection
-  // Note: This would require tracking who was infected during the night
-  // For now, we'll add a reminder if the role is in play
-  if (selectedRoles.includes("knight-rusty-sword")) {
-    const knightPlayer = players.find(
-      (p) => p.actualRole === "knight-rusty-sword",
-    );
-    if (knightPlayer && !knightPlayer.isAlive) {
-      announcements.push({
-        icon: <Skull className="w-12 h-12 text-red-400" />,
-        title: "Knight with Rusty Sword Reminder",
-        message:
-          "The Knight with Rusty Sword has died. If they struck a player, that player should now reveal their role and be eliminated (they become a werewolf at death).",
-        type: "danger",
-      });
-    }
+  // Check for Knight with Rusty Sword
+  const knightDiedLastNight = players.find(
+    (p) => p.actualRole === "knight-rusty-sword" && !p.isAlive,
+  );
+
+  if (knightDiedLastNight) {
+    announcements.push({
+      icon: <Skull className="w-12 h-12 text-red-400" />,
+      title: "Knight with Rusty Sword Effect",
+      message: `Player ${knightDiedLastNight.number} was the Knight with Rusty Sword. Their right-hand neighbour (Player ${knightDiedLastNight.number === players.length ? 1 : knightDiedLastNight.number + 1}) should have been eliminated during the night (rusty sword struck them).`,
+      type: "danger",
+    });
   }
 
   // If no announcements, add a generic dawn message
@@ -146,7 +348,9 @@ export const DawnPhase = ({
                   <h2 className="text-2xl font-bold mb-2">
                     {announcement.title}
                   </h2>
-                  <p className="text-lg text-slate-200">{announcement.message}</p>
+                  <p className="text-lg text-slate-200">
+                    {announcement.message}
+                  </p>
                 </div>
               </div>
             </div>

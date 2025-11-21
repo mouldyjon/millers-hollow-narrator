@@ -19,14 +19,19 @@ const initialGameState: GameState = {
   nightState: {
     witchHealingPotionUsed: false,
     witchDeathPotionUsed: false,
+    witchPotionUsedThisNight: false,
     cursedWolfFatherInfectionUsed: false,
     stutteringJudgeDoubleVoteUsed: false,
     currentNightNumber: 0,
     whiteWerewolfNight: false,
     completedActions: {},
+    werewolfVictimSelectedThisNight: false,
+    bigBadWolfVictimSelectedThisNight: false,
+    whiteWerewolfVictimSelectedThisNight: false,
   },
   players: createInitialPlayers(8),
   eliminatedPlayers: [],
+  pendingRoleReveals: [],
   currentNightStep: 0,
   gameEvents: [],
 };
@@ -208,6 +213,10 @@ export const useGameState = () => {
         ...prev.nightState,
         currentNightNumber: prev.nightState.currentNightNumber + 1,
         whiteWerewolfNight: prev.nightState.currentNightNumber % 2 === 0,
+        witchPotionUsedThisNight: false, // Reset per-night flag
+        werewolfVictimSelectedThisNight: false,
+        bigBadWolfVictimSelectedThisNight: false,
+        whiteWerewolfVictimSelectedThisNight: false,
       },
     }));
   };
@@ -219,24 +228,48 @@ export const useGameState = () => {
     }));
   };
 
-  const useWitchHealingPotion = () => {
-    setGameState((prev) => ({
-      ...prev,
-      nightState: {
-        ...prev.nightState,
-        witchHealingPotionUsed: true,
-      },
-    }));
+  const useWitchHealingPotion = (playerNumber: number) => {
+    setGameState((prev) => {
+      // Revive the player
+      const updatedPlayers = prev.players.map((p) =>
+        p.number === playerNumber ? { ...p, isAlive: true } : p,
+      );
+
+      return {
+        ...prev,
+        players: updatedPlayers,
+        nightState: {
+          ...prev.nightState,
+          witchHealingPotionUsed: true,
+          witchPotionUsedThisNight: true,
+        },
+      };
+    });
   };
 
-  const useWitchDeathPotion = () => {
-    setGameState((prev) => ({
-      ...prev,
-      nightState: {
-        ...prev.nightState,
-        witchDeathPotionUsed: true,
-      },
-    }));
+  const useWitchDeathPotion = (playerNumber: number) => {
+    setGameState((prev) => {
+      // Kill the player
+      const updatedPlayers = prev.players.map((p) =>
+        p.number === playerNumber ? { ...p, isAlive: false } : p,
+      );
+
+      // Add to pending role reveals
+      const pendingRoleReveals = prev.pendingRoleReveals.includes(playerNumber)
+        ? prev.pendingRoleReveals
+        : [...prev.pendingRoleReveals, playerNumber];
+
+      return {
+        ...prev,
+        players: updatedPlayers,
+        pendingRoleReveals,
+        nightState: {
+          ...prev.nightState,
+          witchDeathPotionUsed: true,
+          witchPotionUsedThisNight: true,
+        },
+      };
+    });
   };
 
   const useCursedWolfFatherInfection = () => {
@@ -332,11 +365,64 @@ export const useGameState = () => {
     }));
   };
 
+  const clearPendingRoleReveals = () => {
+    setGameState((prev) => ({
+      ...prev,
+      pendingRoleReveals: [],
+    }));
+  };
+
   const setWolfHoundTeam = (team: "village" | "werewolf") => {
     setGameState((prev) => ({
       ...prev,
       wolfHoundTeam: team,
     }));
+  };
+
+  const setPlayerWolfHoundTeam = (
+    playerNumber: number,
+    team: "village" | "werewolf",
+  ) => {
+    setGameState((prev) => ({
+      ...prev,
+      players: prev.players.map((p) =>
+        p.number === playerNumber ? { ...p, wolfHoundTeam: team } : p,
+      ),
+    }));
+  };
+
+  const selectWerewolfVictim = (
+    playerNumber: number,
+    werewolfType: "simple" | "big-bad" | "white",
+  ) => {
+    setGameState((prev) => {
+      // Mark player as dead
+      const updatedPlayers = prev.players.map((p) =>
+        p.number === playerNumber ? { ...p, isAlive: false } : p,
+      );
+
+      // Add to pending role reveals (will be revealed at dawn)
+      const pendingRoleReveals = prev.pendingRoleReveals.includes(playerNumber)
+        ? prev.pendingRoleReveals
+        : [...prev.pendingRoleReveals, playerNumber];
+
+      // Set the appropriate flag based on werewolf type
+      const flagUpdates = {
+        simple: { werewolfVictimSelectedThisNight: true },
+        "big-bad": { bigBadWolfVictimSelectedThisNight: true },
+        white: { whiteWerewolfVictimSelectedThisNight: true },
+      };
+
+      return {
+        ...prev,
+        players: updatedPlayers,
+        pendingRoleReveals,
+        nightState: {
+          ...prev.nightState,
+          ...flagUpdates[werewolfType],
+        },
+      };
+    });
   };
 
   const setThiefChosenRole = (roleId: RoleId) => {
@@ -490,6 +576,8 @@ export const useGameState = () => {
     setCupidLovers,
     setWildChildRoleModel,
     setWolfHoundTeam,
+    setPlayerWolfHoundTeam,
+    selectWerewolfVictim,
     setThiefChosenRole,
     setSheriff,
     resetGame,
@@ -498,6 +586,7 @@ export const useGameState = () => {
     updatePlayerNotes,
     setPlayerRevealedRole,
     addGameEvent,
+    clearPendingRoleReveals,
     toggleActionComplete,
     checkEliminationConsequences,
   };

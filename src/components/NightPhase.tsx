@@ -13,6 +13,9 @@ import type { RoleId, NightState, Player, GameEvent } from "../types/game";
 import { RoleActionGuide } from "./RoleActionGuide";
 import { PlayerList } from "./PlayerList";
 import { EventLog } from "./EventLog";
+import { WitchPotionModal } from "./WitchPotionModal";
+import { CupidLoversModal } from "./CupidLoversModal";
+import { WerewolfVictimModal } from "./WerewolfVictimModal";
 
 interface NightPhaseProps {
   selectedRoles: RoleId[];
@@ -20,17 +23,27 @@ interface NightPhaseProps {
   currentNightStep: number;
   players: Player[];
   gameEvents: GameEvent[];
+  cupidLovers?: [number, number];
   onNextStep: () => void;
   onEndNight: () => void;
-  onUseWitchHealingPotion: () => void;
-  onUseWitchDeathPotion: () => void;
+  onUseWitchHealingPotion: (playerNumber: number) => void;
+  onUseWitchDeathPotion: (playerNumber: number) => void;
   onUseCursedWolfFatherInfection: () => void;
+  onSetCupidLovers?: (lover1: number, lover2: number) => void;
+  onSelectWerewolfVictim?: (
+    playerNumber: number,
+    werewolfType: "simple" | "big-bad" | "white",
+  ) => void;
   onTogglePlayerAlive: (playerNumber: number) => void;
   onUpdatePlayerNotes: (playerNumber: number, notes: string) => void;
   onSetPlayerRevealedRole: (
     playerNumber: number,
     role: string,
     roleId?: RoleId,
+  ) => void;
+  onSetPlayerWolfHoundTeam?: (
+    playerNumber: number,
+    team: "village" | "werewolf",
   ) => void;
   onToggleActionComplete: (roleId: RoleId, stepIndex: number) => void;
   onCheckEliminationConsequences: (
@@ -60,20 +73,31 @@ export const NightPhase = ({
   currentNightStep,
   players,
   gameEvents,
+  cupidLovers,
   onNextStep,
   onEndNight,
   onUseWitchHealingPotion,
   onUseWitchDeathPotion,
   onUseCursedWolfFatherInfection,
+  onSetCupidLovers,
+  onSelectWerewolfVictim,
   onTogglePlayerAlive,
   onUpdatePlayerNotes,
   onSetPlayerRevealedRole,
+  onSetPlayerWolfHoundTeam,
   onToggleActionComplete,
   onCheckEliminationConsequences,
   onAddGameEvent,
 }: NightPhaseProps) => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [showSidebar, setShowSidebar] = useState(true);
+  const [witchPotionModal, setWitchPotionModal] = useState<
+    "healing" | "death" | null
+  >(null);
+  const [showCupidModal, setShowCupidModal] = useState(false);
+  const [werewolfVictimModal, setWerewolfVictimModal] = useState<
+    "simple" | "big-bad" | "white" | null
+  >(null);
 
   const isFirstNight = nightState.currentNightNumber === 1;
 
@@ -236,33 +260,114 @@ export const NightPhase = ({
                 </div>
 
                 {/* Role-specific actions */}
+                {currentRole.id === "cupid" && onSetCupidLovers && (
+                  <div className="mt-6">
+                    <button
+                      onClick={() => setShowCupidModal(true)}
+                      className="w-full px-4 py-2 rounded-lg bg-pink-600 hover:bg-pink-700 font-semibold flex items-center justify-center gap-2"
+                    >
+                      <span>
+                        {cupidLovers
+                          ? `Lovers: Player ${cupidLovers[0]} & Player ${cupidLovers[1]}`
+                          : "Select Lovers"}
+                      </span>
+                    </button>
+                  </div>
+                )}
+
+                {currentRole.id === "simple-werewolf" && (
+                  <div className="mt-6">
+                    <button
+                      onClick={() => setWerewolfVictimModal("simple")}
+                      disabled={nightState.werewolfVictimSelectedThisNight}
+                      className={`w-full px-4 py-2 rounded-lg font-semibold ${
+                        nightState.werewolfVictimSelectedThisNight
+                          ? "bg-slate-600 cursor-not-allowed"
+                          : "bg-red-600 hover:bg-red-700"
+                      }`}
+                    >
+                      {nightState.werewolfVictimSelectedThisNight
+                        ? "Victim Selected"
+                        : "Select Victim"}
+                    </button>
+                  </div>
+                )}
+
+                {currentRole.id === "big-bad-wolf" && (
+                  <div className="mt-6">
+                    <button
+                      onClick={() => setWerewolfVictimModal("big-bad")}
+                      disabled={nightState.bigBadWolfVictimSelectedThisNight}
+                      className={`w-full px-4 py-2 rounded-lg font-semibold ${
+                        nightState.bigBadWolfVictimSelectedThisNight
+                          ? "bg-slate-600 cursor-not-allowed"
+                          : "bg-red-600 hover:bg-red-700"
+                      }`}
+                    >
+                      {nightState.bigBadWolfVictimSelectedThisNight
+                        ? "Victim Selected"
+                        : "Select Additional Victim"}
+                    </button>
+                  </div>
+                )}
+
+                {currentRole.id === "white-werewolf" && (
+                  <div className="mt-6">
+                    <button
+                      onClick={() => setWerewolfVictimModal("white")}
+                      disabled={nightState.whiteWerewolfVictimSelectedThisNight}
+                      className={`w-full px-4 py-2 rounded-lg font-semibold ${
+                        nightState.whiteWerewolfVictimSelectedThisNight
+                          ? "bg-slate-600 cursor-not-allowed"
+                          : "bg-red-600 hover:bg-red-700"
+                      }`}
+                    >
+                      {nightState.whiteWerewolfVictimSelectedThisNight
+                        ? "Victim Selected"
+                        : "Eliminate Werewolf (Optional)"}
+                    </button>
+                  </div>
+                )}
+
                 {currentRole.id === "witch" && (
                   <div className="mt-6 space-y-2">
                     <button
-                      onClick={onUseWitchHealingPotion}
-                      disabled={nightState.witchHealingPotionUsed}
+                      onClick={() => setWitchPotionModal("healing")}
+                      disabled={
+                        nightState.witchHealingPotionUsed ||
+                        nightState.witchPotionUsedThisNight
+                      }
                       className={`w-full px-4 py-2 rounded-lg ${
-                        nightState.witchHealingPotionUsed
+                        nightState.witchHealingPotionUsed ||
+                        nightState.witchPotionUsedThisNight
                           ? "bg-slate-600 cursor-not-allowed"
                           : "bg-green-600 hover:bg-green-700"
                       }`}
                     >
                       {nightState.witchHealingPotionUsed
                         ? "Healing Potion Used"
-                        : "Use Healing Potion"}
+                        : nightState.witchPotionUsedThisNight
+                          ? "Potion Already Used This Night"
+                          : "Use Healing Potion"}
                     </button>
                     <button
-                      onClick={onUseWitchDeathPotion}
-                      disabled={nightState.witchDeathPotionUsed}
+                      onClick={() => setWitchPotionModal("death")}
+                      disabled={
+                        nightState.witchDeathPotionUsed ||
+                        nightState.witchPotionUsedThisNight
+                      }
                       className={`w-full px-4 py-2 rounded-lg ${
-                        nightState.witchDeathPotionUsed
+                        nightState.witchDeathPotionUsed ||
+                        nightState.witchPotionUsedThisNight
                           ? "bg-slate-600 cursor-not-allowed"
                           : "bg-red-600 hover:bg-red-700"
                       }`}
                     >
                       {nightState.witchDeathPotionUsed
                         ? "Death Potion Used"
-                        : "Use Death Potion"}
+                        : nightState.witchPotionUsedThisNight
+                          ? "Potion Already Used This Night"
+                          : "Use Death Potion"}
                     </button>
                   </div>
                 )}
@@ -367,6 +472,7 @@ export const NightPhase = ({
                 onToggleAlive={onTogglePlayerAlive}
                 onSetRevealedRole={onSetPlayerRevealedRole}
                 onUpdateNotes={onUpdatePlayerNotes}
+                onSetWolfHoundTeam={onSetPlayerWolfHoundTeam}
                 onCheckEliminationConsequences={onCheckEliminationConsequences}
                 onAddGameEvent={onAddGameEvent}
               />
@@ -388,6 +494,72 @@ export const NightPhase = ({
           )}
         </button>
       </div>
+
+      {/* Witch Potion Modal */}
+      {witchPotionModal && (
+        <WitchPotionModal
+          potionType={witchPotionModal}
+          players={players}
+          onConfirm={(playerNumber) => {
+            if (witchPotionModal === "healing") {
+              onUseWitchHealingPotion(playerNumber);
+              onAddGameEvent(
+                "role_action",
+                `Witch used healing potion on Player ${playerNumber}`,
+              );
+            } else {
+              onUseWitchDeathPotion(playerNumber);
+              onAddGameEvent(
+                "role_action",
+                `Witch used death potion on Player ${playerNumber}`,
+              );
+            }
+            setWitchPotionModal(null);
+          }}
+          onCancel={() => setWitchPotionModal(null)}
+        />
+      )}
+
+      {/* Cupid Lovers Modal */}
+      {showCupidModal && onSetCupidLovers && (
+        <CupidLoversModal
+          players={players}
+          currentLovers={cupidLovers}
+          onConfirm={(lover1, lover2) => {
+            onSetCupidLovers(lover1, lover2);
+            onAddGameEvent(
+              "role_action",
+              `Cupid selected Player ${lover1} and Player ${lover2} as lovers`,
+            );
+            setShowCupidModal(false);
+          }}
+          onCancel={() => setShowCupidModal(false)}
+        />
+      )}
+
+      {/* Werewolf Victim Modal */}
+      {werewolfVictimModal && onSelectWerewolfVictim && (
+        <WerewolfVictimModal
+          players={players}
+          werewolfType={werewolfVictimModal}
+          onConfirm={(playerNumber) => {
+            // Eliminate the player and mark as selected
+            onSelectWerewolfVictim(playerNumber, werewolfVictimModal);
+
+            const werewolfTypeNames = {
+              simple: "Werewolves",
+              "big-bad": "Big Bad Wolf",
+              white: "White Werewolf",
+            };
+            onAddGameEvent(
+              "role_action",
+              `${werewolfTypeNames[werewolfVictimModal]} eliminated Player ${playerNumber}`,
+            );
+            setWerewolfVictimModal(null);
+          }}
+          onCancel={() => setWerewolfVictimModal(null)}
+        />
+      )}
     </div>
   );
 };

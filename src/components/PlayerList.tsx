@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { User, Skull, Eye } from "lucide-react";
+import { User, Skull, Eye, Users, Moon } from "lucide-react";
 import { RoleRevealModal } from "./RoleRevealModal";
 import { EliminationAlert } from "./EliminationAlert";
 import type { RoleId } from "../types/game";
@@ -10,6 +10,7 @@ interface Player {
   revealedRole?: string;
   actualRole?: RoleId;
   notes?: string;
+  wolfHoundTeam?: "village" | "werewolf";
 }
 
 interface PlayerListProps {
@@ -23,6 +24,10 @@ interface PlayerListProps {
     roleId?: RoleId,
   ) => void;
   onUpdateNotes: (playerNumber: number, notes: string) => void;
+  onSetWolfHoundTeam?: (
+    playerNumber: number,
+    team: "village" | "werewolf",
+  ) => void;
   onCheckEliminationConsequences: (
     playerNumber: number,
     roleId?: RoleId,
@@ -51,6 +56,7 @@ export const PlayerList = ({
   onToggleAlive,
   onSetRevealedRole,
   onUpdateNotes,
+  onSetWolfHoundTeam,
   onCheckEliminationConsequences,
   onAddGameEvent,
 }: PlayerListProps) => {
@@ -220,6 +226,43 @@ export const PlayerList = ({
                 <div className="mb-2 px-2 py-1 bg-blue-900 rounded text-sm flex items-center gap-2">
                   <Eye className="w-4 h-4" />
                   <span>Role: {player.revealedRole}</span>
+                </div>
+              )}
+
+              {/* Wolf-Hound Team Toggle - only show if Wolf-Hound is in the game */}
+              {selectedRoles.includes("wolf-hound") && onSetWolfHoundTeam && (
+                <div className="mb-2">
+                  <label className="text-xs text-slate-400 mb-1 block">
+                    Wolf-Hound Allegiance:
+                  </label>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() =>
+                        onSetWolfHoundTeam(player.number, "village")
+                      }
+                      className={`flex-1 px-3 py-1.5 rounded text-sm font-semibold transition-colors flex items-center justify-center gap-1.5 ${
+                        player.wolfHoundTeam === "village"
+                          ? "bg-blue-600 text-white"
+                          : "bg-slate-600 text-slate-300 hover:bg-slate-500"
+                      }`}
+                    >
+                      <Users className="w-3.5 h-3.5" />
+                      Village
+                    </button>
+                    <button
+                      onClick={() =>
+                        onSetWolfHoundTeam(player.number, "werewolf")
+                      }
+                      className={`flex-1 px-3 py-1.5 rounded text-sm font-semibold transition-colors flex items-center justify-center gap-1.5 ${
+                        player.wolfHoundTeam === "werewolf"
+                          ? "bg-red-600 text-white"
+                          : "bg-slate-600 text-slate-300 hover:bg-slate-500"
+                      }`}
+                    >
+                      <Moon className="w-3.5 h-3.5" />
+                      Werewolf
+                    </button>
+                  </div>
                 </div>
               )}
 

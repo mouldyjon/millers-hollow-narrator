@@ -50,11 +50,15 @@ export interface GameSetup {
 export interface NightState {
   witchHealingPotionUsed: boolean;
   witchDeathPotionUsed: boolean;
+  witchPotionUsedThisNight: boolean; // Track if any potion was used this night
   cursedWolfFatherInfectionUsed: boolean;
   stutteringJudgeDoubleVoteUsed: boolean;
   currentNightNumber: number;
   whiteWerewolfNight: boolean;
   completedActions: Record<string, boolean[]>;
+  werewolfVictimSelectedThisNight: boolean;
+  bigBadWolfVictimSelectedThisNight: boolean;
+  whiteWerewolfVictimSelectedThisNight: boolean;
 }
 
 export interface Player {
@@ -63,6 +67,7 @@ export interface Player {
   revealedRole?: string;
   actualRole?: RoleId;
   notes?: string;
+  wolfHoundTeam?: "village" | "werewolf";
 }
 
 export interface GameEvent {
@@ -78,6 +83,7 @@ export interface GameState {
   nightState: NightState;
   players: Player[];
   eliminatedPlayers: number[];
+  pendingRoleReveals: number[]; // Players who died this night and need role revealed at dawn
   cupidLovers?: [number, number];
   wildChildRoleModel?: number;
   wolfHoundTeam?: "village" | "werewolf";

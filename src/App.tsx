@@ -18,9 +18,13 @@ function App() {
     useWitchHealingPotion,
     useWitchDeathPotion,
     useCursedWolfFatherInfection,
+    setCupidLovers,
+    selectWerewolfVictim,
     togglePlayerAlive,
     updatePlayerNotes,
     setPlayerRevealedRole,
+    setPlayerWolfHoundTeam,
+    clearPendingRoleReveals,
     toggleActionComplete,
     checkEliminationConsequences,
     addGameEvent,
@@ -47,14 +51,18 @@ function App() {
           currentNightStep={gameState.currentNightStep}
           players={gameState.players}
           gameEvents={gameState.gameEvents}
+          cupidLovers={gameState.cupidLovers}
           onNextStep={nextNightStep}
           onEndNight={startDawn}
           onUseWitchHealingPotion={useWitchHealingPotion}
           onUseWitchDeathPotion={useWitchDeathPotion}
           onUseCursedWolfFatherInfection={useCursedWolfFatherInfection}
+          onSetCupidLovers={setCupidLovers}
+          onSelectWerewolfVictim={selectWerewolfVictim}
           onTogglePlayerAlive={togglePlayerAlive}
           onUpdatePlayerNotes={updatePlayerNotes}
           onSetPlayerRevealedRole={setPlayerRevealedRole}
+          onSetPlayerWolfHoundTeam={setPlayerWolfHoundTeam}
           onToggleActionComplete={toggleActionComplete}
           onCheckEliminationConsequences={checkEliminationConsequences}
           onAddGameEvent={addGameEvent}
@@ -65,8 +73,14 @@ function App() {
         <DawnPhase
           selectedRoles={gameState.setup.selectedRoles}
           players={gameState.players}
+          pendingRoleReveals={gameState.pendingRoleReveals}
           sheriff={gameState.sheriff}
           onStartDay={startDay}
+          onSetPlayerRevealedRole={setPlayerRevealedRole}
+          onTogglePlayerAlive={togglePlayerAlive}
+          onClearPendingReveals={clearPendingRoleReveals}
+          onCheckEliminationConsequences={checkEliminationConsequences}
+          onAddGameEvent={addGameEvent}
         />
       )}
 
