@@ -19,6 +19,7 @@ function App() {
     useWitchDeathPotion,
     useCursedWolfFatherInfection,
     setCupidLovers,
+    setWildChildRoleModel,
     selectWerewolfVictim,
     togglePlayerAlive,
     updatePlayerNotes,
@@ -52,12 +53,14 @@ function App() {
           players={gameState.players}
           gameEvents={gameState.gameEvents}
           cupidLovers={gameState.cupidLovers}
+          wildChildRoleModel={gameState.wildChildRoleModel}
           onNextStep={nextNightStep}
           onEndNight={startDawn}
           onUseWitchHealingPotion={useWitchHealingPotion}
           onUseWitchDeathPotion={useWitchDeathPotion}
           onUseCursedWolfFatherInfection={useCursedWolfFatherInfection}
           onSetCupidLovers={setCupidLovers}
+          onSetWildChildRoleModel={setWildChildRoleModel}
           onSelectWerewolfVictim={selectWerewolfVictim}
           onTogglePlayerAlive={togglePlayerAlive}
           onUpdatePlayerNotes={updatePlayerNotes}
@@ -84,7 +87,20 @@ function App() {
         />
       )}
 
-      {gameState.phase === "day" && <DayPhase onStartNight={startNight} />}
+      {gameState.phase === "day" && (
+        <DayPhase
+          selectedRoles={gameState.setup.selectedRoles}
+          players={gameState.players}
+          gameEvents={gameState.gameEvents}
+          onStartNight={startNight}
+          onTogglePlayerAlive={togglePlayerAlive}
+          onUpdatePlayerNotes={updatePlayerNotes}
+          onSetPlayerRevealedRole={setPlayerRevealedRole}
+          onSetPlayerWolfHoundTeam={setPlayerWolfHoundTeam}
+          onCheckEliminationConsequences={checkEliminationConsequences}
+          onAddGameEvent={addGameEvent}
+        />
+      )}
 
       {/* Floating Reset Button */}
       {gameState.phase !== "setup" && (

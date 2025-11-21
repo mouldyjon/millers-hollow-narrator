@@ -16,6 +16,7 @@ import { EventLog } from "./EventLog";
 import { WitchPotionModal } from "./WitchPotionModal";
 import { CupidLoversModal } from "./CupidLoversModal";
 import { WerewolfVictimModal } from "./WerewolfVictimModal";
+import { WildChildRoleModelModal } from "./WildChildRoleModelModal";
 
 interface NightPhaseProps {
   selectedRoles: RoleId[];
@@ -24,12 +25,14 @@ interface NightPhaseProps {
   players: Player[];
   gameEvents: GameEvent[];
   cupidLovers?: [number, number];
+  wildChildRoleModel?: number;
   onNextStep: () => void;
   onEndNight: () => void;
   onUseWitchHealingPotion: (playerNumber: number) => void;
   onUseWitchDeathPotion: (playerNumber: number) => void;
   onUseCursedWolfFatherInfection: () => void;
   onSetCupidLovers?: (lover1: number, lover2: number) => void;
+  onSetWildChildRoleModel?: (playerNumber: number) => void;
   onSelectWerewolfVictim?: (
     playerNumber: number,
     werewolfType: "simple" | "big-bad" | "white",
@@ -74,12 +77,14 @@ export const NightPhase = ({
   players,
   gameEvents,
   cupidLovers,
+  wildChildRoleModel,
   onNextStep,
   onEndNight,
   onUseWitchHealingPotion,
   onUseWitchDeathPotion,
   onUseCursedWolfFatherInfection,
   onSetCupidLovers,
+  onSetWildChildRoleModel,
   onSelectWerewolfVictim,
   onTogglePlayerAlive,
   onUpdatePlayerNotes,
@@ -95,6 +100,7 @@ export const NightPhase = ({
     "healing" | "death" | null
   >(null);
   const [showCupidModal, setShowCupidModal] = useState(false);
+  const [showWildChildModal, setShowWildChildModal] = useState(false);
   const [werewolfVictimModal, setWerewolfVictimModal] = useState<
     "simple" | "big-bad" | "white" | null
   >(null);
@@ -270,6 +276,21 @@ export const NightPhase = ({
                         {cupidLovers
                           ? `Lovers: Player ${cupidLovers[0]} & Player ${cupidLovers[1]}`
                           : "Select Lovers"}
+                      </span>
+                    </button>
+                  </div>
+                )}
+
+                {currentRole.id === "wild-child" && onSetWildChildRoleModel && (
+                  <div className="mt-6">
+                    <button
+                      onClick={() => setShowWildChildModal(true)}
+                      className="w-full px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 font-semibold flex items-center justify-center gap-2"
+                    >
+                      <span>
+                        {wildChildRoleModel
+                          ? `Role Model: Player ${wildChildRoleModel}`
+                          : "Select Role Model"}
                       </span>
                     </button>
                   </div>
@@ -534,6 +555,23 @@ export const NightPhase = ({
             setShowCupidModal(false);
           }}
           onCancel={() => setShowCupidModal(false)}
+        />
+      )}
+
+      {/* Wild Child Role Model Modal */}
+      {showWildChildModal && onSetWildChildRoleModel && (
+        <WildChildRoleModelModal
+          players={players}
+          currentRoleModel={wildChildRoleModel}
+          onConfirm={(roleModelNumber) => {
+            onSetWildChildRoleModel(roleModelNumber);
+            onAddGameEvent(
+              "role_action",
+              `Wild Child selected Player ${roleModelNumber} as role model`,
+            );
+            setShowWildChildModal(false);
+          }}
+          onCancel={() => setShowWildChildModal(false)}
         />
       )}
 

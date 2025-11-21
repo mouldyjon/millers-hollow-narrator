@@ -107,6 +107,22 @@ const roleActions: Record<string, ActionStep[]> = {
     { text: 'If yes, make growling sound: "Grrrr! The bear is growling!"' },
     { text: 'If no, say: "The bear is calm and quiet"' },
   ],
+  actor: [
+    {
+      text: "At game start, select 3 role cards for the Actor to use",
+      important: true,
+    },
+    { text: "Record these 3 roles in the Actor player's notes" },
+    {
+      text: "Each night, the Actor can use ONE of their 3 role powers",
+      important: true,
+    },
+    { text: "Ask which role power they want to use tonight" },
+    { text: "Perform that role's action as if they were that role" },
+    {
+      text: "Note: Some powers may be limited use (e.g., Witch potions)",
+    },
+  ],
 };
 
 export const RoleActionGuide = ({
