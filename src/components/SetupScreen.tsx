@@ -1,6 +1,8 @@
-import { Users, Play, Plus, Minus } from "lucide-react";
+import { useState } from "react";
+import { Users, Play, Plus, Minus, Sparkles } from "lucide-react";
 import { roles } from "../data/roles";
 import type { RoleId } from "../types/game";
+import { RoleGeneratorModal } from "./RoleGeneratorModal";
 
 interface SetupScreenProps {
   playerCount: number;
@@ -8,6 +10,7 @@ interface SetupScreenProps {
   onPlayerCountChange: (count: number) => void;
   onToggleRole: (roleId: RoleId) => void;
   onRemoveRole: (roleId: RoleId) => void;
+  onSetRoles: (roles: RoleId[]) => void;
   onStartGame: () => void;
 }
 
@@ -17,8 +20,15 @@ export const SetupScreen = ({
   onPlayerCountChange,
   onToggleRole,
   onRemoveRole,
+  onSetRoles,
   onStartGame,
 }: SetupScreenProps) => {
+  const [showGeneratorModal, setShowGeneratorModal] = useState(false);
+
+  const handleGeneratedRoles = (generatedRoles: RoleId[]) => {
+    onSetRoles(generatedRoles);
+    setShowGeneratorModal(false);
+  };
   const getRoleCount = (roleId: RoleId): number => {
     if (roleId === "two-sisters") return 2;
     if (roleId === "three-brothers") return 3;
@@ -87,6 +97,31 @@ export const SetupScreen = ({
                 {totalRoleSlots} / {playerCount} roles selected
               </span>
             </div>
+          </div>
+        </div>
+
+        {/* Auto-Generate Button */}
+        <div className="bg-gradient-to-r from-amber-600 to-amber-700 rounded-lg p-6 mb-6">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-2">
+                <Sparkles className="w-6 h-6 text-amber-100" />
+                <h2 className="text-2xl font-semibold text-amber-50">
+                  Auto-Generate Balanced Setup
+                </h2>
+              </div>
+              <p className="text-amber-100 text-sm">
+                Let the narrator assistant create a balanced role setup for you
+                based on your player count.
+              </p>
+            </div>
+            <button
+              onClick={() => setShowGeneratorModal(true)}
+              className="ml-4 px-6 py-3 rounded-lg bg-white hover:bg-amber-50 text-amber-700 font-semibold transition-colors flex items-center gap-2 whitespace-nowrap"
+            >
+              <Sparkles className="w-5 h-5" />
+              Generate Roles
+            </button>
           </div>
         </div>
 
@@ -286,6 +321,15 @@ export const SetupScreen = ({
           </p>
         )}
       </div>
+
+      {/* Role Generator Modal */}
+      {showGeneratorModal && (
+        <RoleGeneratorModal
+          playerCount={playerCount}
+          onConfirm={handleGeneratedRoles}
+          onClose={() => setShowGeneratorModal(false)}
+        />
+      )}
     </div>
   );
 };

@@ -10,6 +10,7 @@ function App() {
     setPlayerCount,
     toggleRole,
     removeRole,
+    setSelectedRoles,
     startGame,
     startDawn,
     startDay,
@@ -41,6 +42,7 @@ function App() {
           onPlayerCountChange={setPlayerCount}
           onToggleRole={toggleRole}
           onRemoveRole={removeRole}
+          onSetRoles={setSelectedRoles}
           onStartGame={startGame}
         />
       )}
