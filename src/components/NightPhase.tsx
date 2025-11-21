@@ -130,17 +130,22 @@ export const NightPhase = ({
 
   const speak = (text: string) => {
     if ("speechSynthesis" in window) {
+      // Cancel any existing speech first
       window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 0.9;
-      utterance.pitch = 0.8;
-      utterance.volume = 1;
 
-      utterance.onstart = () => setIsSpeaking(true);
-      utterance.onend = () => setIsSpeaking(false);
-      utterance.onerror = () => setIsSpeaking(false);
+      // Small delay to ensure cancellation completed
+      setTimeout(() => {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 0.9;
+        utterance.pitch = 0.8;
+        utterance.volume = 1;
 
-      window.speechSynthesis.speak(utterance);
+        utterance.onstart = () => setIsSpeaking(true);
+        utterance.onend = () => setIsSpeaking(false);
+        utterance.onerror = () => setIsSpeaking(false);
+
+        window.speechSynthesis.speak(utterance);
+      }, 50);
     }
   };
 

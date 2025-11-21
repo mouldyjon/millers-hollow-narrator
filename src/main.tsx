@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.tsx";
+import { ErrorBoundary } from "./components/ErrorBoundary.tsx";
 
 // Register service worker for PWA functionality
 if ("serviceWorker" in navigator) {
@@ -9,16 +10,25 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker
       .register("/sw.js")
       .then((registration) => {
-        console.log("SW registered:", registration);
+        if (import.meta.env.DEV) {
+          console.log("SW registered:", registration);
+        }
       })
       .catch((error) => {
-        console.log("SW registration failed:", error);
+        console.error("SW registration failed:", error);
       });
   });
 }
 
-createRoot(document.getElementById("root")!).render(
+const rootElement = document.getElementById("root");
+if (!rootElement) {
+  throw new Error("Root element not found. Unable to mount React application.");
+}
+
+createRoot(rootElement).render(
   <StrictMode>
-    <App />
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
   </StrictMode>,
 );

@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { GameState, RoleId } from "../types/game";
+
+const STORAGE_KEY = "millers-hollow-game-state";
 
 const createInitialPlayers = (count: number) => {
   return Array.from({ length: count }, (_, i) => ({
@@ -36,8 +38,38 @@ const initialGameState: GameState = {
   gameEvents: [],
 };
 
+// Load saved state from localStorage
+const loadSavedState = (): GameState => {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      // Restore Date objects for gameEvents
+      if (parsed.gameEvents) {
+        parsed.gameEvents = parsed.gameEvents.map((event: any) => ({
+          ...event,
+          timestamp: new Date(event.timestamp),
+        }));
+      }
+      return parsed;
+    }
+  } catch (error) {
+    console.error("Failed to load game state:", error);
+  }
+  return initialGameState;
+};
+
 export const useGameState = () => {
-  const [gameState, setGameState] = useState<GameState>(initialGameState);
+  const [gameState, setGameState] = useState<GameState>(loadSavedState);
+
+  // Save state to localStorage whenever it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState));
+    } catch (error) {
+      console.error("Failed to save game state:", error);
+    }
+  }, [gameState]);
 
   const setPlayerCount = (count: number) => {
     setGameState((prev) => ({
@@ -305,6 +337,7 @@ export const useGameState = () => {
 
   const resetGame = () => {
     setGameState(initialGameState);
+    localStorage.removeItem(STORAGE_KEY);
   };
 
   const setPhase = (phase: "setup" | "night" | "day" | "ended") => {
@@ -470,10 +503,7 @@ export const useGameState = () => {
     const state = gameState;
 
     // Check if eliminated player is a lover
-    if (
-      state.cupidLovers &&
-      state.cupidLovers.includes(playerNumber as 1 | 2)
-    ) {
+    if (state.cupidLovers && state.cupidLovers.includes(playerNumber)) {
       const otherLover = state.cupidLovers.find((p) => p !== playerNumber);
       if (otherLover) {
         const otherPlayer = state.players.find((p) => p.number === otherLover);

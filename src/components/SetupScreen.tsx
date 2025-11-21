@@ -47,7 +47,7 @@ export const SetupScreen = ({
     return sum + getRoleCount(roleId);
   }, 0);
 
-  const isValidSetup = totalRoleSlots === playerCount && playerCount >= 8;
+  const isValidSetup = totalRoleSlots === playerCount && playerCount >= 5;
 
   const villageTeamRoles = Object.values(roles).filter(
     (r) => r.team === "village",
@@ -72,7 +72,7 @@ export const SetupScreen = ({
           </div>
           <div className="flex items-center gap-4">
             <button
-              onClick={() => onPlayerCountChange(Math.max(8, playerCount - 1))}
+              onClick={() => onPlayerCountChange(Math.max(5, playerCount - 1))}
               className="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg font-semibold"
             >
               -

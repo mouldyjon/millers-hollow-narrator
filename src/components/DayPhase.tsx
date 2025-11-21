@@ -69,10 +69,8 @@ export const DayPhase = ({
   const [showSidebar, setShowSidebar] = useState(true);
 
   useEffect(() => {
-    let interval: number | undefined;
-
     if (isRunning && timeRemaining > 0) {
-      interval = window.setInterval(() => {
+      const interval = window.setInterval(() => {
         setTimeRemaining((prev) => {
           if (prev <= 1) {
             setIsRunning(false);
@@ -82,11 +80,9 @@ export const DayPhase = ({
           return prev - 1;
         });
       }, 1000);
-    }
 
-    return () => {
-      if (interval) clearInterval(interval);
-    };
+      return () => clearInterval(interval);
+    }
   }, [isRunning, timeRemaining]);
 
   const formatTime = (seconds: number): string => {
