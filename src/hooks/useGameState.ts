@@ -267,9 +267,15 @@ export const useGameState = () => {
         p.number === playerNumber ? { ...p, isAlive: true } : p,
       );
 
+      // Remove from pending role reveals since they're not dead anymore
+      const pendingRoleReveals = prev.pendingRoleReveals.filter(
+        (p) => p !== playerNumber,
+      );
+
       return {
         ...prev,
         players: updatedPlayers,
+        pendingRoleReveals,
         nightState: {
           ...prev.nightState,
           witchHealingPotionUsed: true,

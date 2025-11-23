@@ -28,30 +28,43 @@ This document tracks planned improvements and feature requests for the Miller's 
 - Cards should feel tactile and satisfying to interact with
 - Clear visual feedback for all states (unselected, selected, disabled)
 
-### 2. Phase Transition Animations
-**Status**: Not Started  
+### 2. Phase Transition Animations ✅
+**Status**: Completed  
 **Priority**: High  
 **Effort**: Low-Medium | **Impact**: Medium-High
 
 **Why**: Creates atmosphere, builds tension, and provides natural breaks between game phases. Reduces cognitive load by clearly separating game states.
 
-**Work Required**:
-- [ ] Implement fade-to-black transition between phases
-- [ ] Create "Night falls..." animation with moon rising
-- [ ] Create "Dawn breaks..." animation with sun rising
-- [ ] Add "Day begins..." transition
-- [ ] Implement atmospheric sound effects (optional toggle in settings)
-- [ ] Add subtle ambient sounds (wolves howling at night, birds at dawn)
-- [ ] Create smooth cross-fade animations throughout
-- [ ] Add loading state animations
-- [ ] Ensure transitions don't block game flow (skippable if needed)
-- [ ] Test performance on mobile devices
+**Work Completed**:
+- [x] Implement smooth animated transitions between major phases
+- [x] Create "Night falls..." animation with moon icon and glow effects
+- [x] Create "Dawn breaks..." animation with sunrise icon
+- [x] Add floating particle effects for atmosphere
+- [x] Implement smooth easing and timing functions
+- [x] Ensure transitions don't block game flow (skippable via Space/Enter/Escape/Click)
+- [x] Test performance on mobile devices
+- [x] Optimise UX flow by removing redundant Day transition
+- [ ] Implement atmospheric sound effects (optional toggle in settings) - Future enhancement
+- [ ] Add subtle ambient sounds (wolves howling at night, birds at dawn) - Future enhancement
 
-**Animation Timings**:
-- Fade out: 500ms
-- Hold (black screen): 300ms
-- Fade in with text: 800ms
-- Total: ~1.6s per transition (or skip button)
+**Implementation Details**:
+- Created `PhaseTransition.tsx` component with two transition types (Night, Dawn)
+- Beautiful gradient backgrounds (night: deep indigo, dawn: amber/orange)
+- Animated floating icons with scale, rotation, and glow effects
+- 30 floating particles for atmospheric effect
+- Duration: 3.5 seconds (provides reading time for narrator)
+- Skip options: Space/Enter/Escape keys or click anywhere
+- Uses `requestAnimationFrame` for smooth 60fps animations
+- Easing functions for natural motion
+
+**UX Decision**:
+- Removed Day transition: Dawn → Day happens without transition for better flow
+- Reasoning: Dawn and Day are conceptually the same phase (village awake), and another transition after role reveals felt redundant
+- Final flow: Night (roles act) → **[Dawn transition]** → Dawn (reveal deaths) → Day (discussion) → **[Night transition]** → repeat
+
+**Files Modified**:
+- `src/components/PhaseTransition.tsx` (new)
+- `src/App.tsx` (integrated transitions)
 
 ### 3. Setup Validation & Warnings
 **Status**: Not Started  
