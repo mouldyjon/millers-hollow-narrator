@@ -34,6 +34,22 @@ const SPECIAL_WEREWOLF_ROLES: RoleId[] = [
 ];
 
 /**
+ * Get the number of player slots a role occupies
+ */
+const getRoleSlotCount = (roleId: RoleId): number => {
+  if (roleId === "two-sisters") return 2;
+  if (roleId === "three-brothers") return 3;
+  return 1;
+};
+
+/**
+ * Calculate total player slots from an array of roles
+ */
+const calculateTotalSlots = (roles: RoleId[]): number => {
+  return roles.reduce((sum, roleId) => sum + getRoleSlotCount(roleId), 0);
+};
+
+/**
  * Calculate recommended number of werewolves based on player count
  * Target ratio: 25-30% werewolves
  */
@@ -100,28 +116,22 @@ export const generateBalancedRoles = (playerCount: number): RoleId[] => {
     const socialRole = getRandomElement(
       SOCIAL_ROLES.filter((r) => {
         // Don't add two-sisters or three-brothers if we don't have space
-        if (r === "two-sisters" && selectedRoles.length + 2 > playerCount)
-          return false;
-        if (r === "three-brothers" && selectedRoles.length + 3 > playerCount)
+        const currentSlots = calculateTotalSlots(selectedRoles);
+        if (r === "two-sisters" && currentSlots + 2 > playerCount) return false;
+        if (r === "three-brothers" && currentSlots + 3 > playerCount)
           return false;
         return true;
       }),
     );
-    selectedRoles.push(socialRole);
 
-    // Handle multi-player roles
-    if (socialRole === "two-sisters") {
-      selectedRoles.push("two-sisters");
-    } else if (socialRole === "three-brothers") {
-      selectedRoles.push("three-brothers");
-      selectedRoles.push("three-brothers");
-    }
+    // All roles are added only once - getRoleSlotCount() handles multi-player slots
+    selectedRoles.push(socialRole);
   }
 
   // Step 5: Add special roles for larger games
   if (playerCount >= 10 && Math.random() > 0.5) {
     const specialRole = getRandomElement(SPECIAL_VILLAGE_ROLES);
-    if (selectedRoles.length < playerCount) {
+    if (calculateTotalSlots(selectedRoles) < playerCount) {
       selectedRoles.push(specialRole);
     }
   }
@@ -129,13 +139,13 @@ export const generateBalancedRoles = (playerCount: number): RoleId[] => {
   // Step 6: Optionally add a solo role for experienced games (10+ players)
   if (playerCount >= 10 && Math.random() > 0.7) {
     const soloRole = getRandomElement(SOLO_ROLES);
-    if (selectedRoles.length < playerCount) {
+    if (calculateTotalSlots(selectedRoles) < playerCount) {
       selectedRoles.push(soloRole);
     }
   }
 
   // Step 7: Fill remaining slots with villagers
-  while (selectedRoles.length < playerCount) {
+  while (calculateTotalSlots(selectedRoles) < playerCount) {
     selectedRoles.push("villager");
   }
 
