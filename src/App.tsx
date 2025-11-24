@@ -136,6 +136,9 @@ function App() {
           selectedRoles={gameState.setup.selectedRoles}
           players={gameState.players}
           gameEvents={gameState.gameEvents}
+          cursedWolfFatherInfectedPlayer={
+            gameState.cursedWolfFatherInfectedPlayer
+          }
           onStartNight={handleStartNight}
           onTogglePlayerAlive={togglePlayerAlive}
           onUpdatePlayerNotes={updatePlayerNotes}

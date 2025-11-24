@@ -20,6 +20,7 @@ interface PlayerListProps {
   playerCount: number;
   players: Player[];
   selectedRoles: RoleId[];
+  cursedWolfFatherInfectedPlayer?: number;
   onToggleAlive: (playerNumber: number) => void;
   onSetRevealedRole: (
     playerNumber: number,
@@ -56,6 +57,7 @@ export const PlayerList = ({
   playerCount,
   players,
   selectedRoles,
+  cursedWolfFatherInfectedPlayer,
   onToggleAlive,
   onSetRevealedRole,
   onUpdateNotes,
@@ -306,6 +308,12 @@ export const PlayerList = ({
                     <span className="font-bold text-lg">
                       Player {player.number}
                     </span>
+
+                    {player.number === cursedWolfFatherInfectedPlayer && (
+                      <span className="px-2 py-0.5 bg-orange-600 text-white text-xs font-bold rounded-full border border-orange-400">
+                        🦠 INFECTED
+                      </span>
+                    )}
 
                     {player.revealedRole && (
                       <Eye className="w-4 h-4 text-blue-400" />

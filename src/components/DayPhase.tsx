@@ -18,6 +18,7 @@ interface DayPhaseProps {
   selectedRoles: RoleId[];
   players: Player[];
   gameEvents: GameEvent[];
+  cursedWolfFatherInfectedPlayer?: number;
   onStartNight: () => void;
   onTogglePlayerAlive: (playerNumber: number) => void;
   onUpdatePlayerNotes: (playerNumber: number, notes: string) => void;
@@ -60,6 +61,7 @@ export const DayPhase = ({
   selectedRoles,
   players,
   gameEvents,
+  cursedWolfFatherInfectedPlayer,
   onStartNight,
   onTogglePlayerAlive,
   onUpdatePlayerNotes,
@@ -315,6 +317,9 @@ export const DayPhase = ({
                   playerCount={players.length}
                   players={players}
                   selectedRoles={selectedRoles}
+                  cursedWolfFatherInfectedPlayer={
+                    cursedWolfFatherInfectedPlayer
+                  }
                   onToggleAlive={onTogglePlayerAlive}
                   onSetRevealedRole={onSetPlayerRevealedRole}
                   onUpdateNotes={onUpdatePlayerNotes}

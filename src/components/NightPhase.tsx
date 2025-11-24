@@ -568,6 +568,7 @@ export const NightPhase = ({
                 playerCount={players.length}
                 players={players}
                 selectedRoles={selectedRoles}
+                cursedWolfFatherInfectedPlayer={cursedWolfFatherInfectedPlayer}
                 onToggleAlive={onTogglePlayerAlive}
                 onSetRevealedRole={onSetPlayerRevealedRole}
                 onUpdateNotes={onUpdatePlayerNotes}

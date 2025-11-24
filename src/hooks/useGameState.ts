@@ -621,12 +621,26 @@ export const useGameState = () => {
       }
     });
 
+    // If a player has been infected by Cursed Wolf-Father, they become a werewolf
+    if (gameState.cursedWolfFatherInfectedPlayer) {
+      totalWerewolves += 1;
+      // The infected player was originally a villager, so subtract from villagers
+      totalVillagers -= 1;
+    }
+
     // Count revealed dead players by team
     let deadWerewolves = 0;
     let deadVillagers = 0;
 
     gameState.players.forEach((player) => {
       if (!player.isAlive && player.actualRole) {
+        // Check if this player was infected by Cursed Wolf-Father
+        if (player.number === gameState.cursedWolfFatherInfectedPlayer) {
+          // They're now a werewolf regardless of their original role
+          deadWerewolves++;
+          return;
+        }
+
         const roleData = roles[player.actualRole];
         if (!roleData) return;
 
