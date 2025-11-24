@@ -311,9 +311,10 @@ export const useGameState = () => {
     });
   };
 
-  const useCursedWolfFatherInfection = () => {
+  const useCursedWolfFatherInfection = (playerNumber: number) => {
     setGameState((prev) => ({
       ...prev,
+      cursedWolfFatherInfectedPlayer: playerNumber,
       nightState: {
         ...prev.nightState,
         cursedWolfFatherInfectionUsed: true,

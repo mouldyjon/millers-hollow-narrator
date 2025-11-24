@@ -89,6 +89,7 @@ export interface GameState {
   wolfHoundTeam?: "village" | "werewolf";
   thiefChosenRole?: RoleId;
   sheriff?: number;
+  cursedWolfFatherInfectedPlayer?: number; // Player who has been secretly converted to werewolf
   currentNightStep: number;
   gameEvents: GameEvent[];
 }

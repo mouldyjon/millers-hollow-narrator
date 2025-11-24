@@ -7,6 +7,7 @@ import {
   Sun,
   PanelLeftOpen,
   PanelLeftClose,
+  AlertCircle,
 } from "lucide-react";
 import { rolesByNightOrder } from "../data/roles";
 import type { RoleId, NightState, Player, GameEvent } from "../types/game";
@@ -17,6 +18,7 @@ import { WitchPotionModal } from "./WitchPotionModal";
 import { CupidLoversModal } from "./CupidLoversModal";
 import { WerewolfVictimModal } from "./WerewolfVictimModal";
 import { WildChildRoleModelModal } from "./WildChildRoleModelModal";
+import { CursedWolfFatherModal } from "./CursedWolfFatherModal";
 
 interface NightPhaseProps {
   selectedRoles: RoleId[];
@@ -26,11 +28,12 @@ interface NightPhaseProps {
   gameEvents: GameEvent[];
   cupidLovers?: [number, number];
   wildChildRoleModel?: number;
+  cursedWolfFatherInfectedPlayer?: number;
   onNextStep: () => void;
   onEndNight: () => void;
   onUseWitchHealingPotion: (playerNumber: number) => void;
   onUseWitchDeathPotion: (playerNumber: number) => void;
-  onUseCursedWolfFatherInfection: () => void;
+  onUseCursedWolfFatherInfection: (playerNumber: number) => void;
   onSetCupidLovers?: (lover1: number, lover2: number) => void;
   onSetWildChildRoleModel?: (playerNumber: number) => void;
   onSelectWerewolfVictim?: (
@@ -78,6 +81,7 @@ export const NightPhase = ({
   gameEvents,
   cupidLovers,
   wildChildRoleModel,
+  cursedWolfFatherInfectedPlayer,
   onNextStep,
   onEndNight,
   onUseWitchHealingPotion,
@@ -104,6 +108,8 @@ export const NightPhase = ({
   const [werewolfVictimModal, setWerewolfVictimModal] = useState<
     "simple" | "big-bad" | "white" | null
   >(null);
+  const [showCursedWolfFatherModal, setShowCursedWolfFatherModal] =
+    useState(false);
 
   const isFirstNight = nightState.currentNightNumber === 1;
 
@@ -121,15 +127,30 @@ export const NightPhase = ({
 
     // If role has been revealed to anyone
     if (playersWithRole.length > 0) {
-      // Check if at least one player with this role is still alive
-      const hasAlivePlayer = playersWithRole.some((player) => player.isAlive);
+      // Check if at least one player with this role is still alive AND not infected
+      const hasActivePlayer = playersWithRole.some(
+        (player) =>
+          player.isAlive &&
+          // Infected players lose their original role abilities (except werewolf roles)
+          (role.team === "werewolf" ||
+            player.number !== cursedWolfFatherInfectedPlayer),
+      );
 
-      // If all players with this role are dead, skip it
-      if (!hasAlivePlayer) {
+      // If all players with this role are dead or infected, skip it
+      if (!hasActivePlayer) {
         return false;
       }
     }
     // If role hasn't been revealed yet, assume it's active (first night case)
+    // BUT if this is the infected player's role and they're the only one, skip it
+    if (
+      cursedWolfFatherInfectedPlayer &&
+      role.team !== "werewolf" &&
+      playersWithRole.length === 1 &&
+      playersWithRole[0]?.number === cursedWolfFatherInfectedPlayer
+    ) {
+      return false;
+    }
 
     // White werewolf only wakes every other night
     if (role.id === "white-werewolf") {
@@ -181,6 +202,11 @@ export const NightPhase = ({
 
   const getNarrationText = (role: typeof currentRole): string => {
     if (!role) return "";
+
+    // Special handling for werewolves if there's an infected player
+    if (role.id === "simple-werewolf" && cursedWolfFatherInfectedPlayer) {
+      return `Werewolves, wake up and choose a victim. Player ${cursedWolfFatherInfectedPlayer}, you have been infected - wake with the werewolves. Little Girl, you may peek.`;
+    }
 
     const baseTexts: Record<string, string> = {
       thief:
@@ -319,7 +345,37 @@ export const NightPhase = ({
                 )}
 
                 {currentRole.id === "simple-werewolf" && (
-                  <div className="mt-6">
+                  <div className="mt-6 space-y-4">
+                    {/* Infected Player Notification */}
+                    {cursedWolfFatherInfectedPlayer && (
+                      <div className="bg-orange-900/40 border-2 border-orange-500 rounded-lg p-4">
+                        <div className="flex items-start gap-3">
+                          <AlertCircle className="w-6 h-6 text-orange-400 flex-shrink-0 mt-0.5" />
+                          <div className="text-sm">
+                            <p className="font-bold text-orange-200 mb-2">
+                              ⚠️ INFECTED PLAYER ALERT
+                            </p>
+                            <p className="text-orange-100 mb-2">
+                              <strong>
+                                Player {cursedWolfFatherInfectedPlayer}
+                              </strong>{" "}
+                              has been infected by the Cursed Wolf-Father and is
+                              now secretly a werewolf.
+                            </p>
+                            <p className="text-orange-100 mb-2">
+                              They have <strong>lost all abilities</strong> from
+                              their original role and now act as a regular
+                              werewolf.
+                            </p>
+                            <p className="text-orange-100 font-semibold">
+                              You must discreetly signal this player to wake
+                              with the werewolves (tap shoulder, whisper, etc.)
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     <button
                       onClick={() => setWerewolfVictimModal("simple")}
                       disabled={nightState.werewolfVictimSelectedThisNight}
@@ -375,7 +431,7 @@ export const NightPhase = ({
                 {currentRole.id === "cursed-wolf-father" && (
                   <div className="mt-6">
                     <button
-                      onClick={onUseCursedWolfFatherInfection}
+                      onClick={() => setShowCursedWolfFatherModal(true)}
                       disabled={nightState.cursedWolfFatherInfectionUsed}
                       className={`w-full px-4 py-2 rounded-lg font-semibold ${
                         nightState.cursedWolfFatherInfectionUsed
@@ -385,7 +441,7 @@ export const NightPhase = ({
                     >
                       {nightState.cursedWolfFatherInfectionUsed
                         ? "Infection Already Used"
-                        : "Use Infection (Victim Becomes Werewolf)"}
+                        : "Select Victim to Infect"}
                     </button>
                   </div>
                 )}
@@ -429,24 +485,6 @@ export const NightPhase = ({
                         : nightState.witchPotionUsedThisNight
                           ? "Potion Already Used This Night"
                           : "Use Death Potion"}
-                    </button>
-                  </div>
-                )}
-
-                {currentRole.id === "cursed-wolf-father" && (
-                  <div className="mt-6">
-                    <button
-                      onClick={onUseCursedWolfFatherInfection}
-                      disabled={nightState.cursedWolfFatherInfectionUsed}
-                      className={`w-full px-4 py-2 rounded-lg ${
-                        nightState.cursedWolfFatherInfectionUsed
-                          ? "bg-slate-600 cursor-not-allowed"
-                          : "bg-red-600 hover:bg-red-700"
-                      }`}
-                    >
-                      {nightState.cursedWolfFatherInfectionUsed
-                        ? "Infection Used"
-                        : "Use Infection"}
                     </button>
                   </div>
                 )}
@@ -636,6 +674,22 @@ export const NightPhase = ({
             setWerewolfVictimModal(null);
           }}
           onCancel={() => setWerewolfVictimModal(null)}
+        />
+      )}
+
+      {/* Cursed Wolf-Father Infection Modal */}
+      {showCursedWolfFatherModal && (
+        <CursedWolfFatherModal
+          players={players}
+          onConfirm={(playerNumber) => {
+            onUseCursedWolfFatherInfection(playerNumber);
+            onAddGameEvent(
+              "role_action",
+              `Cursed Wolf-Father infected Player ${playerNumber} - DISCREETLY NOTIFY PLAYER`,
+            );
+            setShowCursedWolfFatherModal(false);
+          }}
+          onCancel={() => setShowCursedWolfFatherModal(false)}
         />
       )}
     </div>

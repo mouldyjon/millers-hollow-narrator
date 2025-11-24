@@ -202,7 +202,7 @@ export const roles: Record<string, Role> = {
     team: "werewolf",
     description: "Can infect one victim once per game to become a werewolf",
     nightOrder: 6.5,
-    wakeEveryNight: false,
+    wakeEveryNight: true,
     wakeFirstNightOnly: false,
     hasLimitedUse: true,
     allowMultiple: false,

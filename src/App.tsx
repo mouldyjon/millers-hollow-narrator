@@ -94,6 +94,9 @@ function App() {
           gameEvents={gameState.gameEvents}
           cupidLovers={gameState.cupidLovers}
           wildChildRoleModel={gameState.wildChildRoleModel}
+          cursedWolfFatherInfectedPlayer={
+            gameState.cursedWolfFatherInfectedPlayer
+          }
           onNextStep={nextNightStep}
           onEndNight={handleStartDawn}
           onUseWitchHealingPotion={useWitchHealingPotion}
