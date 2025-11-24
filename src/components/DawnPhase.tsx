@@ -4,6 +4,7 @@ import type { RoleId, Player } from "../types/game";
 import { RoleRevealModal } from "./RoleRevealModal";
 import { EliminationAlert } from "./EliminationAlert";
 import { VictoryAnnouncement } from "./VictoryAnnouncement";
+import { Button } from "./ui";
 
 interface DawnPhaseProps {
   selectedRoles: RoleId[];
@@ -361,7 +362,9 @@ export const DawnPhase = ({
         <div className="max-w-3xl w-full">
           <div className="text-center mb-8">
             <Sunrise className="w-16 h-16 text-orange-400 mx-auto mb-4" />
-            <h1 className="text-4xl font-bold mb-2">Dawn</h1>
+            <h1 className="text-4xl font-bold mb-2 font-header text-[var(--color-text-gold)]">
+              Dawn
+            </h1>
             <p className="text-slate-300">
               The night ends and the sun begins to rise...
             </p>
@@ -382,7 +385,7 @@ export const DawnPhase = ({
                 <div className="flex items-start gap-4">
                   <div className="flex-shrink-0">{announcement.icon}</div>
                   <div className="flex-1">
-                    <h2 className="text-2xl font-bold mb-2">
+                    <h2 className="text-2xl font-bold mb-2 font-header text-amber-100">
                       {announcement.title}
                     </h2>
                     <p className="text-lg text-slate-200">
@@ -395,12 +398,14 @@ export const DawnPhase = ({
           </div>
 
           <div className="text-center">
-            <button
+            <Button
               onClick={onStartDay}
-              className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-4 rounded-lg text-xl font-semibold transition-colors"
+              variant="gold"
+              size="lg"
+              className="text-xl"
             >
               Start Day Phase
-            </button>
+            </Button>
           </div>
         </div>
       </div>

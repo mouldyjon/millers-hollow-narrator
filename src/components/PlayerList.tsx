@@ -21,6 +21,7 @@ interface PlayerListProps {
   players: Player[];
   selectedRoles: RoleId[];
   cursedWolfFatherInfectedPlayer?: number;
+  theme?: "night" | "day";
   onToggleAlive: (playerNumber: number) => void;
   onSetRevealedRole: (
     playerNumber: number,
@@ -58,6 +59,7 @@ export const PlayerList = ({
   players,
   selectedRoles,
   cursedWolfFatherInfectedPlayer,
+  theme = "night",
   onToggleAlive,
   onSetRevealedRole,
   onUpdateNotes,
@@ -86,6 +88,34 @@ export const PlayerList = ({
     null,
   );
   const [filter, setFilter] = useState<PlayerFilter>("all");
+
+  // Theme-based styling
+  const isDayTheme = theme === "day";
+  const containerBg = isDayTheme ? "bg-white" : "bg-slate-800";
+  const headerBg = isDayTheme ? "bg-slate-50" : "bg-slate-700/50";
+  const headerBorder = isDayTheme ? "border-slate-200" : "border-slate-600";
+  const filterButtonBase = isDayTheme
+    ? "bg-slate-100 text-slate-700 hover:bg-slate-200"
+    : "bg-slate-700 text-slate-300 hover:bg-slate-600";
+  const filterButtonActive = isDayTheme
+    ? "bg-amber-500 text-white"
+    : "bg-slate-600 text-white";
+  const playerCardAlive = isDayTheme
+    ? "bg-slate-50 border-slate-200"
+    : "bg-slate-700 border-slate-600";
+  const playerCardDead = isDayTheme
+    ? "bg-slate-200 border-slate-300 opacity-60"
+    : "bg-slate-900 border-red-900 opacity-60";
+  const inputBg = isDayTheme
+    ? "bg-slate-100 placeholder-slate-400 focus:ring-amber-500"
+    : "bg-slate-600 placeholder-slate-400 focus:ring-blue-500";
+  const textPrimary = isDayTheme ? "text-slate-900" : "text-slate-100";
+  const buttonBg = isDayTheme
+    ? "bg-slate-200 text-slate-700 hover:bg-slate-300"
+    : "bg-slate-600 text-slate-300 hover:bg-slate-500";
+  const roleRevealBg = isDayTheme
+    ? "bg-blue-100 text-blue-900"
+    : "bg-blue-900 text-white";
 
   // Calculate counts
   const aliveCount = players.filter((p) => p.isAlive).length;
@@ -215,14 +245,18 @@ export const PlayerList = ({
         />
       )}
 
-      <div className="bg-slate-800 rounded-lg p-4">
-        <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+      <div className={`${containerBg} rounded-lg p-4 shadow-lg`}>
+        <h3
+          className={`text-lg font-semibold mb-3 flex items-center gap-2 ${textPrimary}`}
+        >
           <User className="w-5 h-5" />
           Players
         </h3>
 
         {/* Player Count Summary */}
-        <div className="mb-4 p-3 bg-slate-700/50 rounded-lg border border-slate-600">
+        <div
+          className={`mb-4 p-3 ${headerBg} rounded-lg border ${headerBorder}`}
+        >
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2 text-green-400">
               <Heart className="w-4 h-4" />
@@ -244,9 +278,7 @@ export const PlayerList = ({
           <button
             onClick={() => setFilter("all")}
             className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-              filter === "all"
-                ? "bg-slate-600 text-white"
-                : "bg-slate-700 text-slate-300 hover:bg-slate-600"
+              filter === "all" ? filterButtonActive : filterButtonBase
             }`}
           >
             All ({playerCount})
@@ -254,9 +286,7 @@ export const PlayerList = ({
           <button
             onClick={() => setFilter("alive")}
             className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-              filter === "alive"
-                ? "bg-green-600 text-white"
-                : "bg-slate-700 text-slate-300 hover:bg-slate-600"
+              filter === "alive" ? "bg-green-600 text-white" : filterButtonBase
             }`}
           >
             Alive ({aliveCount})
@@ -264,9 +294,7 @@ export const PlayerList = ({
           <button
             onClick={() => setFilter("dead")}
             className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-              filter === "dead"
-                ? "bg-red-600 text-white"
-                : "bg-slate-700 text-slate-300 hover:bg-slate-600"
+              filter === "dead" ? "bg-red-600 text-white" : filterButtonBase
             }`}
           >
             Dead ({deadCount})
@@ -276,7 +304,7 @@ export const PlayerList = ({
             className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
               filter === "revealed"
                 ? "bg-blue-600 text-white"
-                : "bg-slate-700 text-slate-300 hover:bg-slate-600"
+                : filterButtonBase
             }`}
           >
             Revealed ({revealedCount})
@@ -291,9 +319,7 @@ export const PlayerList = ({
                 key={player.number}
                 className={`p-3 rounded-lg border-2 transition-all ${
                   teamColour ||
-                  (player.isAlive
-                    ? "bg-slate-700 border-slate-600"
-                    : "bg-slate-900 border-red-900 opacity-60")
+                  (player.isAlive ? playerCardAlive : playerCardDead)
                 }`}
               >
                 <div className="flex items-center justify-between mb-2">
@@ -333,7 +359,9 @@ export const PlayerList = ({
                 </div>
 
                 {player.revealedRole && (
-                  <div className="mb-2 px-2 py-1 bg-blue-900 rounded text-sm flex items-center gap-2">
+                  <div
+                    className={`mb-2 px-2 py-1 rounded text-sm flex items-center gap-2 font-medium ${roleRevealBg}`}
+                  >
                     <Eye className="w-4 h-4" />
                     <span>Role: {player.revealedRole}</span>
                   </div>
@@ -353,7 +381,7 @@ export const PlayerList = ({
                         className={`flex-1 px-3 py-1.5 rounded text-sm font-semibold transition-colors flex items-center justify-center gap-1.5 ${
                           player.wolfHoundTeam === "village"
                             ? "bg-blue-600 text-white"
-                            : "bg-slate-600 text-slate-300 hover:bg-slate-500"
+                            : buttonBg
                         }`}
                       >
                         <Users className="w-3.5 h-3.5" />
@@ -366,7 +394,7 @@ export const PlayerList = ({
                         className={`flex-1 px-3 py-1.5 rounded text-sm font-semibold transition-colors flex items-center justify-center gap-1.5 ${
                           player.wolfHoundTeam === "werewolf"
                             ? "bg-red-600 text-white"
-                            : "bg-slate-600 text-slate-300 hover:bg-slate-500"
+                            : buttonBg
                         }`}
                       >
                         <Moon className="w-3.5 h-3.5" />
@@ -381,7 +409,7 @@ export const PlayerList = ({
                   placeholder="Notes (e.g., suspected werewolf, claims seer...)"
                   value={player.notes || ""}
                   onChange={(e) => onUpdateNotes(player.number, e.target.value)}
-                  className="w-full px-2 py-1 bg-slate-600 rounded text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`w-full px-2 py-1 rounded text-sm focus:outline-none focus:ring-2 ${inputBg}`}
                 />
               </div>
             );

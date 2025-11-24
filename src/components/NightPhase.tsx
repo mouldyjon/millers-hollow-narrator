@@ -19,6 +19,7 @@ import { CupidLoversModal } from "./CupidLoversModal";
 import { WerewolfVictimModal } from "./WerewolfVictimModal";
 import { WildChildRoleModelModal } from "./WildChildRoleModelModal";
 import { CursedWolfFatherModal } from "./CursedWolfFatherModal";
+import { Button } from "./ui";
 
 interface NightPhaseProps {
   selectedRoles: RoleId[];
@@ -267,7 +268,7 @@ export const NightPhase = ({
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
               <Moon className="w-8 h-8 text-indigo-400" />
-              <h1 className="text-3xl font-bold">
+              <h1 className="text-3xl font-bold font-header text-[var(--color-text-gold)]">
                 Night {nightState.currentNightNumber}
               </h1>
             </div>
@@ -281,9 +282,11 @@ export const NightPhase = ({
             {isLastStep ? (
               <div className="text-center">
                 <Sun className="w-16 h-16 text-yellow-400 mx-auto mb-4" />
-                <h2 className="text-2xl font-bold mb-2">Night is Over</h2>
-                <p className="text-slate-300">
-                  Click "Start Day" to begin the day phase
+                <h2 className="text-2xl font-bold mb-2 font-header text-[var(--color-text-gold)]">
+                  Night is Over
+                </h2>
+                <p className="text-slate-300 mb-6">
+                  The village awakens as dawn breaks
                 </p>
               </div>
             ) : currentRole ? (
@@ -303,7 +306,9 @@ export const NightPhase = ({
                       ? "Werewolf"
                       : "Special"}
                 </div>
-                <h2 className="text-4xl font-bold mb-4">{currentRole.name}</h2>
+                <h2 className="text-4xl font-bold mb-4 font-header text-[var(--color-text-gold)]">
+                  {currentRole.name}
+                </h2>
                 <p className="text-lg text-slate-300 mb-6">
                   {currentRole.description}
                 </p>
@@ -316,31 +321,37 @@ export const NightPhase = ({
                 {/* Role-specific actions */}
                 {currentRole.id === "cupid" && onSetCupidLovers && (
                   <div className="mt-6">
-                    <button
+                    <Button
                       onClick={() => setShowCupidModal(true)}
-                      className="w-full px-4 py-2 rounded-lg bg-pink-600 hover:bg-pink-700 font-semibold flex items-center justify-center gap-2"
+                      variant="primary"
+                      size="md"
+                      fullWidth
+                      className="bg-pink-600 hover:bg-pink-700"
                     >
                       <span>
                         {cupidLovers
                           ? `Lovers: Player ${cupidLovers[0]} & Player ${cupidLovers[1]}`
                           : "Select Lovers"}
                       </span>
-                    </button>
+                    </Button>
                   </div>
                 )}
 
                 {currentRole.id === "wild-child" && onSetWildChildRoleModel && (
                   <div className="mt-6">
-                    <button
+                    <Button
                       onClick={() => setShowWildChildModal(true)}
-                      className="w-full px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 font-semibold flex items-center justify-center gap-2"
+                      variant="primary"
+                      size="md"
+                      fullWidth
+                      className="bg-purple-600 hover:bg-purple-700"
                     >
                       <span>
                         {wildChildRoleModel
                           ? `Role Model: Player ${wildChildRoleModel}`
                           : "Select Role Model"}
                       </span>
-                    </button>
+                    </Button>
                   </div>
                 )}
 
@@ -376,116 +387,103 @@ export const NightPhase = ({
                       </div>
                     )}
 
-                    <button
+                    <Button
                       onClick={() => setWerewolfVictimModal("simple")}
                       disabled={nightState.werewolfVictimSelectedThisNight}
-                      className={`w-full px-4 py-2 rounded-lg font-semibold ${
-                        nightState.werewolfVictimSelectedThisNight
-                          ? "bg-slate-600 cursor-not-allowed"
-                          : "bg-red-600 hover:bg-red-700"
-                      }`}
+                      variant="danger"
+                      size="md"
+                      fullWidth
                     >
                       {nightState.werewolfVictimSelectedThisNight
                         ? "Victim Selected"
                         : "Select Victim"}
-                    </button>
+                    </Button>
                   </div>
                 )}
 
                 {currentRole.id === "big-bad-wolf" && (
                   <div className="mt-6">
-                    <button
+                    <Button
                       onClick={() => setWerewolfVictimModal("big-bad")}
                       disabled={nightState.bigBadWolfVictimSelectedThisNight}
-                      className={`w-full px-4 py-2 rounded-lg font-semibold ${
-                        nightState.bigBadWolfVictimSelectedThisNight
-                          ? "bg-slate-600 cursor-not-allowed"
-                          : "bg-red-600 hover:bg-red-700"
-                      }`}
+                      variant="danger"
+                      size="md"
+                      fullWidth
                     >
                       {nightState.bigBadWolfVictimSelectedThisNight
                         ? "Victim Selected"
                         : "Select Additional Victim"}
-                    </button>
+                    </Button>
                   </div>
                 )}
 
                 {currentRole.id === "white-werewolf" && (
                   <div className="mt-6">
-                    <button
+                    <Button
                       onClick={() => setWerewolfVictimModal("white")}
                       disabled={nightState.whiteWerewolfVictimSelectedThisNight}
-                      className={`w-full px-4 py-2 rounded-lg font-semibold ${
-                        nightState.whiteWerewolfVictimSelectedThisNight
-                          ? "bg-slate-600 cursor-not-allowed"
-                          : "bg-red-600 hover:bg-red-700"
-                      }`}
+                      variant="danger"
+                      size="md"
+                      fullWidth
                     >
                       {nightState.whiteWerewolfVictimSelectedThisNight
                         ? "Victim Selected"
                         : "Eliminate Werewolf (Optional)"}
-                    </button>
+                    </Button>
                   </div>
                 )}
 
                 {currentRole.id === "cursed-wolf-father" && (
                   <div className="mt-6">
-                    <button
+                    <Button
                       onClick={() => setShowCursedWolfFatherModal(true)}
                       disabled={nightState.cursedWolfFatherInfectionUsed}
-                      className={`w-full px-4 py-2 rounded-lg font-semibold ${
-                        nightState.cursedWolfFatherInfectionUsed
-                          ? "bg-slate-600 cursor-not-allowed"
-                          : "bg-orange-600 hover:bg-orange-700"
-                      }`}
+                      variant="primary"
+                      size="md"
+                      fullWidth
+                      className="bg-orange-600 hover:bg-orange-700"
                     >
                       {nightState.cursedWolfFatherInfectionUsed
                         ? "Infection Already Used"
                         : "Select Victim to Infect"}
-                    </button>
+                    </Button>
                   </div>
                 )}
 
                 {currentRole.id === "witch" && (
                   <div className="mt-6 space-y-2">
-                    <button
+                    <Button
                       onClick={() => setWitchPotionModal("healing")}
                       disabled={
                         nightState.witchHealingPotionUsed ||
                         nightState.witchPotionUsedThisNight
                       }
-                      className={`w-full px-4 py-2 rounded-lg ${
-                        nightState.witchHealingPotionUsed ||
-                        nightState.witchPotionUsedThisNight
-                          ? "bg-slate-600 cursor-not-allowed"
-                          : "bg-green-600 hover:bg-green-700"
-                      }`}
+                      variant="success"
+                      size="md"
+                      fullWidth
                     >
                       {nightState.witchHealingPotionUsed
                         ? "Healing Potion Used"
                         : nightState.witchPotionUsedThisNight
                           ? "Potion Already Used This Night"
                           : "Use Healing Potion"}
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={() => setWitchPotionModal("death")}
                       disabled={
                         nightState.witchDeathPotionUsed ||
                         nightState.witchPotionUsedThisNight
                       }
-                      className={`w-full px-4 py-2 rounded-lg ${
-                        nightState.witchDeathPotionUsed ||
-                        nightState.witchPotionUsedThisNight
-                          ? "bg-slate-600 cursor-not-allowed"
-                          : "bg-red-600 hover:bg-red-700"
-                      }`}
+                      variant="danger"
+                      size="md"
+                      fullWidth
                     >
                       {nightState.witchDeathPotionUsed
                         ? "Death Potion Used"
                         : nightState.witchPotionUsedThisNight
                           ? "Potion Already Used This Night"
                           : "Use Death Potion"}
-                    </button>
+                    </Button>
                   </div>
                 )}
 
@@ -509,10 +507,12 @@ export const NightPhase = ({
 
           {/* Controls */}
           <div className="flex gap-4 justify-center">
-            <button
+            <Button
               onClick={handlePlayPause}
               disabled={isLastStep}
-              className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-700 disabled:cursor-not-allowed px-6 py-3 rounded-lg font-semibold"
+              variant="primary"
+              size="lg"
+              className="bg-indigo-600 hover:bg-indigo-700"
             >
               {isSpeaking ? (
                 <>
@@ -525,11 +525,12 @@ export const NightPhase = ({
                   Speak
                 </>
               )}
-            </button>
+            </Button>
 
-            <button
+            <Button
               onClick={handleNext}
-              className="flex items-center gap-2 bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-semibold"
+              variant={isLastStep ? "gold" : "success"}
+              size="lg"
             >
               {isLastStep ? (
                 <>
@@ -542,7 +543,7 @@ export const NightPhase = ({
                   Next
                 </>
               )}
-            </button>
+            </Button>
           </div>
 
           {/* Progress bar */}
@@ -582,9 +583,11 @@ export const NightPhase = ({
         </div>
 
         {/* Sidebar Toggle Button */}
-        <button
+        <Button
           onClick={() => setShowSidebar(!showSidebar)}
-          className="fixed right-6 top-6 bg-slate-800 hover:bg-slate-700 p-3 rounded-lg shadow-lg z-10"
+          variant="ghost"
+          size="md"
+          className="fixed right-6 top-6 bg-slate-800 hover:bg-slate-700 shadow-lg z-10"
           title={showSidebar ? "Hide sidebar" : "Show sidebar"}
         >
           {showSidebar ? (
@@ -592,7 +595,7 @@ export const NightPhase = ({
           ) : (
             <PanelLeftOpen className="w-5 h-5" />
           )}
-        </button>
+        </Button>
       </div>
 
       {/* Witch Potion Modal */}

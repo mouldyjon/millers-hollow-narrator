@@ -1,5 +1,6 @@
 import { X, Heart, Skull } from "lucide-react";
 import type { Player } from "../types/game";
+import { Button } from "./ui";
 
 interface WitchPotionModalProps {
   potionType: "healing" | "death";
@@ -32,16 +33,18 @@ export const WitchPotionModal = ({
             ) : (
               <Skull className="w-6 h-6 text-red-400" />
             )}
-            <h2 className="text-xl font-bold">
+            <h2 className="text-xl font-bold font-header text-amber-100">
               {isHealing ? "Healing Potion" : "Death Potion"}
             </h2>
           </div>
-          <button
+          <Button
             onClick={onCancel}
+            variant="ghost"
+            size="sm"
             className="text-slate-400 hover:text-slate-200"
           >
             <X className="w-5 h-5" />
-          </button>
+          </Button>
         </div>
 
         <div className="p-6">
@@ -87,12 +90,9 @@ export const WitchPotionModal = ({
         </div>
 
         <div className="p-6 border-t border-slate-700">
-          <button
-            onClick={onCancel}
-            className="w-full px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg"
-          >
+          <Button onClick={onCancel} variant="secondary" size="md" fullWidth>
             Cancel
-          </button>
+          </Button>
         </div>
       </div>
     </div>

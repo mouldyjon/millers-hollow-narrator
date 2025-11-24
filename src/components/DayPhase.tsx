@@ -13,6 +13,7 @@ import type { RoleId, Player, GameEvent } from "../types/game";
 import { PlayerList } from "./PlayerList";
 import { EventLog } from "./EventLog";
 import { VictoryAnnouncement } from "./VictoryAnnouncement";
+import { Button } from "./ui";
 
 interface DayPhaseProps {
   selectedRoles: RoleId[];
@@ -155,33 +156,38 @@ export const DayPhase = ({
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-3">
                 <Sun className="w-8 h-8 text-amber-500" />
-                <h1 className="text-3xl font-bold text-slate-800">Day Phase</h1>
+                <h1 className="text-3xl font-bold text-slate-800 font-header">
+                  Day Phase
+                </h1>
               </div>
-              <button
+              <Button
                 onClick={() => setShowSettings(!showSettings)}
-                className="p-2 rounded-lg bg-slate-200 hover:bg-slate-300"
+                variant="ghost"
+                size="md"
+                className="bg-slate-200 hover:bg-slate-300"
               >
                 <Settings className="w-6 h-6" />
-              </button>
+              </Button>
             </div>
 
             {/* Settings Panel */}
             {showSettings && (
               <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-                <h3 className="text-lg font-semibold mb-4">Timer Duration</h3>
+                <h3 className="text-lg font-semibold mb-4 font-header">
+                  Timer Duration
+                </h3>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {[3, 5, 7, 10].map((minutes) => (
-                    <button
+                    <Button
                       key={minutes}
                       onClick={() => handleDurationChange(minutes)}
-                      className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
-                        timerDuration === minutes * 60
-                          ? "bg-amber-500 text-white"
-                          : "bg-slate-200 hover:bg-slate-300 text-slate-700"
-                      }`}
+                      variant={
+                        timerDuration === minutes * 60 ? "gold" : "secondary"
+                      }
+                      size="md"
                     >
                       {minutes} min
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>
@@ -236,13 +242,11 @@ export const DayPhase = ({
 
                 {/* Controls */}
                 <div className="flex gap-4 justify-center">
-                  <button
+                  <Button
                     onClick={handlePlayPause}
-                    className={`flex items-center gap-2 px-8 py-4 rounded-lg font-semibold text-lg transition-colors ${
-                      isRunning
-                        ? "bg-red-500 hover:bg-red-600 text-white"
-                        : "bg-green-500 hover:bg-green-600 text-white"
-                    }`}
+                    variant={isRunning ? "danger" : "success"}
+                    size="lg"
+                    className="text-lg"
                   >
                     {isRunning ? (
                       <>
@@ -255,22 +259,24 @@ export const DayPhase = ({
                         Start
                       </>
                     )}
-                  </button>
+                  </Button>
 
-                  <button
+                  <Button
                     onClick={handleReset}
-                    className="flex items-center gap-2 bg-slate-200 hover:bg-slate-300 text-slate-700 px-8 py-4 rounded-lg font-semibold text-lg"
+                    variant="secondary"
+                    size="lg"
+                    className="text-lg"
                   >
                     <RotateCcw className="w-6 h-6" />
                     Reset
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
 
             {/* Game Actions */}
             <div className="bg-white rounded-lg shadow-lg p-6">
-              <h3 className="text-lg font-semibold mb-4 text-slate-800">
+              <h3 className="text-lg font-semibold mb-4 text-slate-800 font-header">
                 Day Phase Actions
               </h3>
               <div className="space-y-3">
@@ -297,13 +303,15 @@ export const DayPhase = ({
 
             {/* End Day Button */}
             <div className="mt-8 flex justify-center">
-              <button
+              <Button
                 onClick={onStartNight}
-                className="flex items-center gap-3 bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-lg text-xl font-semibold"
+                variant="primary"
+                size="lg"
+                className="bg-indigo-600 hover:bg-indigo-700 text-xl"
               >
                 <Moon className="w-6 h-6" />
                 End Day & Start Night
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -320,6 +328,7 @@ export const DayPhase = ({
                   cursedWolfFatherInfectedPlayer={
                     cursedWolfFatherInfectedPlayer
                   }
+                  theme="day"
                   onToggleAlive={onTogglePlayerAlive}
                   onSetRevealedRole={onSetPlayerRevealedRole}
                   onUpdateNotes={onUpdatePlayerNotes}
@@ -329,15 +338,17 @@ export const DayPhase = ({
                   }
                   onAddGameEvent={onAddGameEvent}
                 />
-                <EventLog events={gameEvents} />
+                <EventLog events={gameEvents} theme="day" />
               </div>
             )}
           </div>
 
           {/* Sidebar Toggle Button */}
-          <button
+          <Button
             onClick={() => setShowSidebar(!showSidebar)}
-            className="fixed right-6 top-6 bg-slate-800 hover:bg-slate-700 p-3 rounded-lg shadow-lg z-10"
+            variant="ghost"
+            size="md"
+            className="fixed right-6 top-6 bg-slate-800 hover:bg-slate-700 shadow-lg z-10"
             title={showSidebar ? "Hide sidebar" : "Show sidebar"}
           >
             {showSidebar ? (
@@ -345,7 +356,7 @@ export const DayPhase = ({
             ) : (
               <PanelLeftOpen className="w-5 h-5 text-white" />
             )}
-          </button>
+          </Button>
         </div>
       </div>
     </>

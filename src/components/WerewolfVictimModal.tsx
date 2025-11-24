@@ -1,6 +1,7 @@
 import { X, Moon, AlertCircle } from "lucide-react";
 import type { Player } from "../types/game";
 import { useState } from "react";
+import { Button } from "./ui";
 
 interface WerewolfVictimModalProps {
   players: Player[];
@@ -47,8 +48,8 @@ export const WerewolfVictimModal = ({
                 it
               </li>
               <li>
-                The victim with the most werewolf votes is selected (if tied,
-                no one dies)
+                The victim with the most werewolf votes is selected (if tied, no
+                one dies)
               </li>
               <li>The Little Girl may peek but risks being caught</li>
               <li>
@@ -94,14 +95,18 @@ export const WerewolfVictimModal = ({
         <div className="flex items-center justify-between p-6 border-b border-slate-700">
           <div className="flex items-center gap-3">
             <Moon className="w-6 h-6 text-red-400" />
-            <h2 className="text-xl font-bold">{getTitle()}</h2>
+            <h2 className="text-xl font-bold font-header text-amber-100">
+              {getTitle()}
+            </h2>
           </div>
-          <button
+          <Button
             onClick={onCancel}
+            variant="ghost"
+            size="sm"
             className="text-slate-400 hover:text-slate-200"
           >
             <X className="w-5 h-5" />
-          </button>
+          </Button>
         </div>
 
         <div className="p-6">
@@ -158,23 +163,23 @@ export const WerewolfVictimModal = ({
         </div>
 
         <div className="p-6 border-t border-slate-700 flex gap-3">
-          <button
+          <Button
             onClick={onCancel}
-            className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg"
+            variant="secondary"
+            size="md"
+            className="flex-1"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => selectedPlayer && onConfirm(selectedPlayer)}
             disabled={selectedPlayer === null}
-            className={`flex-1 px-4 py-2 rounded-lg font-semibold ${
-              selectedPlayer !== null
-                ? "bg-red-600 hover:bg-red-700 text-white"
-                : "bg-slate-600 cursor-not-allowed text-slate-400"
-            }`}
+            variant="danger"
+            size="md"
+            className="flex-1"
           >
             Confirm Victim
-          </button>
+          </Button>
         </div>
       </div>
     </div>

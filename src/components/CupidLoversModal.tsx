@@ -1,6 +1,7 @@
 import { X, Heart } from "lucide-react";
 import type { Player } from "../types/game";
 import { useState } from "react";
+import { Button } from "./ui";
 
 interface CupidLoversModalProps {
   players: Player[];
@@ -58,14 +59,18 @@ export const CupidLoversModal = ({
         <div className="flex items-center justify-between p-6 border-b border-slate-700">
           <div className="flex items-center gap-3">
             <Heart className="w-6 h-6 text-pink-400" />
-            <h2 className="text-xl font-bold">Cupid's Lovers</h2>
+            <h2 className="text-xl font-bold font-header text-amber-100">
+              Cupid's Lovers
+            </h2>
           </div>
-          <button
+          <Button
             onClick={onCancel}
+            variant="ghost"
+            size="sm"
             className="text-slate-400 hover:text-slate-200"
           >
             <X className="w-5 h-5" />
-          </button>
+          </Button>
         </div>
 
         <div className="p-6">
@@ -126,23 +131,23 @@ export const CupidLoversModal = ({
         </div>
 
         <div className="p-6 border-t border-slate-700 flex gap-3">
-          <button
+          <Button
             onClick={onCancel}
-            className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg"
+            variant="secondary"
+            size="md"
+            className="flex-1"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={handleConfirm}
             disabled={lover1 === null || lover2 === null}
-            className={`flex-1 px-4 py-2 rounded-lg font-semibold ${
-              lover1 !== null && lover2 !== null
-                ? "bg-pink-600 hover:bg-pink-700 text-white"
-                : "bg-slate-600 cursor-not-allowed text-slate-400"
-            }`}
+            variant="primary"
+            size="md"
+            className="flex-1 bg-pink-600 hover:bg-pink-700"
           >
             Confirm Lovers
-          </button>
+          </Button>
         </div>
       </div>
     </div>

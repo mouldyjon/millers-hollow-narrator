@@ -66,27 +66,57 @@ This document tracks planned improvements and feature requests for the Miller's 
 - ⏳ Warn about unused special mechanics - To Do
 
 ### 3. Better Visual Design (One Night Ultimate Werewolf Style)
-**Status**: Not Started  
+**Status**: Phase 3A Complete ✅  
 **Priority**: High  
 **Inspiration**: One Night Ultimate Werewolf Android app + Miller's Hollow board game art
 
-#### Design System Overhaul
+#### Phase 3A: Core Design System ✅ (Completed 2025-11-25)
 
 **Colour Palette & Backgrounds**
-- [ ] Textured dark blue background with weathered/grunge texture overlay
-- [ ] Dark blue-grey base (#2c3e50 range)
-- [ ] Subtle vignette effect at edges
-- [ ] Parchment/aged paper texture
+- [x] Textured dark blue background with weathered texture overlay
+- [x] Dark blue-grey base (#1a2332 - deep dark blue-grey)
+- [x] Subtle vignette effect at edges
+- [x] CSS custom properties for theming
 
 **Typography**
-- [ ] "ONE NIGHT" style header (golden/tan serif font)
-- [ ] Clean sans-serif for body text (off-white/cream)
-- [ ] Yellow/gold text for role names and important info
-- [ ] High contrast white for timer numbers
+- [x] Cinzel medieval serif font for headers (from Google Fonts)
+- [x] Inter clean sans-serif for body text
+- [x] Golden text (#fbbf24) for role names and important headers
+- [x] Consistent font-header utility class throughout
+
+**Component Library**
+- [x] Button component with 6 variants (primary, secondary, danger, success, ghost, gold)
+- [x] Pill-shaped rounded-full design
+- [x] 3 sizes (sm, md, lg)
+- [x] Loading states with spinner
+- [x] Card component with team-specific styling
+- [x] Proper disabled and focus states
+
+**Applied Throughout**
+- [x] SetupScreen: Golden headers, mystical tagline, Button components
+- [x] NightPhase: All headers with Cinzel font, all buttons converted
+- [x] DawnPhase: Golden "Dawn" header, announcement titles
+- [x] DayPhase: Cinzel headers, all button controls updated
+- [x] All 7 modals: Headers with Cinzel font, Button components
+- [x] Day/Night theme support for PlayerList and EventLog sidebars
+
+**Files Created**:
+- `src/styles/designTokens.ts` - Design system tokens
+- `src/components/ui/Button.tsx` - Reusable button component
+- `src/components/ui/Card.tsx` - Card container component
+- `src/components/ui/index.ts` - Export barrel
+- `src/index.css` - Updated with Tailwind v4 @theme configuration
+
+**Day Phase Theme Enhancement** ✅
+- [x] PlayerList adapts to day/night theme (light backgrounds, better contrast during day)
+- [x] EventLog adapts to day/night theme
+- [x] Role reveal badges use light blue during day phase
+- [x] All text colours optimised for readability in both themes
+
+#### Phase 3B: Remaining Visual Enhancements (To Do)
 
 **Role Cards Redesign**
 - [ ] Illustrated character art for each role
-- [ ] Rounded corners with subtle border
 - [ ] Card frame/border design
 - [ ] Slight 3D depth with shadow
 - [ ] Semi-transparent dark overlay for unselected cards
@@ -97,13 +127,6 @@ This document tracks planned improvements and feature requests for the Miller's 
 - [ ] Large centred character card during night phase
 - [ ] Atmospheric background matching role theme
 
-**Buttons**
-- [ ] Primary buttons: Rounded pill shape, dark grey/charcoal background
-- [ ] White text, bold, uppercase
-- [ ] Subtle inner shadow and press effect
-- [ ] Thin light grey outline
-- [ ] Secondary buttons with same style
-
 **Timer Display**
 - [ ] Massive white numbers (like 04:56)
 - [ ] "VOTE NOW" / "TIME" header text above
@@ -112,7 +135,6 @@ This document tracks planned improvements and feature requests for the Miller's 
 
 **Thematic Elements**
 - [ ] Werewolf silhouette art (from box art)
-- [ ] Medieval/rustic theming
 - [ ] Moon phases for night progression
 - [ ] Claw marks or scratch effects
 - [ ] Weathered/vintage look
@@ -123,10 +145,8 @@ This document tracks planned improvements and feature requests for the Miller's 
 **Animations**
 - [ ] Flip animation when revealing roles
 - [ ] Slide-in for role cards during night
-- [ ] Fade transitions between phases
 - [ ] Card shuffle animation on setup
 - [ ] Fade to black between phases
-- [ ] Moon/sun rising animations
 - [ ] Smooth cross-fades throughout
 
 ## 🎨 Medium Priority - To Do

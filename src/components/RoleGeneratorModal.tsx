@@ -7,6 +7,7 @@ import {
   analyseRoleDistribution,
   validateRoleBalance,
 } from "../utils/roleGenerator";
+import { Button } from "./ui";
 
 interface RoleGeneratorModalProps {
   playerCount: number;
@@ -56,16 +57,18 @@ export const RoleGeneratorModal = ({
         <div className="bg-gradient-to-r from-amber-600 to-amber-700 px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Sparkles className="w-6 h-6 text-amber-100" />
-            <h2 className="text-2xl font-bold text-amber-50">
+            <h2 className="text-2xl font-bold text-amber-50 font-header">
               Auto-Generate Roles
             </h2>
           </div>
-          <button
+          <Button
             onClick={onClose}
-            className="text-amber-100 hover:text-white transition-colors"
+            variant="ghost"
+            size="sm"
+            className="text-amber-100 hover:text-white"
           >
             <X className="w-6 h-6" />
-          </button>
+          </Button>
         </div>
 
         {/* Content */}
@@ -129,7 +132,7 @@ export const RoleGeneratorModal = ({
 
           {/* Role List */}
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-amber-400 mb-3">
+            <h3 className="text-lg font-semibold text-amber-400 mb-3 font-header">
               Generated Roles:
             </h3>
             <div className="space-y-2">
@@ -171,30 +174,29 @@ export const RoleGeneratorModal = ({
 
         {/* Footer */}
         <div className="bg-slate-700/50 px-6 py-4 flex items-center justify-between border-t border-slate-600">
-          <button
+          <Button
             onClick={handleGenerate}
             disabled={isGenerating}
-            className="px-4 py-2 rounded-lg bg-slate-600 hover:bg-slate-500 text-white font-medium transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            variant="secondary"
+            size="md"
           >
             <RefreshCw
               className={`w-4 h-4 ${isGenerating ? "animate-spin" : ""}`}
             />
             Regenerate
-          </button>
+          </Button>
           <div className="flex gap-3">
-            <button
-              onClick={onClose}
-              className="px-4 py-2 rounded-lg bg-slate-600 hover:bg-slate-500 text-white font-medium transition-colors"
-            >
+            <Button onClick={onClose} variant="secondary" size="md">
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => onConfirm(generatedRoles)}
               disabled={!validation.valid}
-              className="px-6 py-2 rounded-lg bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              variant="gold"
+              size="md"
             >
               Use These Roles
-            </button>
+            </Button>
           </div>
         </div>
       </div>

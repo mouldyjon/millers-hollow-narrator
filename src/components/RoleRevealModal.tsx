@@ -1,6 +1,7 @@
 import { X } from "lucide-react";
 import { roles } from "../data/roles";
 import type { RoleId, Player } from "../types/game";
+import { Button } from "./ui";
 
 interface RoleRevealModalProps {
   playerNumber: number;
@@ -69,15 +70,17 @@ export const RoleRevealModal = ({
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
       <div className="bg-slate-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-slate-800 border-b border-slate-700 p-6 flex items-center justify-between">
-          <h2 className="text-2xl font-bold">
+          <h2 className="text-2xl font-bold font-header text-amber-100">
             Reveal Role - Player {playerNumber}
           </h2>
-          <button
+          <Button
             onClick={onCancel}
-            className="p-2 hover:bg-slate-700 rounded-lg transition-colors"
+            variant="ghost"
+            size="sm"
+            className="hover:bg-slate-700"
           >
             <X className="w-6 h-6" />
-          </button>
+          </Button>
         </div>
 
         <div className="p-6 space-y-6">
@@ -89,7 +92,7 @@ export const RoleRevealModal = ({
           {/* Village Team */}
           {villageRoles.length > 0 && (
             <div>
-              <h3 className="text-lg font-semibold mb-3 text-blue-400">
+              <h3 className="text-lg font-semibold mb-3 text-blue-400 font-header">
                 Village Team
               </h3>
               <div className="grid grid-cols-2 gap-3">
@@ -112,7 +115,7 @@ export const RoleRevealModal = ({
           {/* Werewolf Team */}
           {werewolfRoles.length > 0 && (
             <div>
-              <h3 className="text-lg font-semibold mb-3 text-red-400">
+              <h3 className="text-lg font-semibold mb-3 text-red-400 font-header">
                 Werewolf Team
               </h3>
               <div className="grid grid-cols-2 gap-3">
@@ -135,7 +138,7 @@ export const RoleRevealModal = ({
           {/* Solo Team */}
           {soloRoles.length > 0 && (
             <div>
-              <h3 className="text-lg font-semibold mb-3 text-purple-400">
+              <h3 className="text-lg font-semibold mb-3 text-purple-400 font-header">
                 Special Roles
               </h3>
               <div className="grid grid-cols-2 gap-3">
@@ -156,12 +159,9 @@ export const RoleRevealModal = ({
           )}
 
           <div className="pt-4 border-t border-slate-700">
-            <button
-              onClick={onCancel}
-              className="w-full px-4 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-semibold transition-colors"
-            >
+            <Button onClick={onCancel} variant="secondary" size="md" fullWidth>
               Cancel
-            </button>
+            </Button>
           </div>
         </div>
       </div>
