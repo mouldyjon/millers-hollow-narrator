@@ -4,6 +4,7 @@ import { roles } from "../data/roles";
 import type { RoleId } from "../types/game";
 import { RoleGeneratorModal } from "./RoleGeneratorModal";
 import { ValidationBanner } from "./ValidationBanner";
+import { Button } from "./ui";
 import {
   validateSetup,
   getRecommendedRoles,
@@ -69,9 +70,12 @@ export const SetupScreen = ({
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 p-6">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl font-bold text-center mb-8">
+        <h1 className="text-4xl font-bold text-center mb-2 font-header text-[var(--color-text-gold)]">
           Miller's Hollow Narrator
         </h1>
+        <p className="text-center text-slate-400 mb-8 text-sm">
+          A mystical guide for your werewolf games
+        </p>
 
         {/* Player Count Selector */}
         <div className="bg-slate-800 rounded-lg p-6 mb-6">
@@ -115,7 +119,7 @@ export const SetupScreen = ({
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
                 <Sparkles className="w-6 h-6 text-amber-100" />
-                <h2 className="text-2xl font-semibold text-amber-50">
+                <h2 className="text-2xl font-semibold text-amber-50 font-header">
                   Auto-Generate Balanced Setup
                 </h2>
               </div>
@@ -124,13 +128,15 @@ export const SetupScreen = ({
                 based on your player count.
               </p>
             </div>
-            <button
+            <Button
               onClick={() => setShowGeneratorModal(true)}
-              className="ml-4 px-6 py-3 rounded-lg bg-white hover:bg-amber-50 text-amber-700 font-semibold transition-colors flex items-center gap-2 whitespace-nowrap"
+              variant="primary"
+              size="md"
+              className="ml-4 bg-white hover:bg-amber-50 !text-amber-700 border-white whitespace-nowrap"
             >
               <Sparkles className="w-5 h-5" />
               Generate Roles
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -337,18 +343,16 @@ export const SetupScreen = ({
 
         {/* Start Game Button */}
         <div className="mt-8 flex justify-center">
-          <button
+          <Button
             onClick={onStartGame}
             disabled={!isValidSetup}
-            className={`flex items-center gap-3 px-8 py-4 rounded-lg text-xl font-semibold transition-colors ${
-              isValidSetup
-                ? "bg-green-600 hover:bg-green-700 cursor-pointer"
-                : "bg-slate-700 cursor-not-allowed opacity-50"
-            }`}
+            variant="success"
+            size="lg"
+            className="text-xl"
           >
             <Play className="w-6 h-6" />
             Start Game
-          </button>
+          </Button>
         </div>
 
         {!isValidSetup && totalRoleSlots !== playerCount && (
