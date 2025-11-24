@@ -1,8 +1,93 @@
 @import "tailwindcss";
 
+/* Custom Design System Theme */
+@theme {
+    /* Fonts */
+    --font-family-header: "Cinzel", "Georgia", serif;
+    --font-family-body: "Inter", system-ui, sans-serif;
+
+    /* Custom Colors */
+    --color-background-primary: #1a2332;
+    --color-background-secondary: #2c3e50;
+    --color-background-tertiary: #34495e;
+
+    --color-accent-gold: #d4af37;
+    --color-accent-amber: #f59e0b;
+    --color-accent-tan: #d2b48c;
+
+    --color-text-gold: #fbbf24;
+
+    /* Team Colors */
+    --color-village-primary: #3b82f6;
+    --color-village-light: #60a5fa;
+    --color-village-dark: #1e40af;
+
+    --color-werewolf-primary: #ef4444;
+    --color-werewolf-light: #f87171;
+    --color-werewolf-dark: #991b1b;
+
+    --color-solo-primary: #a855f7;
+    --color-solo-light: #c084fc;
+    --color-solo-dark: #6b21a8;
+}
+
+/* Base styles */
 body {
-    background-color: #0f172a;
-    color: #f1f5f9;
+    background-color: var(--color-background-primary);
+    color: #f8fafc;
     min-height: 100vh;
     margin: 0;
+    font-family: var(--font-family-body);
+}
+
+/* Typography utilities */
+.font-header {
+    font-family: var(--font-family-header);
+}
+
+.font-body {
+    font-family: var(--font-family-body);
+}
+
+/* Textured background */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.03;
+    background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 2px,
+        rgba(255, 255, 255, 0.02) 2px,
+        rgba(255, 255, 255, 0.02) 4px
+    );
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Vignette effect */
+body::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(
+        ellipse at center,
+        transparent 0%,
+        transparent 60%,
+        rgba(0, 0, 0, 0.3) 100%
+    );
+    pointer-events: none;
+    z-index: 0;
+}
+
+#root {
+    position: relative;
+    z-index: 1;
 }
