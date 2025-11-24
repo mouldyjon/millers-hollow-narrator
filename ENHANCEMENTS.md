@@ -113,27 +113,43 @@ This document tracks planned improvements and feature requests for the Miller's 
 - [x] Role reveal badges use light blue during day phase
 - [x] All text colours optimised for readability in both themes
 
-#### Phase 3B: Remaining Visual Enhancements (To Do)
+#### Phase 3B: Visual Enhancements ✅ (Completed 2025-11-25)
 
-**Role Cards Redesign**
-- [ ] Illustrated character art for each role
-- [ ] Card frame/border design
-- [ ] Slight 3D depth with shadow
-- [ ] Semi-transparent dark overlay for unselected cards
-- [ ] Grid of role cards layout
-- [ ] Hover effect: brighten/lift card
-- [ ] Selected state: full brightness + border glow
-- [ ] Quantity badge in corner for multi-card roles
+**Timer Display** ✅
+- [x] Massive monospace numbers (text-9xl, like 04:56)
+- [x] Dynamic header text ("VOTE NOW" / "TIME REMAINING" / "READY TO START")
+- [x] Subtext explaining context
+- [x] Pulse animation when < 30 seconds
+- [x] Progress bar that turns red in final 30 seconds
+- [x] Dark gradient background (slate-800 to slate-900) with border
+- [x] Removed circular progress for cleaner ONUW aesthetic
+
+**Role Cards Redesign** ✅
+- [x] Grid layout (2-5 columns responsive)
+- [x] Card-based design with gradient backgrounds
+- [x] Border design with team-specific colours (blue/red/purple)
+- [x] Hover effects: scale-105, shadow glow, border colour change
+- [x] Selected state: border glow, shadow effects, scale-up
+- [x] Semi-transparent appearance for unselected cards (opacity-70)
+- [x] Quantity badge in top-right corner for multi-card roles
+- [x] Letter-based icon placeholders (first character of role name)
+- [x] Hover tooltip with role descriptions (smart positioning for multi-select)
+- [x] Interactive +/- controls for Villager and Simple Werewolf
+- [x] Recommended role badges with green borders
+- [x] Smooth transitions on all interactions (duration-300)
+
+**Implementation Details**:
+- Card grid uses responsive breakpoints: 2 (mobile), 3 (tablet), 4-5 (desktop)
+- Touch-friendly button sizes (p-1.5, rounded-full)
+- pointer-events-none on tooltips to prevent blocking controls
+- Team-specific styling throughout (village blue, werewolf red, solo purple)
+- Aspect-square icons maintain consistent card proportions
+
+**Remaining Visual Enhancements** (Future Phase)
+
+**Character Art & Theming**
+- [ ] Illustrated character art for each role (replace letter placeholders)
 - [ ] Large centred character card during night phase
-- [ ] Atmospheric background matching role theme
-
-**Timer Display**
-- [ ] Massive white numbers (like 04:56)
-- [ ] "VOTE NOW" / "TIME" header text above
-- [ ] "REMAINING BEFORE VOTE" subtext
-- [ ] Pulse animation when < 30 seconds
-
-**Thematic Elements**
 - [ ] Werewolf silhouette art (from box art)
 - [ ] Moon phases for night progression
 - [ ] Claw marks or scratch effects
@@ -142,11 +158,10 @@ This document tracks planned improvements and feature requests for the Miller's 
 - [ ] Lantern light effects
 - [ ] Gothic/medieval UI elements
 
-**Animations**
+**Advanced Animations**
 - [ ] Flip animation when revealing roles
 - [ ] Slide-in for role cards during night
 - [ ] Card shuffle animation on setup
-- [ ] Fade to black between phases
 - [ ] Smooth cross-fades throughout
 
 ## 🎨 Medium Priority - To Do
