@@ -621,6 +621,20 @@ export const useGameState = () => {
       }
     });
 
+    // Check if Wolf-Hound has chosen a team
+    const wolfHoundPlayer = gameState.players.find(
+      (p) => p.actualRole === "wolf-hound",
+    );
+    if (wolfHoundPlayer?.wolfHoundTeam) {
+      // Wolf-Hound starts as village, so adjust counts based on their choice
+      if (wolfHoundPlayer.wolfHoundTeam === "werewolf") {
+        // They chose werewolves, so subtract from village and add to werewolves
+        totalVillagers -= 1;
+        totalWerewolves += 1;
+      }
+      // If they chose village, no adjustment needed as they're already counted as village
+    }
+
     // If a player has been infected by Cursed Wolf-Father, they become a werewolf
     if (gameState.cursedWolfFatherInfectedPlayer) {
       totalWerewolves += 1;
