@@ -145,59 +145,92 @@ export const SetupScreen = ({
           <ValidationBanner messages={validationMessages} />
         )}
 
-        {/* Role Selection */}
-        <div className="space-y-6">
+        {/* Role Selection - Card Grid Layout */}
+        <div className="space-y-8">
           {/* Village Team */}
-          <div className="bg-slate-800 rounded-lg p-6">
-            <h3 className="text-xl font-semibold mb-4 text-blue-400">
+          <div>
+            <h3 className="text-3xl font-bold mb-6 text-blue-400 font-header">
               Village Team
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {villageTeamRoles.map((role) => {
                 const selectedCount = getSelectedCount(role.id);
                 const isMultiSelect = isMultiSelectRole(role.id);
                 const isRecommended = recommendedRoles.includes(role.id);
+                const isSelected = selectedCount > 0;
 
                 return (
                   <div
                     key={role.id}
-                    className={`p-4 rounded-lg transition-all ${
-                      selectedCount > 0
-                        ? "bg-blue-600"
-                        : isRecommended
-                          ? "bg-slate-700 border-2 border-green-500 shadow-lg shadow-green-500/20"
-                          : "bg-slate-700"
-                    }`}
+                    onClick={() => !isMultiSelect && onToggleRole(role.id)}
+                    className={`
+                      relative group cursor-pointer
+                      bg-gradient-to-br from-slate-800 to-slate-900
+                      rounded-xl overflow-hidden
+                      border-4 transition-all duration-300
+                      ${
+                        isSelected
+                          ? "border-blue-400 shadow-xl shadow-blue-500/50 scale-105"
+                          : isRecommended
+                            ? "border-green-500 shadow-lg shadow-green-500/30"
+                            : "border-slate-700 hover:border-blue-300 hover:shadow-lg hover:scale-105"
+                      }
+                      ${!isSelected ? "opacity-70 hover:opacity-100" : ""}
+                    `}
                   >
-                    <div className="flex items-start justify-between mb-1">
-                      <div className="flex-1">
-                        <div className="font-semibold flex items-center gap-2">
-                          {role.name}
-                          {getRoleCount(role.id) > 1 && !isMultiSelect && (
-                            <span className="text-xs bg-slate-900 px-2 py-1 rounded">
-                              ×{getRoleCount(role.id)}
-                            </span>
-                          )}
-                          {isRecommended && selectedCount === 0 && (
-                            <span className="text-xs bg-green-600 text-white px-2 py-1 rounded font-semibold">
-                              Recommended
-                            </span>
-                          )}
-                        </div>
+                    {/* Quantity Badge (top-right corner) */}
+                    {(isMultiSelect && selectedCount > 0) ||
+                    (getRoleCount(role.id) > 1 && !isMultiSelect) ? (
+                      <div className="absolute top-2 right-2 z-10 bg-slate-900 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm border-2 border-blue-400 shadow-lg">
+                        ×{isMultiSelect ? selectedCount : getRoleCount(role.id)}
                       </div>
-                      {isMultiSelect ? (
-                        <div className="flex items-center gap-2">
+                    ) : null}
+
+                    {/* Recommended Badge */}
+                    {isRecommended && !isSelected && (
+                      <div className="absolute top-2 left-2 z-10 bg-green-600 text-white text-xs px-2 py-1 rounded-full font-bold shadow-lg">
+                        ★ Recommended
+                      </div>
+                    )}
+
+                    {/* Card Content */}
+                    <div className="p-4 flex flex-col h-full">
+                      {/* Role Icon Placeholder - Using first letter as icon */}
+                      <div
+                        className={`
+                        w-full aspect-square rounded-lg mb-3
+                        flex items-center justify-center
+                        text-5xl font-bold font-header
+                        transition-all duration-300
+                        ${
+                          isSelected
+                            ? "bg-blue-600 text-white"
+                            : "bg-slate-700 text-blue-300 group-hover:bg-blue-600 group-hover:text-white"
+                        }
+                      `}
+                      >
+                        {role.name.charAt(0)}
+                      </div>
+
+                      {/* Role Name */}
+                      <h4 className="text-sm font-bold text-center mb-2 leading-tight font-header text-blue-200">
+                        {role.name}
+                      </h4>
+
+                      {/* Multi-select Controls */}
+                      {isMultiSelect && (
+                        <div className="flex items-center justify-center gap-2 mt-auto">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
                               if (selectedCount > 0) onRemoveRole(role.id);
                             }}
                             disabled={selectedCount === 0}
-                            className="p-1 rounded bg-slate-800 hover:bg-slate-900 disabled:opacity-30 disabled:cursor-not-allowed"
+                            className="p-1.5 rounded-full bg-slate-700 hover:bg-red-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                           >
                             <Minus className="w-4 h-4" />
                           </button>
-                          <span className="min-w-[2ch] text-center font-bold">
+                          <span className="min-w-[3ch] text-center font-bold text-lg">
                             {selectedCount}
                           </span>
                           <button
@@ -205,23 +238,25 @@ export const SetupScreen = ({
                               e.stopPropagation();
                               onToggleRole(role.id);
                             }}
-                            className="p-1 rounded bg-slate-800 hover:bg-slate-900"
+                            className="p-1.5 rounded-full bg-slate-700 hover:bg-green-600 transition-colors"
                           >
                             <Plus className="w-4 h-4" />
                           </button>
                         </div>
-                      ) : (
-                        <button
-                          onClick={() => onToggleRole(role.id)}
-                          className="text-sm underline"
-                        >
-                          {selectedCount > 0 ? "Remove" : "Add"}
-                        </button>
                       )}
                     </div>
-                    <div className="text-xs text-slate-300">
-                      {role.description}
-                    </div>
+
+                    {/* Hover Tooltip with Description - only show for non-multi-select roles */}
+                    {!isMultiSelect && (
+                      <div className="absolute inset-0 bg-slate-900/95 opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 flex flex-col justify-center pointer-events-none">
+                        <h4 className="text-sm font-bold mb-2 font-header text-blue-300">
+                          {role.name}
+                        </h4>
+                        <p className="text-xs text-slate-300 leading-relaxed">
+                          {role.description}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -229,51 +264,88 @@ export const SetupScreen = ({
           </div>
 
           {/* Werewolf Team */}
-          <div className="bg-slate-800 rounded-lg p-6">
-            <h3 className="text-xl font-semibold mb-4 text-red-400">
+          <div>
+            <h3 className="text-3xl font-bold mb-6 text-red-400 font-header">
               Werewolf Team
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {werewolfTeamRoles.map((role) => {
                 const selectedCount = getSelectedCount(role.id);
                 const isMultiSelect = isMultiSelectRole(role.id);
                 const isRecommended = recommendedRoles.includes(role.id);
+                const isSelected = selectedCount > 0;
 
                 return (
                   <div
                     key={role.id}
-                    className={`p-4 rounded-lg transition-all ${
-                      selectedCount > 0
-                        ? "bg-red-600"
-                        : isRecommended
-                          ? "bg-slate-700 border-2 border-green-500 shadow-lg shadow-green-500/20"
-                          : "bg-slate-700"
-                    }`}
+                    onClick={() => !isMultiSelect && onToggleRole(role.id)}
+                    className={`
+                      relative group cursor-pointer
+                      bg-gradient-to-br from-slate-800 to-slate-900
+                      rounded-xl overflow-hidden
+                      border-4 transition-all duration-300
+                      ${
+                        isSelected
+                          ? "border-red-400 shadow-xl shadow-red-500/50 scale-105"
+                          : isRecommended
+                            ? "border-green-500 shadow-lg shadow-green-500/30"
+                            : "border-slate-700 hover:border-red-300 hover:shadow-lg hover:scale-105"
+                      }
+                      ${!isSelected ? "opacity-70 hover:opacity-100" : ""}
+                    `}
                   >
-                    <div className="flex items-start justify-between mb-1">
-                      <div className="flex-1">
-                        <div className="font-semibold flex items-center gap-2">
-                          {role.name}
-                          {isRecommended && selectedCount === 0 && (
-                            <span className="text-xs bg-green-600 text-white px-2 py-1 rounded font-semibold">
-                              Recommended
-                            </span>
-                          )}
-                        </div>
+                    {/* Quantity Badge */}
+                    {isMultiSelect && selectedCount > 0 && (
+                      <div className="absolute top-2 right-2 z-10 bg-slate-900 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm border-2 border-red-400 shadow-lg">
+                        ×{selectedCount}
                       </div>
-                      {isMultiSelect ? (
-                        <div className="flex items-center gap-2">
+                    )}
+
+                    {/* Recommended Badge */}
+                    {isRecommended && !isSelected && (
+                      <div className="absolute top-2 left-2 z-10 bg-green-600 text-white text-xs px-2 py-1 rounded-full font-bold shadow-lg">
+                        ★ Recommended
+                      </div>
+                    )}
+
+                    {/* Card Content */}
+                    <div className="p-4 flex flex-col h-full">
+                      {/* Role Icon Placeholder */}
+                      <div
+                        className={`
+                        w-full aspect-square rounded-lg mb-3
+                        flex items-center justify-center
+                        text-5xl font-bold font-header
+                        transition-all duration-300
+                        ${
+                          isSelected
+                            ? "bg-red-600 text-white"
+                            : "bg-slate-700 text-red-300 group-hover:bg-red-600 group-hover:text-white"
+                        }
+                      `}
+                      >
+                        {role.name.charAt(0)}
+                      </div>
+
+                      {/* Role Name */}
+                      <h4 className="text-sm font-bold text-center mb-2 leading-tight font-header text-red-200">
+                        {role.name}
+                      </h4>
+
+                      {/* Multi-select Controls */}
+                      {isMultiSelect && (
+                        <div className="flex items-center justify-center gap-2 mt-auto">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
                               if (selectedCount > 0) onRemoveRole(role.id);
                             }}
                             disabled={selectedCount === 0}
-                            className="p-1 rounded bg-slate-800 hover:bg-slate-900 disabled:opacity-30 disabled:cursor-not-allowed"
+                            className="p-1.5 rounded-full bg-slate-700 hover:bg-red-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                           >
                             <Minus className="w-4 h-4" />
                           </button>
-                          <span className="min-w-[2ch] text-center font-bold">
+                          <span className="min-w-[3ch] text-center font-bold text-lg">
                             {selectedCount}
                           </span>
                           <button
@@ -281,23 +353,25 @@ export const SetupScreen = ({
                               e.stopPropagation();
                               onToggleRole(role.id);
                             }}
-                            className="p-1 rounded bg-slate-800 hover:bg-slate-900"
+                            className="p-1.5 rounded-full bg-slate-700 hover:bg-green-600 transition-colors"
                           >
                             <Plus className="w-4 h-4" />
                           </button>
                         </div>
-                      ) : (
-                        <button
-                          onClick={() => onToggleRole(role.id)}
-                          className="text-sm underline"
-                        >
-                          {selectedCount > 0 ? "Remove" : "Add"}
-                        </button>
                       )}
                     </div>
-                    <div className="text-xs text-slate-300">
-                      {role.description}
-                    </div>
+
+                    {/* Hover Tooltip - only show for non-multi-select roles */}
+                    {!isMultiSelect && (
+                      <div className="absolute inset-0 bg-slate-900/95 opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 flex flex-col justify-center pointer-events-none">
+                        <h4 className="text-sm font-bold mb-2 font-header text-red-300">
+                          {role.name}
+                        </h4>
+                        <p className="text-xs text-slate-300 leading-relaxed">
+                          {role.description}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -305,34 +379,65 @@ export const SetupScreen = ({
           </div>
 
           {/* Solo Team */}
-          <div className="bg-slate-800 rounded-lg p-6">
-            <h3 className="text-xl font-semibold mb-4 text-purple-400">
+          <div>
+            <h3 className="text-3xl font-bold mb-6 text-purple-400 font-header">
               Special Roles
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {soloTeamRoles.map((role) => {
                 const selectedCount = getSelectedCount(role.id);
+                const isSelected = selectedCount > 0;
 
                 return (
                   <div
                     key={role.id}
-                    className={`p-4 rounded-lg transition-colors ${
-                      selectedCount > 0 ? "bg-purple-600" : "bg-slate-700"
-                    }`}
+                    onClick={() => onToggleRole(role.id)}
+                    className={`
+                      relative group cursor-pointer
+                      bg-gradient-to-br from-slate-800 to-slate-900
+                      rounded-xl overflow-hidden
+                      border-4 transition-all duration-300
+                      ${
+                        isSelected
+                          ? "border-purple-400 shadow-xl shadow-purple-500/50 scale-105"
+                          : "border-slate-700 hover:border-purple-300 hover:shadow-lg hover:scale-105"
+                      }
+                      ${!isSelected ? "opacity-70 hover:opacity-100" : ""}
+                    `}
                   >
-                    <div className="flex items-start justify-between mb-1">
-                      <div className="flex-1">
-                        <div className="font-semibold">{role.name}</div>
-                      </div>
-                      <button
-                        onClick={() => onToggleRole(role.id)}
-                        className="text-sm underline"
+                    {/* Card Content */}
+                    <div className="p-4 flex flex-col h-full">
+                      {/* Role Icon Placeholder */}
+                      <div
+                        className={`
+                        w-full aspect-square rounded-lg mb-3
+                        flex items-center justify-center
+                        text-5xl font-bold font-header
+                        transition-all duration-300
+                        ${
+                          isSelected
+                            ? "bg-purple-600 text-white"
+                            : "bg-slate-700 text-purple-300 group-hover:bg-purple-600 group-hover:text-white"
+                        }
+                      `}
                       >
-                        {selectedCount > 0 ? "Remove" : "Add"}
-                      </button>
+                        {role.name.charAt(0)}
+                      </div>
+
+                      {/* Role Name */}
+                      <h4 className="text-sm font-bold text-center mb-2 leading-tight font-header text-purple-200">
+                        {role.name}
+                      </h4>
                     </div>
-                    <div className="text-xs text-slate-300">
-                      {role.description}
+
+                    {/* Hover Tooltip */}
+                    <div className="absolute inset-0 bg-slate-900/95 opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 flex flex-col justify-center pointer-events-none">
+                      <h4 className="text-sm font-bold mb-2 font-header text-purple-300">
+                        {role.name}
+                      </h4>
+                      <p className="text-xs text-slate-300 leading-relaxed">
+                        {role.description}
+                      </p>
                     </div>
                   </div>
                 );

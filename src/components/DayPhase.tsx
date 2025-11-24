@@ -193,52 +193,58 @@ export const DayPhase = ({
               </div>
             )}
 
-            {/* Timer Display */}
-            <div className="bg-white rounded-lg shadow-2xl p-12 mb-8">
+            {/* Timer Display - ONUW Style */}
+            <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl shadow-2xl p-12 mb-8 border-4 border-slate-700">
               <div className="text-center">
-                {/* Circular Progress */}
-                <div className="relative inline-flex items-center justify-center mb-8">
-                  <svg
-                    className="transform -rotate-90"
-                    width="280"
-                    height="280"
+                {/* Header Text */}
+                <div className="mb-4">
+                  <h2 className="text-2xl font-bold tracking-wider text-amber-400 font-header uppercase">
+                    {timeRemaining === 0
+                      ? "VOTE NOW"
+                      : isRunning
+                        ? "TIME REMAINING"
+                        : "READY TO START"}
+                  </h2>
+                  <p className="text-sm text-slate-400 tracking-wide uppercase mt-1">
+                    {timeRemaining === 0
+                      ? "Proceed to voting"
+                      : "Before voting begins"}
+                  </p>
+                </div>
+
+                {/* Massive Timer Numbers */}
+                <div
+                  className={`my-8 ${
+                    timeRemaining <= 30 && timeRemaining > 0 && isRunning
+                      ? "animate-pulse"
+                      : ""
+                  }`}
+                >
+                  <div
+                    className={`text-9xl font-bold tracking-wider transition-colors duration-300 ${
+                      timeRemaining <= 30 && timeRemaining > 0
+                        ? "text-red-500"
+                        : timeRemaining === 0
+                          ? "text-red-600"
+                          : "text-white"
+                    }`}
+                    style={{ fontFamily: "monospace" }}
                   >
-                    <circle
-                      cx="140"
-                      cy="140"
-                      r="120"
-                      stroke="#e2e8f0"
-                      strokeWidth="20"
-                      fill="none"
-                    />
-                    <circle
-                      cx="140"
-                      cy="140"
-                      r="120"
-                      stroke="#f59e0b"
-                      strokeWidth="20"
-                      fill="none"
-                      strokeDasharray={`${2 * Math.PI * 120}`}
-                      strokeDashoffset={`${2 * Math.PI * 120 * (1 - progressPercentage / 100)}`}
-                      strokeLinecap="round"
-                      className="transition-all duration-1000"
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-7xl font-bold text-slate-800">
-                      {formatTime(timeRemaining)}
-                    </span>
+                    {formatTime(timeRemaining)}
                   </div>
                 </div>
 
-                {/* Status Message */}
-                <p className="text-xl text-slate-600 mb-8">
-                  {timeRemaining === 0
-                    ? "Time is up! Proceed to voting."
-                    : isRunning
-                      ? "Discussion in progress..."
-                      : "Ready to start discussion"}
-                </p>
+                {/* Progress Bar */}
+                <div className="w-full h-3 bg-slate-700 rounded-full overflow-hidden mb-8">
+                  <div
+                    className={`h-full transition-all duration-1000 rounded-full ${
+                      timeRemaining <= 30 && timeRemaining > 0
+                        ? "bg-red-500"
+                        : "bg-amber-500"
+                    }`}
+                    style={{ width: `${progressPercentage}%` }}
+                  />
+                </div>
 
                 {/* Controls */}
                 <div className="flex gap-4 justify-center">
@@ -246,7 +252,7 @@ export const DayPhase = ({
                     onClick={handlePlayPause}
                     variant={isRunning ? "danger" : "success"}
                     size="lg"
-                    className="text-lg"
+                    className="text-lg min-w-[140px]"
                   >
                     {isRunning ? (
                       <>
@@ -265,7 +271,7 @@ export const DayPhase = ({
                     onClick={handleReset}
                     variant="secondary"
                     size="lg"
-                    className="text-lg"
+                    className="text-lg min-w-[140px]"
                   >
                     <RotateCcw className="w-6 h-6" />
                     Reset
