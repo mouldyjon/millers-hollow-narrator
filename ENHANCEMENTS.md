@@ -28,74 +28,44 @@ This document tracks planned improvements and feature requests for the Miller's 
 - Cards should feel tactile and satisfying to interact with
 - Clear visual feedback for all states (unselected, selected, disabled)
 
-### 2. Phase Transition Animations ✅
-**Status**: Completed  
-**Priority**: High  
-**Effort**: Low-Medium | **Impact**: Medium-High
-
-**Why**: Creates atmosphere, builds tension, and provides natural breaks between game phases. Reduces cognitive load by clearly separating game states.
-
-**Work Completed**:
-- [x] Implement smooth animated transitions between major phases
-- [x] Create "Night falls..." animation with moon icon and glow effects
-- [x] Create "Dawn breaks..." animation with sunrise icon
-- [x] Add floating particle effects for atmosphere
-- [x] Implement smooth easing and timing functions
-- [x] Ensure transitions don't block game flow (skippable via Space/Enter/Escape/Click)
-- [x] Test performance on mobile devices
-- [x] Optimise UX flow by removing redundant Day transition
-- [ ] Implement atmospheric sound effects (optional toggle in settings) - Future enhancement
-- [ ] Add subtle ambient sounds (wolves howling at night, birds at dawn) - Future enhancement
-
-**Implementation Details**:
-- Created `PhaseTransition.tsx` component with two transition types (Night, Dawn)
-- Beautiful gradient backgrounds (night: deep indigo, dawn: amber/orange)
-- Animated floating icons with scale, rotation, and glow effects
-- 30 floating particles for atmospheric effect
-- Duration: 3.5 seconds (provides reading time for narrator)
-- Skip options: Space/Enter/Escape keys or click anywhere
-- Uses `requestAnimationFrame` for smooth 60fps animations
-- Easing functions for natural motion
-
-**UX Decision**:
-- Removed Day transition: Dawn → Day happens without transition for better flow
-- Reasoning: Dawn and Day are conceptually the same phase (village awake), and another transition after role reveals felt redundant
-- Final flow: Night (roles act) → **[Dawn transition]** → Dawn (reveal deaths) → Day (discussion) → **[Night transition]** → repeat
-
-**Files Modified**:
-- `src/components/PhaseTransition.tsx` (new)
-- `src/App.tsx` (integrated transitions)
-
-### 3. Setup Validation & Warnings
-**Status**: Not Started  
+### 2. Setup Validation & Warnings
+**Status**: Partially Complete  
 **Priority**: High  
 **Effort**: Low | **Impact**: Medium
 
 **Why**: Prevents narrator errors before game starts, educates new narrators about balanced setups, reduces frustration from unbalanced games.
 
-**Work Required**:
-- [ ] Implement real-time balance validation during role selection
-- [ ] Add warning banners for common issues:
-  - "No investigative role - village will struggle to find werewolves"
-  - "Too many werewolves (>35%) - game unbalanced"
-  - "Too few werewolves (<20%) - village will dominate"
-  - "No protective roles - high elimination rate"
-- [ ] Highlight recommended roles in green
+**Completed** (via Auto-Generator Modal):
+- [x] Real-time balance validation in role generator
+- [x] Warning banners for common issues:
+  - [x] "No investigative role - village will struggle to find werewolves"
+  - [x] "Too many werewolves (>35%) - game unbalanced"
+  - [x] "Too few werewolves (<20%) - village will dominate"
+  - [x] "No werewolves selected - game cannot proceed"
+  - [x] Role count mismatch warnings
+- [x] Create severity levels (warnings displayed with amber theme)
+- [x] Block "Use These Roles" button on critical errors
+- [x] Werewolf percentage display (20-35% target)
+- [x] Live distribution preview (Village/Werewolf/Solo counts)
+
+**Still To Do** (for manual setup validation):
+- [ ] Real-time validation during manual role selection (not just in generator)
+- [ ] Show warnings on main setup screen when manually selecting roles
+- [ ] Highlight recommended roles in green on setup screen
 - [ ] Show role synergies (e.g., "Cupid works well with larger games")
 - [ ] Add "Why?" tooltips explaining warnings
-- [ ] Create severity levels (error, warning, info)
-- [ ] Block game start on critical errors
+- [ ] Warn if no protective roles (8+ players)
+- [ ] Warn about unused special mechanics
 - [ ] Allow override with confirmation on warnings
-- [ ] Integrate with auto-generator for comparison
 
-**Validation Rules**:
-- Must have at least 1 werewolf
-- Should have 20-35% werewolves
-- Should have at least 1 investigative role (6+ players)
-- Warn if no protective roles (8+ players)
-- Warn about unused special mechanics
+**Validation Rules Implemented**:
+- ✅ Must have at least 1 werewolf
+- ✅ Should have 20-35% werewolves
+- ✅ Should have at least 1 investigative role (6+ players)
+- ⏳ Warn if no protective roles (8+ players) - To Do
+- ⏳ Warn about unused special mechanics - To Do
 
-### 4. Better Visual Design (One Night Ultimate Werewolf Style)
+### 3. Better Visual Design (One Night Ultimate Werewolf Style)
 **Status**: Not Started  
 **Priority**: High  
 **Inspiration**: One Night Ultimate Werewolf Android app + Miller's Hollow board game art
@@ -124,7 +94,7 @@ This document tracks planned improvements and feature requests for the Miller's 
 - [ ] Hover effect: brighten/lift card
 - [ ] Selected state: full brightness + border glow
 - [ ] Quantity badge in corner for multi-card roles
-- [ ] Large centered character card during night phase
+- [ ] Large centred character card during night phase
 - [ ] Atmospheric background matching role theme
 
 **Buttons**
@@ -191,45 +161,7 @@ This document tracks planned improvements and feature requests for the Miller's 
 - Power users can navigate without touching mouse
 - Mobile users get native-feeling gestures
 
-### 2. Player Status At-a-Glance
-**Status**: Not Started  
-**Priority**: Medium-High  
-**Effort**: Low-Medium | **Impact**: Medium-High
-
-**Why**: Reduces information overload during game, helps narrator track game state quickly, improves scannability.
-
-**Work Required**:
-- [ ] Create visual status icons system:
-  - ❤️ Alive (green heart)
-  - 💀 Dead (grey skull)
-  - 👁️ Role revealed (eye icon)
-  - 🎯 Targeted/marked (target icon)
-  - 💑 Lover (heart with link)
-- [ ] Add colour-coded team indicators when role revealed:
-  - Blue border for village team
-  - Red border for werewolf team
-  - Purple border for solo roles
-- [ ] Implement compact card view option (toggle between list and cards)
-- [ ] Add quick filter buttons:
-  - "Show alive only"
-  - "Show dead only"
-  - "Show revealed only"
-  - "Show all" (default)
-- [ ] Create player count summary banner:
-  - "12 alive | 3 dead | 5 roles revealed"
-- [ ] Add search/filter by player number
-- [ ] Implement sorting options (by status, by number, by team)
-- [ ] Show role icons next to revealed players
-- [ ] Add hover tooltips with full player details
-- [ ] Ensure mobile-friendly compact view
-
-**Visual Design**:
-- Icons should be clear at small sizes
-- Colour-blind friendly (icons + colours)
-- High contrast for readability
-- Consistent with overall app theme
-
-### 3. Night Phase Voice Narration
+### 2. Night Phase Voice Narration
 **Status**: Not Started  
 **Priority**: Medium  
 **Effort**: Medium | **Impact**: Very High (when implemented)
@@ -370,6 +302,111 @@ This document tracks planned improvements and feature requests for the Miller's 
 
 ## ✅ Completed Features
 
+### Phase Transition Animations ✅
+**Status**: Completed (2025-11-21)  
+**Priority**: High  
+**Effort**: Low-Medium | **Impact**: Medium-High
+
+**Why**: Creates atmosphere, builds tension, and provides natural breaks between game phases. Reduces cognitive load by clearly separating game states.
+
+**Work Completed**:
+- [x] Implement smooth animated transitions between major phases
+- [x] Create "Night falls..." animation with moon icon and glow effects
+- [x] Create "Dawn breaks..." animation with sunrise icon
+- [x] Add floating particle effects for atmosphere
+- [x] Implement smooth easing and timing functions
+- [x] Ensure transitions don't block game flow (skippable via Space/Enter/Escape/Click)
+- [x] Test performance on mobile devices
+- [x] Optimise UX flow by removing redundant Day transition
+
+**Implementation Details**:
+- Created `PhaseTransition.tsx` component with two transition types (Night, Dawn)
+- Beautiful gradient backgrounds (night: deep indigo, dawn: amber/orange)
+- Animated floating icons with scale, rotation, and glow effects
+- 30 floating particles for atmospheric effect
+- Duration: 3.5 seconds (provides reading time for narrator)
+- Skip options: Space/Enter/Escape keys or click anywhere
+- Uses `requestAnimationFrame` for smooth 60fps animations
+- Easing functions for natural motion
+
+**UX Decision**:
+- Removed Day transition: Dawn → Day happens without transition for better flow
+- Reasoning: Dawn and Day are conceptually the same phase (village awake), and another transition after role reveals felt redundant
+- Final flow: Night (roles act) → **[Dawn transition]** → Dawn (reveal deaths) → Day (discussion) → **[Night transition]** → repeat
+
+**Files Modified**:
+- `src/components/PhaseTransition.tsx` (new)
+- `src/App.tsx` (integrated transitions)
+
+---
+
+### Phase 2 Enhancements ✅ (2025-11-25)
+
+#### Win Condition Detection ✅
+**Status**: Completed
+
+**Implemented**:
+- [x] Automatic win detection at end of Day and Dawn phases
+- [x] Village wins when all werewolves eliminated
+- [x] Werewolves win when all villagers eliminated
+- [x] Victory announcement modal with team-specific theming
+- [x] Proper handling of multi-instance roles (Villagers, Sisters, Brothers)
+- [x] Wolf-Hound team allegiance properly counted in win totals
+- [x] Cursed Wolf-Father infected player counted as werewolf
+
+**Implementation Details**:
+- Created `VictoryAnnouncement.tsx` component with beautiful victory modals
+- Added `checkWinCondition()` function in useGameState hook
+- Counts total roles in setup vs revealed dead roles
+- Handles edge cases: Wolf-Hound team switch, infected players
+- Team-specific victory themes (blue for Village, red for Werewolves)
+
+**Files Modified**:
+- `src/hooks/useGameState.ts` (win detection logic)
+- `src/components/VictoryAnnouncement.tsx` (new)
+- `src/components/DawnPhase.tsx` (victory check)
+- `src/components/DayPhase.tsx` (victory check)
+
+#### Role Filtering Improvements ✅
+**Status**: Completed
+
+**Implemented**:
+- [x] Already-revealed roles filtered from role selection modal
+- [x] Multi-instance role counting (multiple Villagers, Werewolves)
+- [x] Multi-player role support (Two Sisters = 2, Three Brothers = 3)
+- [x] Eliminated players' roles hidden from night sequence
+- [x] Infected players filtered from their original role night actions
+
+**Implementation Details**:
+- Count revealed roles vs total role instances
+- Filter roles where all instances have been revealed
+- Check if players with revealed roles are still alive
+- Special handling for Sisters/Brothers (multi-player roles)
+- Infected players excluded from non-werewolf roles
+
+**Files Modified**:
+- `src/components/RoleRevealModal.tsx` (role counting logic)
+- `src/components/NightPhase.tsx` (role filtering)
+
+#### Player Status At-a-Glance ✅
+**Status**: Completed
+
+**Implemented**:
+- [x] Visual status icons system (alive, dead, revealed, infected)
+- [x] Colour-coded team indicators when role revealed (blue/red/purple borders)
+- [x] Quick filter buttons (all, alive, dead, revealed)
+- [x] Player count summary banner
+- [x] Orange "🦠 INFECTED" badge for Cursed Wolf-Father victims
+- [x] Compact card view with clear iconography
+- [x] Mobile-friendly responsive design
+
+**Files Modified**:
+- `src/components/PlayerList.tsx` (enhanced UI)
+- `src/components/NightPhase.tsx` (pass infected player prop)
+- `src/components/DayPhase.tsx` (pass infected player prop)
+
+---
+
 ### Setup & Role Selection ✅
 
 #### Auto-Generate Balanced Role Setup ✅
@@ -400,7 +437,7 @@ This document tracks planned improvements and feature requests for the Miller's 
 - Integration in `src/components/SetupScreen.tsx`
 - All setups validated for balance and playability
 
-### Core Gameplay Features
+### Core Gameplay Features ✅
 
 #### Multi-Card Role Handling ✅
 - [x] Update game state to properly count roles with multiple cards
@@ -483,9 +520,25 @@ This document tracks planned improvements and feature requests for the Miller's 
 **Witch Potion Functionality**
 - [x] Fixed mutual exclusivity (only one potion per night)
 - [x] Healing potion revives dead player
+- [x] Healing potion cancels role reveal at dawn
 - [x] Death potion kills living player
 - [x] Player selection modals
 - [x] Event logging
+
+**Cursed Wolf-Father Silent Infection ✅** (2025-11-25)
+- [x] Player selection modal for choosing victim to infect
+- [x] Infected player tracked in game state
+- [x] Silent conversion: player becomes werewolf, keeps original role card
+- [x] Infected player loses ALL original role abilities immediately
+- [x] Filtered from their original role's night sequence
+- [x] Wakes with werewolves, included in werewolf narration
+- [x] Prominent orange "🦠 INFECTED" badge in player list
+- [x] Comprehensive narrator notifications and guidance
+- [x] Infected player counted as werewolf in win condition
+- [x] Properly subtracted from village team count
+- [x] Event logging for infection action
+- [x] Modal guidance on discreet player notification
+- [x] Alert banner during werewolf phase with instructions
 
 **Actor Role Guidance**
 - [x] Comprehensive narrator instructions
@@ -534,4 +587,4 @@ To work on any of these enhancements:
 - **Medium Priority**: UX enhancements, visual polish
 - **Low Priority**: Nice-to-have features, advanced functionality
 
-Last Updated: 2025-11-21
+Last Updated: 2025-11-25
