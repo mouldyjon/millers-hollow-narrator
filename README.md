@@ -15,11 +15,13 @@ Werewolves of Miller's Hollow is a social deduction party game where players are
   - Special Roles (4 roles): Angel, Prejudiced Manipulator, Wild Child, Wolf-Hound
   
 - **Interactive Setup Screen**
-  - Player count selector (8-30 players)
-  - Visual role selection organised by team
+  - Player count selector (5-20 players)
+  - **Auto-Generate Balanced Setup** - AI-powered role distribution algorithm
+  - Visual role selection organised by team with medieval aesthetic
   - Quantity selectors for Villagers (up to 9) and Simple Werewolves (up to 4)
   - Multi-card role support (Three Brothers = 3 slots, Two Sisters = 2 slots)
-  - Real-time validation preventing role count exceeding player count
+  - Real-time validation with warnings for unbalanced setups
+  - Beautiful role generator modal with live distribution preview
   
 - **Night Phase Narrator**
   - Text-to-speech narration using Web Speech API
@@ -41,6 +43,12 @@ Werewolves of Miller's Hollow is a social deduction party game where players are
   - Add notes for each player (suspicions, claims, etc.)
   - Eliminate/revive players with full role tracking
   
+- **Dawn Phase**
+  - Sequential role reveals for all players eliminated during night
+  - Special announcements (Bear Tamer, Sheriff death)
+  - Chain elimination handling with modal flow
+  - Automatic win condition detection
+
 - **Elimination Consequence System**
   - Automatic chain eliminations:
     - Cupid's Lovers die together
@@ -52,33 +60,64 @@ Werewolves of Miller's Hollow is a social deduction party game where players are
     - Sibling notifications (Two Sisters/Three Brothers)
     - Wild Child transformation when role model dies
   
+- **Win Condition Detection**
+  - Automatic victory detection at Dawn and Day phases
+  - Village wins when all werewolves eliminated
+  - Werewolves win when all villagers eliminated
+  - Beautiful victory announcement modals with team-specific theming
+  - Handles Wolf-Hound team allegiance and infected players
+  
 - **Game Event Log**
   - Chronological history of all game events
   - Automatic logging of all eliminations with role information
-  - Filter by event type (elimination, role action, voting, special)
+  - Adapts theme to match time of day (light during day, dark during night)
   - Timestamp and night number tracking
+  - Collapsible sidebar for easy access
 
 - **Day Phase Timer**
   - Configurable discussion timer (3, 5, 7, or 10 minutes)
-  - Visual circular progress indicator
+  - Massive circular progress indicator
   - Play/pause/reset controls
   - Helpful reminders of day phase actions
+  - Player list and event log available during discussion
+
+- **Phase Transitions**
+  - Smooth animated transitions between Night and Dawn
+  - Floating particles and atmospheric effects
+  - Skippable with keyboard or click (Space/Enter/Escape)
+  - Builds tension and provides natural breaks
+
+### Medieval Design System 🏰
+- **Atmospheric Aesthetics**
+  - Cinzel medieval serif font for headers
+  - Golden colour scheme (#fbbf24) for titles
+  - Textured background with subtle vignette effect
+  - Dark atmospheric theme for night phases
+  - Light readable theme for day phases
+  
+- **Component Library**
+  - Pill-shaped buttons with 6 variants (primary, secondary, danger, success, ghost, gold)
+  - Team-specific card styling (blue for village, red for werewolf, purple for solo)
+  - Consistent design tokens throughout
+  - Adaptive day/night themes for sidebars
 
 ### Progressive Web App
 - **Offline Support** - Works without internet after first load
 - **Installable** - Add to home screen on mobile devices
-- **Dark Theme** - Optimised for playing in low-light conditions
 - **Responsive Design** - Works on phones, tablets, and desktops
+- **Theme Adaptation** - UI adapts to game phase (day/night)
 
 ## 🛠️ Tech Stack
 
 - **Framework**: React 19.2 with TypeScript
 - **Build Tool**: Vite 7.2
-- **Styling**: Tailwind CSS v4
+- **Styling**: Tailwind CSS v4 with custom @theme configuration
+- **Typography**: Google Fonts (Cinzel + Inter)
 - **Icons**: Lucide React
 - **PWA**: Service Worker + Web App Manifest
 - **Development Environment**: DevBox
 - **State Management**: React Hooks (custom `useGameState` hook)
+- **Design System**: Custom component library (Button, Card)
 
 ## 📋 Architecture
 
@@ -86,19 +125,32 @@ Werewolves of Miller's Hollow is a social deduction party game where players are
 ```
 src/
 ├── components/          # React components
+│   ├── ui/                  # Design system components
+│   │   ├── Button.tsx           # Reusable button with 6 variants
+│   │   ├── Card.tsx             # Card container with team theming
+│   │   └── index.ts             # Component exports
 │   ├── SetupScreen.tsx      # Role selection and game setup
 │   ├── NightPhase.tsx       # Night phase narrator with TTS
-│   ├── DayPhase.tsx         # Day phase timer
-│   ├── PlayerList.tsx       # Player tracking sidebar
-│   ├── EventLog.tsx         # Game history log
-│   └── RoleActionGuide.tsx  # Narrator action checklists
+│   ├── DawnPhase.tsx        # Dawn phase with role reveals
+│   ├── DayPhase.tsx         # Day phase timer and discussion
+│   ├── PlayerList.tsx       # Player tracking sidebar (day/night themes)
+│   ├── EventLog.tsx         # Game history log (day/night themes)
+│   ├── RoleActionGuide.tsx  # Narrator action checklists
+│   ├── PhaseTransition.tsx  # Animated phase transitions
+│   ├── VictoryAnnouncement.tsx # Win condition modal
+│   └── *Modal.tsx           # Various modals (role selection, etc.)
 ├── hooks/               # Custom React hooks
 │   └── useGameState.ts      # Central game state management
 ├── data/                # Static game data
 │   └── roles.ts             # All 28 role definitions
+├── styles/              # Design system
+│   └── designTokens.ts      # Colour palette, typography, spacing
 ├── types/               # TypeScript type definitions
 │   └── game.ts              # Game state, roles, players interfaces
-└── main.tsx            # App entry point + PWA registration
+├── utils/               # Utility functions
+│   └── roleGenerator.ts     # Balanced setup algorithm
+├── index.css            # Tailwind configuration + global styles
+└── main.tsx             # App entry point + PWA registration
 ```
 
 ### Key Design Decisions
@@ -174,28 +226,55 @@ See `/public/ICONS_README.md` for details.
 
 ## 🎯 Usage
 
-1. **Setup**: Select player count and choose roles for the game
-2. **Start Game**: Begin the first night phase
+1. **Setup**: 
+   - Select player count (5-20)
+   - Choose "Auto-Generate Balanced Setup" for AI-powered role selection
+   - Or manually select roles from the organised list
+   - Review validation warnings if any appear
+   
+2. **Start Game**: Begin the first night phase with animated transition
+
 3. **Night Phase**: 
-   - Click "Speak" to hear narrator instructions
-   - Follow the role action checklist
-   - Use sidebar to track player status and notes
-   - Click "Next" to move to next role
-4. **Day Phase**: 
-   - Start discussion timer
-   - Players discuss and vote
-   - Record eliminations and revelations
-5. **Continue**: Cycle through nights and days until game ends
+   - Click "Speak" to hear narrator instructions (optional)
+   - Follow role-specific action checklists
+   - Track player status and notes in the sidebar
+   - Use modals for role actions (Witch potions, werewolf victims, etc.)
+   - Check off completed actions
+   - Click "Next" to progress through each role
+   
+4. **Dawn Phase**:
+   - Reveal roles of eliminated players sequentially
+   - Handle chain eliminations (lovers, hunter shots, etc.)
+   - View special announcements (Bear Tamer, Sheriff death)
+   - System checks for win conditions automatically
+   
+5. **Day Phase**: 
+   - Configure and start discussion timer
+   - Use light-themed sidebar for better readability
+   - Players discuss and vote to eliminate
+   - Record day eliminations with role reveals
+   
+6. **Continue**: Cycle through phases until victory condition is met
+   - Smooth animated transitions between major phases
+   - Victory announcement when game ends
 
 ## 🔮 Future Enhancements
 
 See [ENHANCEMENTS.md](./ENHANCEMENTS.md) for the complete roadmap.
 
+### Recently Completed ✅
+- ✅ **Auto-Generate Balanced Role Setup** (Phase 2) - AI-powered algorithm creates balanced distributions
+- ✅ **Dawn Phase** (Phase 2) - Role reveals and special announcements at sunrise
+- ✅ **Win Condition Detection** (Phase 2) - Automatic victory detection with beautiful modals
+- ✅ **Phase Transitions** (Phase 2) - Animated transitions with atmospheric effects
+- ✅ **Medieval Design System** (Phase 3A) - Complete visual overhaul with Cinzel fonts and golden aesthetic
+- ✅ **Day/Night Themes** (Phase 3A) - Adaptive UI that changes with game phase
+
 ### Upcoming Features
-- **Auto-Generate Balanced Role Setup**: Algorithm to create balanced role distributions based on player count
-- **Dawn Phase**: Special role actions at sunrise (Bear Tamer, Knight with Rusty Sword)
-- **Visual Redesign**: One Night Ultimate Werewolf inspired UI with illustrated role cards
-- **Sound Effects**: Audio cues for phase transitions
+- **Role Card Visual Redesign** (Phase 3B): Illustrated character art and card-based layout
+- **Quick Action Buttons**: Reduce clicks with floating action buttons and keyboard shortcuts
+- **Voice Narration**: Auto-play TTS mode with configurable timing
+- **Sound Effects**: Audio cues for phase transitions and role actions
 - **Game Statistics**: Track game history and win rates
 - **Multiple Languages**: Internationalisation support (French, Spanish, German)
 
