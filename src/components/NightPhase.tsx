@@ -372,6 +372,24 @@ export const NightPhase = ({
                   </div>
                 )}
 
+                {currentRole.id === "cursed-wolf-father" && (
+                  <div className="mt-6">
+                    <button
+                      onClick={onUseCursedWolfFatherInfection}
+                      disabled={nightState.cursedWolfFatherInfectionUsed}
+                      className={`w-full px-4 py-2 rounded-lg font-semibold ${
+                        nightState.cursedWolfFatherInfectionUsed
+                          ? "bg-slate-600 cursor-not-allowed"
+                          : "bg-orange-600 hover:bg-orange-700"
+                      }`}
+                    >
+                      {nightState.cursedWolfFatherInfectionUsed
+                        ? "Infection Already Used"
+                        : "Use Infection (Victim Becomes Werewolf)"}
+                    </button>
+                  </div>
+                )}
+
                 {currentRole.id === "witch" && (
                   <div className="mt-6 space-y-2">
                     <button
