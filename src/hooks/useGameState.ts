@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import type { GameState, RoleId } from "../types/game";
+import { roles } from "../data/roles";
 
 const STORAGE_KEY = "millers-hollow-game-state";
 
@@ -595,6 +596,82 @@ export const useGameState = () => {
     };
   };
 
+  const checkWinCondition = (): {
+    hasWinner: boolean;
+    winner?: "village" | "werewolves" | "solo";
+    message?: string;
+  } => {
+    // Count total werewolf and village roles in the game
+    let totalWerewolves = 0;
+    let totalVillagers = 0;
+
+    gameState.setup.selectedRoles.forEach((roleId) => {
+      const roleData = roles[roleId];
+      if (!roleData) return;
+
+      let multiplier = 1;
+      if (roleId === "two-sisters") multiplier = 2;
+      if (roleId === "three-brothers") multiplier = 3;
+
+      if (roleData.team === "werewolf") {
+        totalWerewolves += multiplier;
+      } else if (roleData.team === "village") {
+        totalVillagers += multiplier;
+      }
+    });
+
+    // Count revealed dead players by team
+    let deadWerewolves = 0;
+    let deadVillagers = 0;
+
+    gameState.players.forEach((player) => {
+      if (!player.isAlive && player.actualRole) {
+        const roleData = roles[player.actualRole];
+        if (!roleData) return;
+
+        // Handle Wolf-Hound team choice
+        if (player.actualRole === "wolf-hound" && player.wolfHoundTeam) {
+          if (player.wolfHoundTeam === "werewolf") {
+            deadWerewolves++;
+          } else {
+            deadVillagers++;
+          }
+          return;
+        }
+
+        if (roleData.team === "werewolf") {
+          deadWerewolves++;
+        } else if (roleData.team === "village") {
+          deadVillagers++;
+        }
+      }
+    });
+
+    // Check win conditions
+    // Village wins if all werewolves are dead (and at least one has been revealed)
+    if (deadWerewolves > 0 && deadWerewolves >= totalWerewolves) {
+      return {
+        hasWinner: true,
+        winner: "village",
+        message: "All werewolves have been eliminated. The Village wins!",
+      };
+    }
+
+    // Werewolves win if all villagers are dead (and at least one has been revealed)
+    if (deadVillagers > 0 && deadVillagers >= totalVillagers) {
+      return {
+        hasWinner: true,
+        winner: "werewolves",
+        message: "All villagers have been eliminated. The Werewolves win!",
+      };
+    }
+
+    // Note: Solo roles (like White Werewolf) have their own win conditions
+    // For now, we'll just detect the main win conditions
+
+    return { hasWinner: false };
+  };
+
   return {
     gameState,
     setPlayerCount,
@@ -625,5 +702,6 @@ export const useGameState = () => {
     clearPendingRoleReveals,
     toggleActionComplete,
     checkEliminationConsequences,
+    checkWinCondition,
   };
 };

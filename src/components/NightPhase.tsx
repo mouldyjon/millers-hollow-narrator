@@ -112,8 +112,25 @@ export const NightPhase = ({
     selectedRoles.includes(role.id),
   );
 
-  // Add special cases
+  // Filter for active roles (considering alive players and special conditions)
   const activeRoles = nightRoles.filter((role) => {
+    // Check if any player with this role is still alive (for revealed roles)
+    const playersWithRole = players.filter(
+      (player) => player.actualRole === role.id,
+    );
+
+    // If role has been revealed to anyone
+    if (playersWithRole.length > 0) {
+      // Check if at least one player with this role is still alive
+      const hasAlivePlayer = playersWithRole.some((player) => player.isAlive);
+
+      // If all players with this role are dead, skip it
+      if (!hasAlivePlayer) {
+        return false;
+      }
+    }
+    // If role hasn't been revealed yet, assume it's active (first night case)
+
     // White werewolf only wakes every other night
     if (role.id === "white-werewolf") {
       return nightState.whiteWerewolfNight;

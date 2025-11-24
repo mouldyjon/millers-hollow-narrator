@@ -1,10 +1,11 @@
 import { X } from "lucide-react";
 import { roles } from "../data/roles";
-import type { RoleId } from "../types/game";
+import type { RoleId, Player } from "../types/game";
 
 interface RoleRevealModalProps {
   playerNumber: number;
   selectedRoles: RoleId[];
+  players: Player[];
   onConfirm: (playerNumber: number, roleName: string, roleId: RoleId) => void;
   onCancel: () => void;
 }
@@ -12,6 +13,7 @@ interface RoleRevealModalProps {
 export const RoleRevealModal = ({
   playerNumber,
   selectedRoles,
+  players,
   onConfirm,
   onCancel,
 }: RoleRevealModalProps) => {
@@ -20,14 +22,46 @@ export const RoleRevealModal = ({
     onConfirm(playerNumber, role.name, roleId);
   };
 
-  // Group roles by team
-  const villageRoles = selectedRoles
+  // Count how many times each role has been revealed
+  const revealedRoleCounts = players.reduce(
+    (counts, p) => {
+      if (p.actualRole) {
+        counts[p.actualRole] = (counts[p.actualRole] || 0) + 1;
+      }
+      return counts;
+    },
+    {} as Record<RoleId, number>,
+  );
+
+  // Count how many times each role appears in selectedRoles
+  // Account for multi-player roles (Two Sisters = 2 players, Three Brothers = 3 players)
+  const totalRoleCounts = selectedRoles.reduce(
+    (counts, roleId) => {
+      let multiplier = 1;
+      if (roleId === "two-sisters") multiplier = 2;
+      if (roleId === "three-brothers") multiplier = 3;
+
+      counts[roleId] = (counts[roleId] || 0) + multiplier;
+      return counts;
+    },
+    {} as Record<RoleId, number>,
+  );
+
+  // Filter available roles: keep roles where revealed count < total count
+  const availableRoles = selectedRoles.filter((roleId) => {
+    const revealed = revealedRoleCounts[roleId] || 0;
+    const total = totalRoleCounts[roleId] || 0;
+    return revealed < total;
+  });
+
+  // Group available roles by team
+  const villageRoles = availableRoles
     .filter((roleId) => roles[roleId].team === "village")
     .map((roleId) => roles[roleId]);
-  const werewolfRoles = selectedRoles
+  const werewolfRoles = availableRoles
     .filter((roleId) => roles[roleId].team === "werewolf")
     .map((roleId) => roles[roleId]);
-  const soloRoles = selectedRoles
+  const soloRoles = availableRoles
     .filter((roleId) => roles[roleId].team === "solo")
     .map((roleId) => roles[roleId]);
 

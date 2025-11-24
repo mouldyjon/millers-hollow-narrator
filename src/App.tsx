@@ -31,6 +31,7 @@ function App() {
     clearPendingRoleReveals,
     toggleActionComplete,
     checkEliminationConsequences,
+    checkWinCondition,
     addGameEvent,
     resetGame,
   } = useGameState();
@@ -122,6 +123,7 @@ function App() {
           onTogglePlayerAlive={togglePlayerAlive}
           onClearPendingReveals={clearPendingRoleReveals}
           onCheckEliminationConsequences={checkEliminationConsequences}
+          onCheckWinCondition={checkWinCondition}
           onAddGameEvent={addGameEvent}
         />
       )}
@@ -137,6 +139,7 @@ function App() {
           onSetPlayerRevealedRole={setPlayerRevealedRole}
           onSetPlayerWolfHoundTeam={setPlayerWolfHoundTeam}
           onCheckEliminationConsequences={checkEliminationConsequences}
+          onCheckWinCondition={checkWinCondition}
           onAddGameEvent={addGameEvent}
         />
       )}

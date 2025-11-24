@@ -191,6 +191,7 @@ export const PlayerList = ({
         <RoleRevealModal
           playerNumber={eliminatingPlayer || awaitingRoleReveal || 0}
           selectedRoles={selectedRoles}
+          players={players}
           onConfirm={handleRoleReveal}
           onCancel={() => {
             setEliminatingPlayer(null);

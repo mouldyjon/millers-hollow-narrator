@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sunrise, AlertTriangle, Shield, Skull } from "lucide-react";
 import type { RoleId, Player } from "../types/game";
 import { RoleRevealModal } from "./RoleRevealModal";
 import { EliminationAlert } from "./EliminationAlert";
+import { VictoryAnnouncement } from "./VictoryAnnouncement";
 
 interface DawnPhaseProps {
   selectedRoles: RoleId[];
@@ -36,6 +37,11 @@ interface DawnPhaseProps {
     type: "elimination" | "role_action" | "day_vote" | "special",
     description: string,
   ) => void;
+  onCheckWinCondition: () => {
+    hasWinner: boolean;
+    winner?: "village" | "werewolves" | "solo";
+    message?: string;
+  };
 }
 
 export const DawnPhase = ({
@@ -49,8 +55,13 @@ export const DawnPhase = ({
   onClearPendingReveals,
   onCheckEliminationConsequences,
   onAddGameEvent,
+  onCheckWinCondition,
 }: DawnPhaseProps) => {
   const [currentRevealIndex, setCurrentRevealIndex] = useState(0);
+  const [victoryState, setVictoryState] = useState<{
+    winner: "village" | "werewolves";
+    message: string;
+  } | null>(null);
   const [eliminationAlert, setEliminationAlert] = useState<{
     type:
       | "lovers"
@@ -68,6 +79,20 @@ export const DawnPhase = ({
   const [awaitingRoleReveal, setAwaitingRoleReveal] = useState<number | null>(
     null,
   );
+
+  // Check win condition when players change (after role reveals)
+  useEffect(() => {
+    const result = onCheckWinCondition();
+    if (result.hasWinner && result.winner && result.message) {
+      // Only show victory for main teams (not solo)
+      if (result.winner === "village" || result.winner === "werewolves") {
+        setVictoryState({
+          winner: result.winner,
+          message: result.message,
+        });
+      }
+    }
+  }, [players, onCheckWinCondition]);
 
   // Handle role reveal for the current player
   const handleRoleReveal = (
@@ -209,6 +234,7 @@ export const DawnPhase = ({
       <RoleRevealModal
         playerNumber={awaitingRoleReveal}
         selectedRoles={selectedRoles}
+        players={players}
         onConfirm={handleChainRoleReveal}
         onCancel={() => {
           setAwaitingRoleReveal(null);
@@ -232,6 +258,7 @@ export const DawnPhase = ({
       <RoleRevealModal
         playerNumber={pendingRoleReveals[currentRevealIndex]}
         selectedRoles={selectedRoles}
+        players={players}
         onConfirm={handleRoleReveal}
         onCancel={() => {
           // Skip this reveal and move to next
@@ -320,52 +347,63 @@ export const DawnPhase = ({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-orange-900/20 to-slate-900 text-slate-100 p-6 flex items-center justify-center">
-      <div className="max-w-3xl w-full">
-        <div className="text-center mb-8">
-          <Sunrise className="w-16 h-16 text-orange-400 mx-auto mb-4" />
-          <h1 className="text-4xl font-bold mb-2">Dawn</h1>
-          <p className="text-slate-300">
-            The night ends and the sun begins to rise...
-          </p>
-        </div>
+    <>
+      {/* Victory Announcement */}
+      {victoryState && (
+        <VictoryAnnouncement
+          winner={victoryState.winner}
+          message={victoryState.message}
+          onDismiss={() => setVictoryState(null)}
+        />
+      )}
 
-        <div className="space-y-4 mb-8">
-          {announcements.map((announcement, index) => (
-            <div
-              key={index}
-              className={`${getBackgroundColor(announcement.type)} rounded-lg p-6 border-2 ${
-                announcement.type === "warning"
-                  ? "border-yellow-600"
-                  : announcement.type === "danger"
-                    ? "border-red-600"
-                    : "border-blue-600"
-              }`}
-            >
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0">{announcement.icon}</div>
-                <div className="flex-1">
-                  <h2 className="text-2xl font-bold mb-2">
-                    {announcement.title}
-                  </h2>
-                  <p className="text-lg text-slate-200">
-                    {announcement.message}
-                  </p>
+      <div className="min-h-screen bg-gradient-to-b from-slate-900 via-orange-900/20 to-slate-900 text-slate-100 p-6 flex items-center justify-center">
+        <div className="max-w-3xl w-full">
+          <div className="text-center mb-8">
+            <Sunrise className="w-16 h-16 text-orange-400 mx-auto mb-4" />
+            <h1 className="text-4xl font-bold mb-2">Dawn</h1>
+            <p className="text-slate-300">
+              The night ends and the sun begins to rise...
+            </p>
+          </div>
+
+          <div className="space-y-4 mb-8">
+            {announcements.map((announcement, index) => (
+              <div
+                key={index}
+                className={`${getBackgroundColor(announcement.type)} rounded-lg p-6 border-2 ${
+                  announcement.type === "warning"
+                    ? "border-yellow-600"
+                    : announcement.type === "danger"
+                      ? "border-red-600"
+                      : "border-blue-600"
+                }`}
+              >
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0">{announcement.icon}</div>
+                  <div className="flex-1">
+                    <h2 className="text-2xl font-bold mb-2">
+                      {announcement.title}
+                    </h2>
+                    <p className="text-lg text-slate-200">
+                      {announcement.message}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
 
-        <div className="text-center">
-          <button
-            onClick={onStartDay}
-            className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-4 rounded-lg text-xl font-semibold transition-colors"
-          >
-            Start Day Phase
-          </button>
+          <div className="text-center">
+            <button
+              onClick={onStartDay}
+              className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-4 rounded-lg text-xl font-semibold transition-colors"
+            >
+              Start Day Phase
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
