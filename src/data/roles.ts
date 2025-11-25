@@ -286,6 +286,10 @@ export const rolesByNightOrder = (isFirstNight: boolean) => {
       if (isFirstNight) {
         return role.wakeFirstNightOnly || role.wakeEveryNight;
       }
+      // White Werewolf wakes every other night (filtered later in NightPhase)
+      if (role.id === "white-werewolf") {
+        return true;
+      }
       return role.wakeEveryNight;
     })
     .sort((a, b) => {

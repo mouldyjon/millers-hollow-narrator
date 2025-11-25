@@ -18,7 +18,24 @@ export const WerewolfVictimModal = ({
 }: WerewolfVictimModalProps) => {
   const [selectedPlayer, setSelectedPlayer] = useState<number | null>(null);
 
-  const alivePlayers = players.filter((p) => p.isAlive);
+  // Filter players based on werewolf type
+  const alivePlayers = players.filter((p) => {
+    if (!p.isAlive) return false;
+
+    // White Werewolf can only target other werewolves
+    if (werewolfType === "white") {
+      // Only show players with revealed werewolf roles or infected players
+      const isWerewolf =
+        p.actualRole &&
+        (p.actualRole === "simple-werewolf" ||
+          p.actualRole === "big-bad-wolf" ||
+          p.actualRole === "white-werewolf" ||
+          p.actualRole === "cursed-wolf-father");
+      return isWerewolf;
+    }
+
+    return true;
+  });
 
   const getTitle = () => {
     switch (werewolfType) {
@@ -80,10 +97,19 @@ export const WerewolfVictimModal = ({
               White Werewolf rules:
             </p>
             <ul className="list-disc list-inside space-y-1 text-slate-300">
-              <li>Only wakes every other night</li>
-              <li>Must choose another werewolf to eliminate</li>
-              <li>This is optional - can choose not to kill</li>
+              <li>Only wakes every other night (this is that night)</li>
+              <li>Wakes after other werewolves, so knows who they are</li>
+              <li>
+                Must choose another werewolf to eliminate (not themselves)
+              </li>
+              <li>The White Werewolf player will indicate their choice</li>
+              <li>This is optional - can choose not to kill anyone</li>
+              <li>Wins alone if last player standing</li>
             </ul>
+            <p className="mt-2 text-amber-300 font-semibold">
+              NARRATOR: Ask the White Werewolf to point at another werewolf to
+              eliminate, or signal "no one" to pass.
+            </p>
           </div>
         );
     }

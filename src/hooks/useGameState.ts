@@ -245,7 +245,7 @@ export const useGameState = () => {
       nightState: {
         ...prev.nightState,
         currentNightNumber: prev.nightState.currentNightNumber + 1,
-        whiteWerewolfNight: prev.nightState.currentNightNumber % 2 === 0,
+        whiteWerewolfNight: (prev.nightState.currentNightNumber + 1) % 2 === 0,
         witchPotionUsedThisNight: false, // Reset per-night flag
         werewolfVictimSelectedThisNight: false,
         bigBadWolfVictimSelectedThisNight: false,

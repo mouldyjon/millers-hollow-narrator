@@ -12,6 +12,7 @@ import {
 import type { RoleId, Player, GameEvent } from "../types/game";
 import { PlayerList } from "./PlayerList";
 import { EventLog } from "./EventLog";
+import { RoleReference } from "./RoleReference";
 import { VictoryAnnouncement } from "./VictoryAnnouncement";
 import { Button } from "./ui";
 
@@ -77,6 +78,9 @@ export const DayPhase = ({
   const [isRunning, setIsRunning] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showSidebar, setShowSidebar] = useState(true);
+  const [sidebarTab, setSidebarTab] = useState<"players" | "events" | "roles">(
+    "players",
+  );
   const [victoryState, setVictoryState] = useState<{
     winner: "village" | "werewolves";
     message: string;
@@ -326,25 +330,70 @@ export const DayPhase = ({
             className={`transition-all duration-300 ${showSidebar ? "w-96" : "w-0 overflow-hidden"}`}
           >
             {showSidebar && (
-              <div className="space-y-6 sticky top-6">
-                <PlayerList
-                  playerCount={players.length}
-                  players={players}
-                  selectedRoles={selectedRoles}
-                  cursedWolfFatherInfectedPlayer={
-                    cursedWolfFatherInfectedPlayer
-                  }
-                  theme="day"
-                  onToggleAlive={onTogglePlayerAlive}
-                  onSetRevealedRole={onSetPlayerRevealedRole}
-                  onUpdateNotes={onUpdatePlayerNotes}
-                  onSetWolfHoundTeam={onSetPlayerWolfHoundTeam}
-                  onCheckEliminationConsequences={
-                    onCheckEliminationConsequences
-                  }
-                  onAddGameEvent={onAddGameEvent}
-                />
-                <EventLog events={gameEvents} theme="day" />
+              <div className="sticky top-6">
+                {/* Sidebar Tabs */}
+                <div className="flex gap-2 mb-4 bg-white p-2 rounded-lg shadow-md">
+                  <button
+                    onClick={() => setSidebarTab("players")}
+                    className={`flex-1 px-3 py-2 rounded text-sm font-semibold transition-colors ${
+                      sidebarTab === "players"
+                        ? "bg-blue-600 text-white"
+                        : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                    }`}
+                  >
+                    Players
+                  </button>
+                  <button
+                    onClick={() => setSidebarTab("events")}
+                    className={`flex-1 px-3 py-2 rounded text-sm font-semibold transition-colors ${
+                      sidebarTab === "events"
+                        ? "bg-blue-600 text-white"
+                        : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                    }`}
+                  >
+                    Events
+                  </button>
+                  <button
+                    onClick={() => setSidebarTab("roles")}
+                    className={`flex-1 px-3 py-2 rounded text-sm font-semibold transition-colors ${
+                      sidebarTab === "roles"
+                        ? "bg-blue-600 text-white"
+                        : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                    }`}
+                  >
+                    Roles
+                  </button>
+                </div>
+
+                {/* Sidebar Content */}
+                {sidebarTab === "players" && (
+                  <PlayerList
+                    playerCount={players.length}
+                    players={players}
+                    selectedRoles={selectedRoles}
+                    cursedWolfFatherInfectedPlayer={
+                      cursedWolfFatherInfectedPlayer
+                    }
+                    theme="day"
+                    onToggleAlive={onTogglePlayerAlive}
+                    onSetRevealedRole={onSetPlayerRevealedRole}
+                    onUpdateNotes={onUpdatePlayerNotes}
+                    onSetWolfHoundTeam={onSetPlayerWolfHoundTeam}
+                    onCheckEliminationConsequences={
+                      onCheckEliminationConsequences
+                    }
+                    onAddGameEvent={onAddGameEvent}
+                  />
+                )}
+                {sidebarTab === "events" && (
+                  <EventLog events={gameEvents} theme="day" />
+                )}
+                {sidebarTab === "roles" && (
+                  <RoleReference
+                    selectedRoles={selectedRoles}
+                    isDayPhase={true}
+                  />
+                )}
               </div>
             )}
           </div>
