@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import {
-  Moon,
   Pause,
   SkipForward,
   Volume2,
@@ -73,6 +72,23 @@ interface NightPhaseProps {
     description: string,
   ) => void;
 }
+
+// Helper function to get moon phase emoji based on night number
+const getMoonPhase = (nightNumber: number) => {
+  const phases = [
+    { emoji: "🌑", name: "New Moon" },
+    { emoji: "🌒", name: "Waxing Crescent" },
+    { emoji: "🌓", name: "First Quarter" },
+    { emoji: "🌔", name: "Waxing Gibbous" },
+    { emoji: "🌕", name: "Full Moon" },
+    { emoji: "🌖", name: "Waning Gibbous" },
+    { emoji: "🌗", name: "Last Quarter" },
+    { emoji: "🌘", name: "Waning Crescent" },
+  ];
+  // Cycle through phases based on night number
+  const phaseIndex = (nightNumber - 1) % phases.length;
+  return phases[phaseIndex];
+};
 
 export const NightPhase = ({
   selectedRoles,
@@ -260,25 +276,88 @@ export const NightPhase = ({
     }
   };
 
+  const moonPhase = getMoonPhase(nightState.currentNightNumber);
+
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 p-6">
-      <div className="flex gap-6 max-w-7xl mx-auto">
+    <div
+      className="min-h-screen text-slate-100 p-6 relative overflow-hidden"
+      style={{
+        background: `
+          radial-gradient(ellipse at top, rgba(30, 41, 59, 0.4) 0%, transparent 60%),
+          radial-gradient(ellipse at bottom, rgba(15, 23, 42, 0.8) 0%, transparent 60%),
+          linear-gradient(to bottom, #0f172a 0%, #1e293b 50%, #0f172a 100%)
+        `,
+      }}
+    >
+      {/* Atmospheric fog effect */}
+      <div className="absolute inset-0 pointer-events-none opacity-30">
+        <div
+          className="absolute inset-0"
+          style={{
+            background: `
+              radial-gradient(ellipse 800px 600px at 20% 40%, rgba(100, 116, 139, 0.1) 0%, transparent 50%),
+              radial-gradient(ellipse 600px 400px at 80% 60%, rgba(71, 85, 105, 0.15) 0%, transparent 50%)
+            `,
+          }}
+        />
+      </div>
+
+      <div className="flex gap-6 max-w-7xl mx-auto relative z-10">
         {/* Main Content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-3">
-              <Moon className="w-8 h-8 text-indigo-400" />
-              <h1 className="text-3xl font-bold font-header text-[var(--color-text-gold)]">
-                Night {nightState.currentNightNumber}
-              </h1>
+            <div className="flex items-center gap-4">
+              {/* Moon phase indicator */}
+              <div className="relative">
+                <div
+                  className="text-6xl leading-none filter drop-shadow-lg"
+                  title={moonPhase.name}
+                >
+                  {moonPhase.emoji}
+                </div>
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold font-header text-[var(--color-text-gold)] filter drop-shadow-lg">
+                  Night {nightState.currentNightNumber}
+                </h1>
+                <p className="text-sm text-indigo-300 italic">
+                  {moonPhase.name}
+                </p>
+              </div>
             </div>
-            <div className="text-sm text-slate-400">
+            <div className="text-sm text-slate-400 bg-slate-800/50 px-3 py-1 rounded-full border border-slate-700">
               Step {currentNightStep + 1} of {activeRoles.length}
             </div>
           </div>
 
-          {/* Current Role Card */}
-          <div className="bg-slate-800 rounded-lg p-8 mb-6 min-h-64 flex flex-col items-center justify-center">
+          {/* Current Role Card - with vintage texture */}
+          <div
+            className="bg-slate-800 rounded-lg p-8 mb-6 min-h-64 flex flex-col items-center justify-center relative overflow-hidden border-2 border-slate-700 shadow-2xl"
+            style={{
+              background: `
+                linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%),
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.05) 2px, rgba(0,0,0,.05) 4px)
+              `,
+              boxShadow: `
+                0 0 60px rgba(0, 0, 0, 0.5),
+                inset 0 0 20px rgba(0, 0, 0, 0.3),
+                0 4px 6px -1px rgba(0, 0, 0, 0.5)
+              `,
+            }}
+          >
+            {/* Decorative corner ornaments */}
+            <div className="absolute top-2 left-2 text-slate-600 text-2xl opacity-50">
+              ◆
+            </div>
+            <div className="absolute top-2 right-2 text-slate-600 text-2xl opacity-50">
+              ◆
+            </div>
+            <div className="absolute bottom-2 left-2 text-slate-600 text-2xl opacity-50">
+              ◆
+            </div>
+            <div className="absolute bottom-2 right-2 text-slate-600 text-2xl opacity-50">
+              ◆
+            </div>
             {isLastStep ? (
               <div className="text-center">
                 <Sun className="w-16 h-16 text-yellow-400 mx-auto mb-4" />
