@@ -677,6 +677,25 @@ export const useGameState = () => {
     });
 
     // Check win conditions
+    // Check for White Werewolf solo victory first (if in game)
+    if (gameState.setup.selectedRoles.includes("white-werewolf")) {
+      const whiteWolfPlayer = gameState.players.find(
+        (p) => p.actualRole === "white-werewolf",
+      );
+
+      // White Werewolf wins if they're alive and all other players are dead
+      if (whiteWolfPlayer?.isAlive) {
+        const alivePlayers = gameState.players.filter((p) => p.isAlive);
+        if (alivePlayers.length === 1) {
+          return {
+            hasWinner: true,
+            winner: "solo",
+            message: "The White Werewolf is the last survivor and wins alone!",
+          };
+        }
+      }
+    }
+
     // Village wins if all werewolves are dead (and at least one has been revealed)
     if (deadWerewolves > 0 && deadWerewolves >= totalWerewolves) {
       return {
@@ -694,9 +713,6 @@ export const useGameState = () => {
         message: "All villagers have been eliminated. The Werewolves win!",
       };
     }
-
-    // Note: Solo roles (like White Werewolf) have their own win conditions
-    // For now, we'll just detect the main win conditions
 
     return { hasWinner: false };
   };

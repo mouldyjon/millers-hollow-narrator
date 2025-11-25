@@ -82,7 +82,7 @@ export const DayPhase = ({
     "players",
   );
   const [victoryState, setVictoryState] = useState<{
-    winner: "village" | "werewolves";
+    winner: "village" | "werewolves" | "solo";
     message: string;
   } | null>(null);
 

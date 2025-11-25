@@ -60,7 +60,7 @@ export const DawnPhase = ({
 }: DawnPhaseProps) => {
   const [currentRevealIndex, setCurrentRevealIndex] = useState(0);
   const [victoryState, setVictoryState] = useState<{
-    winner: "village" | "werewolves";
+    winner: "village" | "werewolves" | "solo";
     message: string;
   } | null>(null);
   const [eliminationAlert, setEliminationAlert] = useState<{
@@ -86,7 +86,11 @@ export const DawnPhase = ({
     const result = onCheckWinCondition();
     if (result.hasWinner && result.winner && result.message) {
       // Only show victory for main teams (not solo)
-      if (result.winner === "village" || result.winner === "werewolves") {
+      if (
+        result.winner === "village" ||
+        result.winner === "werewolves" ||
+        result.winner === "solo"
+      ) {
         setVictoryState({
           winner: result.winner,
           message: result.message,
@@ -97,9 +101,15 @@ export const DawnPhase = ({
 
   // Auto-progress to day phase if no announcements or pending reveals
   useEffect(() => {
-    // Build announcements to check count
+    // Build announcements to check count (must match actual announcement logic below)
+    const bearTamerRevealed = players.find(
+      (p) => p.actualRole === "bear-tamer" && !p.isAlive,
+    );
+    const hasBearTamerAnnouncement =
+      selectedRoles.includes("bear-tamer") && !bearTamerRevealed;
+
     const hasAnnouncements =
-      selectedRoles.includes("bear-tamer") ||
+      hasBearTamerAnnouncement ||
       (sheriff && players.find((p) => p.number === sheriff && !p.isAlive)) ||
       players.find((p) => p.actualRole === "knight-rusty-sword" && !p.isAlive);
 

@@ -1,7 +1,7 @@
-import { Trophy, Users, Moon } from "lucide-react";
+import { Trophy, Users, Moon, Crown } from "lucide-react";
 
 interface VictoryAnnouncementProps {
-  winner: "village" | "werewolves";
+  winner: "village" | "werewolves" | "solo";
   message: string;
   onDismiss: () => void;
 }
@@ -26,10 +26,22 @@ export const VictoryAnnouncement = ({
       iconColour: "text-red-200",
       borderColour: "border-red-400",
     },
+    solo: {
+      icon: Crown,
+      title: "Solo Victory!",
+      bgGradient: "from-purple-900 via-purple-700 to-purple-900",
+      iconColour: "text-purple-200",
+      borderColour: "border-purple-400",
+    },
   };
 
-  const { icon: Icon, title, bgGradient, iconColour, borderColour } =
-    config[winner];
+  const {
+    icon: Icon,
+    title,
+    bgGradient,
+    iconColour,
+    borderColour,
+  } = config[winner];
 
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm">

@@ -338,7 +338,13 @@ This document tracks planned improvements and feature requests for the Miller's 
 - [ ] TTS doesn't work in all browsers (add fallback text display)
 - [ ] Service worker cache invalidation on app update
 - [ ] Timer continues in background on mobile (pause on tab switch)
-- [ ] Role order edge cases with optional roles
+
+### Recently Fixed (2025-11-25)
+- [x] React Hooks order violation in DawnPhase component (Three Brothers elimination)
+- [x] Bear Tamer elimination causing blank screen (auto-progress logic fixed)
+- [x] White Werewolf not appearing in night sequence (role filtering fixed)
+- [x] White Werewolf night schedule off-by-one error
+- [x] White background borders on character card images (transparency added)
 
 ---
 
@@ -391,6 +397,7 @@ This document tracks planned improvements and feature requests for the Miller's 
 - [x] Automatic win detection at end of Day and Dawn phases
 - [x] Village wins when all werewolves eliminated
 - [x] Werewolves win when all villagers eliminated
+- [x] White Werewolf solo victory when last player alive
 - [x] Victory announcement modal with team-specific theming
 - [x] Proper handling of multi-instance roles (Villagers, Sisters, Brothers)
 - [x] Wolf-Hound team allegiance properly counted in win totals
@@ -401,7 +408,8 @@ This document tracks planned improvements and feature requests for the Miller's 
 - Added `checkWinCondition()` function in useGameState hook
 - Counts total roles in setup vs revealed dead roles
 - Handles edge cases: Wolf-Hound team switch, infected players
-- Team-specific victory themes (blue for Village, red for Werewolves)
+- Team-specific victory themes (blue for Village, red for Werewolves, purple for Solo)
+- Solo victory checked first before team victories
 
 **Files Modified**:
 - `src/hooks/useGameState.ts` (win detection logic)
@@ -559,6 +567,15 @@ This document tracks planned improvements and feature requests for the Miller's 
 - [x] Buttons disabled after selection
 - [x] Flags reset each night
 
+**White Werewolf Functionality ✅** (2025-11-25)
+- [x] Wakes every other night (nights 2, 4, 6, etc.)
+- [x] Appears in night sequence on correct nights
+- [x] Enhanced modal with detailed rules and narrator guidance
+- [x] Can eliminate another werewolf (optional action)
+- [x] Solo victory condition when last player alive
+- [x] Fixed night number calculation for wake schedule
+- [x] Fixed role filtering to include in night sequence
+
 **Witch Potion Functionality**
 - [x] Fixed mutual exclusivity (only one potion per night)
 - [x] Healing potion revives dead player
@@ -600,6 +617,10 @@ This document tracks planned improvements and feature requests for the Miller's 
 - [x] Note-taking area for each player
 - [x] Role reveal tracking
 - [x] Collapsible sidebar
+- [x] Tabbed sidebar with Players/Events/Roles views ✅ (2025-11-25)
+- [x] Role Reference panel showing all selected roles ✅ (2025-11-25)
+- [x] Roles grouped by team with descriptions and quantities ✅ (2025-11-25)
+- [x] Day/night theme adaptation for sidebar tabs ✅ (2025-11-25)
 
 ### Advanced State Tracking ✅
 - [x] Record Cupid's lover choices (Player X & Y)
