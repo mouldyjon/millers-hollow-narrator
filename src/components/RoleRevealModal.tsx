@@ -48,8 +48,11 @@ export const RoleRevealModal = ({
     {} as Record<RoleId, number>,
   );
 
+  // Get unique role IDs from selectedRoles
+  const uniqueRoleIds = Array.from(new Set(selectedRoles));
+
   // Filter available roles: keep roles where revealed count < total count
-  const availableRoles = selectedRoles.filter((roleId) => {
+  const availableRoles = uniqueRoleIds.filter((roleId) => {
     const revealed = revealedRoleCounts[roleId] || 0;
     const total = totalRoleCounts[roleId] || 0;
     return revealed < total;
