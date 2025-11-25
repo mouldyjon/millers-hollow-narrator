@@ -325,15 +325,33 @@ export const DawnPhase = ({
     });
   }
 
-  // If no announcements, add a generic dawn message
+  // If no important announcements, auto-progress to day phase
+  useEffect(() => {
+    if (
+      announcements.length === 0 &&
+      pendingRoleReveals.length === 0 &&
+      !eliminationAlert &&
+      !awaitingRoleReveal &&
+      !victoryState
+    ) {
+      // No announcements and all reveals done - skip directly to day
+      const timer = setTimeout(() => {
+        onStartDay();
+      }, 100); // Small delay to ensure state is settled
+      return () => clearTimeout(timer);
+    }
+  }, [
+    announcements.length,
+    pendingRoleReveals.length,
+    eliminationAlert,
+    awaitingRoleReveal,
+    victoryState,
+    onStartDay,
+  ]);
+
+  // If no announcements but haven't auto-progressed yet, show nothing (will auto-progress)
   if (announcements.length === 0) {
-    announcements.push({
-      icon: <Sunrise className="w-12 h-12 text-orange-400" />,
-      title: "Dawn Breaks",
-      message:
-        "The sun rises over Miller's Hollow. The village prepares for the day ahead.",
-      type: "info",
-    });
+    return null;
   }
 
   const getBackgroundColor = (type: string) => {
