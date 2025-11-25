@@ -195,21 +195,13 @@ export const SetupScreen = ({
 
                     {/* Card Content */}
                     <div className="p-4 flex flex-col h-full">
-                      {/* Role Icon Placeholder - Using first letter as icon */}
-                      <div
-                        className={`
-                        w-full aspect-square rounded-lg mb-3
-                        flex items-center justify-center
-                        text-5xl font-bold font-header
-                        transition-all duration-300
-                        ${
-                          isSelected
-                            ? "bg-blue-600 text-white"
-                            : "bg-slate-700 text-blue-300 group-hover:bg-blue-600 group-hover:text-white"
-                        }
-                      `}
-                      >
-                        {role.name.charAt(0)}
+                      {/* Role Icon */}
+                      <div className="w-full aspect-square rounded-lg mb-3 overflow-hidden">
+                        <img
+                          src={`/millers-hollow-narrator/images/roles/${role.id}.png`}
+                          alt={role.name}
+                          className="w-full h-full object-cover"
+                        />
                       </div>
 
                       {/* Role Name */}
@@ -310,21 +302,13 @@ export const SetupScreen = ({
 
                     {/* Card Content */}
                     <div className="p-4 flex flex-col h-full">
-                      {/* Role Icon Placeholder */}
-                      <div
-                        className={`
-                        w-full aspect-square rounded-lg mb-3
-                        flex items-center justify-center
-                        text-5xl font-bold font-header
-                        transition-all duration-300
-                        ${
-                          isSelected
-                            ? "bg-red-600 text-white"
-                            : "bg-slate-700 text-red-300 group-hover:bg-red-600 group-hover:text-white"
-                        }
-                      `}
-                      >
-                        {role.name.charAt(0)}
+                      {/* Role Icon */}
+                      <div className="w-full aspect-square rounded-lg mb-3 overflow-hidden">
+                        <img
+                          src={`/millers-hollow-narrator/images/roles/${role.id}.png`}
+                          alt={role.name}
+                          className="w-full h-full object-cover"
+                        />
                       </div>
 
                       {/* Role Name */}
@@ -407,21 +391,13 @@ export const SetupScreen = ({
                   >
                     {/* Card Content */}
                     <div className="p-4 flex flex-col h-full">
-                      {/* Role Icon Placeholder */}
-                      <div
-                        className={`
-                        w-full aspect-square rounded-lg mb-3
-                        flex items-center justify-center
-                        text-5xl font-bold font-header
-                        transition-all duration-300
-                        ${
-                          isSelected
-                            ? "bg-purple-600 text-white"
-                            : "bg-slate-700 text-purple-300 group-hover:bg-purple-600 group-hover:text-white"
-                        }
-                      `}
-                      >
-                        {role.name.charAt(0)}
+                      {/* Role Icon */}
+                      <div className="w-full aspect-square rounded-lg mb-3 overflow-hidden">
+                        <img
+                          src={`/millers-hollow-narrator/images/roles/${role.id}.png`}
+                          alt={role.name}
+                          className="w-full h-full object-cover"
+                        />
                       </div>
 
                       {/* Role Name */}
