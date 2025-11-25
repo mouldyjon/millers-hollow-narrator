@@ -134,8 +134,8 @@ export const roles: Record<string, Role> = {
     name: "Bear Tamer",
     team: "village",
     description: "Bear grunts at dawn if a werewolf is adjacent",
-    nightOrder: 9,
-    wakeEveryNight: true,
+    nightOrder: 999, // No night action - effect happens at dawn
+    wakeEveryNight: false,
     wakeFirstNightOnly: false,
     hasLimitedUse: false,
     allowMultiple: false,
