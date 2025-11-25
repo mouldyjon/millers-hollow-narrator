@@ -145,13 +145,20 @@ This document tracks planned improvements and feature requests for the Miller's 
 - Team-specific styling throughout (village blue, werewolf red, solo purple)
 - Aspect-square icons maintain consistent card proportions
 
+**Character Art & Theming** ✅ (Completed 2025-11-25)
+- [x] Illustrated character art for all 24 roles (replaces letter placeholders)
+- [x] 400x400px optimised PNG images (~180-290KB each, 6.5MB total)
+- [x] Images integrated into role cards on setup screen
+- [x] Proper image paths with base URL support
+- [x] All role IDs match image filenames
+- [x] Moon phases for night progression (cycles through 8 phases: 🌑🌒🌓🌔🌕🌖🌗🌘)
+- [x] Moon phase indicator displayed in night phase header with name
+
 **Remaining Visual Enhancements** (Future Phase)
 
-**Character Art & Theming**
-- [ ] Illustrated character art for each role (replace letter placeholders)
+**Advanced Character Art Features**
 - [ ] Large centred character card during night phase
 - [ ] Werewolf silhouette art (from box art)
-- [ ] Moon phases for night progression
 - [ ] Claw marks or scratch effects
 - [ ] Weathered/vintage look
 - [ ] Dark foggy forest background option
