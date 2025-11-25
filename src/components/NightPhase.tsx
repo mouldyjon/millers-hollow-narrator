@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Pause,
   SkipForward,
@@ -7,6 +7,8 @@ import {
   PanelLeftOpen,
   PanelLeftClose,
   AlertCircle,
+  Play,
+  VolumeX,
 } from "lucide-react";
 import { rolesByNightOrder } from "../data/roles";
 import type { RoleId, NightState, Player, GameEvent } from "../types/game";
@@ -20,6 +22,8 @@ import { WerewolfVictimModal } from "./WerewolfVictimModal";
 import { WildChildRoleModelModal } from "./WildChildRoleModelModal";
 import { CursedWolfFatherModal } from "./CursedWolfFatherModal";
 import { Button } from "./ui";
+import { useNarrationAudio } from "../hooks/useNarrationAudio";
+import { getNarrationFile } from "../data/narrationFiles";
 
 interface NightPhaseProps {
   selectedRoles: RoleId[];
@@ -121,6 +125,23 @@ export const NightPhase = ({
   const [sidebarTab, setSidebarTab] = useState<"players" | "events" | "roles">(
     "players",
   );
+  const [audioEnabled, setAudioEnabled] = useState(true);
+  const [showIntro, setShowIntro] = useState(true);
+
+  // Audio narration hook
+  const {
+    play: playAudio,
+    stop: stopAudio,
+    isPlaying: isAudioPlaying,
+  } = useNarrationAudio({
+    volume: 0.8,
+    onEnded: () => {
+      // When night-begins audio ends, hide intro
+      if (showIntro && currentNightStep === 0) {
+        setShowIntro(false);
+      }
+    },
+  });
   const [witchPotionModal, setWitchPotionModal] = useState<
     "healing" | "death" | null
   >(null);
@@ -215,6 +236,25 @@ export const NightPhase = ({
     }
   };
 
+  // Try to auto-play night begins audio when entering night phase
+  // Note: May be blocked by browser auto-play policy
+  const hasAttemptedAutoPlay = useRef(false);
+  useEffect(() => {
+    if (
+      currentNightStep === 0 &&
+      showIntro &&
+      audioEnabled &&
+      !hasAttemptedAutoPlay.current
+    ) {
+      hasAttemptedAutoPlay.current = true;
+      // Small delay to ensure component is mounted
+      const timer = setTimeout(() => {
+        playAudio("night-begins.mp3");
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [currentNightStep, showIntro, audioEnabled, playAudio]);
+
   useEffect(() => {
     return () => {
       stopSpeaking();
@@ -263,16 +303,47 @@ export const NightPhase = ({
   };
 
   const handlePlayPause = () => {
-    if (isSpeaking) {
-      stopSpeaking();
-    } else if (currentRole) {
-      const text = getNarrationText(currentRole);
-      speak(text);
+    // On intro screen, play/pause night-begins audio
+    if (showIntro && currentNightStep === 0) {
+      if (isAudioPlaying) {
+        stopAudio();
+      } else if (audioEnabled) {
+        playAudio("night-begins.mp3");
+      }
+      return;
+    }
+
+    // For roles, try audio first, fall back to speech synthesis
+    if (currentRole) {
+      const audioFile = getNarrationFile(currentRole.id, "wake");
+      if (audioFile && audioEnabled) {
+        if (isAudioPlaying) {
+          stopAudio();
+        } else {
+          playAudio(audioFile);
+        }
+      } else {
+        // Fall back to speech synthesis if no audio file
+        if (isSpeaking) {
+          stopSpeaking();
+        } else {
+          const text = getNarrationText(currentRole);
+          speak(text);
+        }
+      }
     }
   };
 
   const handleNext = () => {
     stopSpeaking();
+
+    // If we're on the intro screen, just hide it and show first role
+    if (showIntro && currentNightStep === 0) {
+      stopAudio(); // Stop night-begins audio if still playing
+      setShowIntro(false);
+      return;
+    }
+
     if (isLastStep) {
       onEndNight();
     } else {
@@ -329,8 +400,36 @@ export const NightPhase = ({
                 </p>
               </div>
             </div>
-            <div className="text-sm text-slate-400 bg-slate-800/50 px-3 py-1 rounded-full border border-slate-700">
-              Step {currentNightStep + 1} of {activeRoles.length}
+            <div className="flex items-center gap-3">
+              {/* Audio toggle */}
+              <button
+                onClick={() => {
+                  setAudioEnabled(!audioEnabled);
+                  if (isAudioPlaying) {
+                    stopAudio();
+                  }
+                }}
+                className={`p-2 rounded-full transition-colors ${
+                  audioEnabled
+                    ? "bg-blue-600 hover:bg-blue-700"
+                    : "bg-slate-700 hover:bg-slate-600"
+                }`}
+                title={
+                  audioEnabled
+                    ? "Disable audio narration"
+                    : "Enable audio narration"
+                }
+              >
+                {audioEnabled ? (
+                  <Volume2 className="w-5 h-5 text-white" />
+                ) : (
+                  <VolumeX className="w-5 h-5 text-slate-400" />
+                )}
+              </button>
+
+              <div className="text-sm text-slate-400 bg-slate-800/50 px-3 py-1 rounded-full border border-slate-700">
+                Step {currentNightStep + 1} of {activeRoles.length}
+              </div>
             </div>
           </div>
 
@@ -362,15 +461,69 @@ export const NightPhase = ({
             <div className="absolute bottom-2 right-2 text-slate-600 text-2xl opacity-50">
               ◆
             </div>
-            {isLastStep ? (
+            {showIntro && currentNightStep === 0 ? (
+              <div className="text-center">
+                <div className="text-6xl mb-6">{moonPhase.emoji}</div>
+                <h2 className="text-4xl font-bold mb-4 font-header text-[var(--color-text-gold)]">
+                  Night Falls
+                </h2>
+                <p className="text-lg text-slate-300 mb-6 italic">
+                  The village sleeps as darkness descends...
+                </p>
+                <div className="flex items-center justify-center gap-2 text-sm text-slate-400">
+                  {isAudioPlaying ? (
+                    <>
+                      <Volume2 className="w-4 h-4 animate-pulse" />
+                      <span>Playing narration...</span>
+                    </>
+                  ) : audioEnabled ? (
+                    <>
+                      <Volume2 className="w-4 h-4" />
+                      <span>Click Play below to hear narration</span>
+                    </>
+                  ) : (
+                    <span>Click Next to begin</span>
+                  )}
+                </div>
+              </div>
+            ) : isLastStep ? (
               <div className="text-center">
                 <Sun className="w-16 h-16 text-yellow-400 mx-auto mb-4" />
                 <h2 className="text-2xl font-bold mb-2 font-header text-[var(--color-text-gold)]">
                   Night is Over
                 </h2>
-                <p className="text-slate-300 mb-6">
-                  The village awakens as dawn breaks
+                <p className="text-slate-300 mb-4">
+                  The night ends. Prepare for dawn announcements...
                 </p>
+                <button
+                  onClick={() => {
+                    if (isAudioPlaying) {
+                      stopAudio();
+                    } else if (audioEnabled) {
+                      playAudio("night-ending.mp3");
+                    }
+                  }}
+                  className={`mx-auto px-6 py-3 rounded-lg transition-colors ${
+                    isAudioPlaying
+                      ? "bg-green-600 hover:bg-green-700"
+                      : "bg-yellow-600 hover:bg-yellow-700"
+                  } text-white font-semibold flex items-center gap-2`}
+                  title={
+                    isAudioPlaying ? "Stop narration" : "Play night ending"
+                  }
+                >
+                  {isAudioPlaying ? (
+                    <>
+                      <Pause className="w-5 h-5" />
+                      Stop
+                    </>
+                  ) : (
+                    <>
+                      <Volume2 className="w-5 h-5" />
+                      Play Night Ending
+                    </>
+                  )}
+                </button>
               </div>
             ) : currentRole ? (
               <div className="text-center w-full">
@@ -396,9 +549,38 @@ export const NightPhase = ({
                   {currentRole.description}
                 </p>
                 <div className="bg-slate-700 rounded-lg p-4 text-left">
-                  <p className="text-sm italic text-slate-300">
-                    {getNarrationText(currentRole)}
-                  </p>
+                  <div className="flex items-start gap-3">
+                    <p className="text-sm italic text-slate-300 flex-1">
+                      {getNarrationText(currentRole)}
+                    </p>
+                    {/* Audio narration button */}
+                    {audioEnabled &&
+                      getNarrationFile(currentRole.id, "wake") && (
+                        <button
+                          onClick={() => {
+                            const filename = getNarrationFile(
+                              currentRole.id,
+                              "wake",
+                            );
+                            if (filename) {
+                              playAudio(filename);
+                            }
+                          }}
+                          className={`flex-shrink-0 p-2 rounded-full transition-colors ${
+                            isAudioPlaying
+                              ? "bg-green-600 hover:bg-green-700"
+                              : "bg-blue-600 hover:bg-blue-700"
+                          }`}
+                          title="Play narration"
+                        >
+                          {isAudioPlaying ? (
+                            <Pause className="w-5 h-5 text-white" />
+                          ) : (
+                            <Play className="w-5 h-5 text-white" />
+                          )}
+                        </button>
+                      )}
+                  </div>
                 </div>
 
                 {/* Role-specific actions */}
@@ -597,7 +779,7 @@ export const NightPhase = ({
               size="lg"
               className="bg-indigo-600 hover:bg-indigo-700"
             >
-              {isSpeaking ? (
+              {isAudioPlaying || isSpeaking ? (
                 <>
                   <Pause className="w-5 h-5" />
                   Pause
@@ -605,7 +787,7 @@ export const NightPhase = ({
               ) : (
                 <>
                   <Volume2 className="w-5 h-5" />
-                  Speak
+                  Play
                 </>
               )}
             </Button>

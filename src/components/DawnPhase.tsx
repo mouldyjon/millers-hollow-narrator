@@ -1,10 +1,19 @@
-import { useState, useEffect } from "react";
-import { Sunrise, AlertTriangle, Shield, Skull } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import {
+  Sunrise,
+  AlertTriangle,
+  AlertCircle,
+  Shield,
+  Skull,
+  Volume2,
+  Pause,
+} from "lucide-react";
 import type { RoleId, Player } from "../types/game";
 import { RoleRevealModal } from "./RoleRevealModal";
 import { EliminationAlert } from "./EliminationAlert";
 import { VictoryAnnouncement } from "./VictoryAnnouncement";
 import { Button } from "./ui";
+import { useNarrationAudio } from "../hooks/useNarrationAudio";
 
 interface DawnPhaseProps {
   selectedRoles: RoleId[];
@@ -80,6 +89,27 @@ export const DawnPhase = ({
   const [awaitingRoleReveal, setAwaitingRoleReveal] = useState<number | null>(
     null,
   );
+
+  // Audio narration
+  const {
+    play: playAudio,
+    stop: stopAudio,
+    isPlaying: isAudioPlaying,
+  } = useNarrationAudio({
+    volume: 0.8,
+  });
+  const hasAttemptedAutoPlay = useRef(false);
+
+  // Auto-play dawn breaks audio on mount
+  useEffect(() => {
+    if (!hasAttemptedAutoPlay.current) {
+      hasAttemptedAutoPlay.current = true;
+      const timer = setTimeout(() => {
+        playAudio("dawn-breaks.mp3");
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [playAudio]);
 
   // Check win condition when players change (after role reveals)
   useEffect(() => {
@@ -398,12 +428,65 @@ export const DawnPhase = ({
         <div className="max-w-3xl w-full">
           <div className="text-center mb-8">
             <Sunrise className="w-16 h-16 text-orange-400 mx-auto mb-4" />
-            <h1 className="text-4xl font-bold mb-2 font-header text-[var(--color-text-gold)]">
-              Dawn
-            </h1>
+            <div className="flex items-center justify-center gap-4 mb-2">
+              <h1 className="text-4xl font-bold font-header text-[var(--color-text-gold)]">
+                Dawn
+              </h1>
+              <button
+                onClick={() => {
+                  if (isAudioPlaying) {
+                    stopAudio();
+                  } else {
+                    playAudio("dawn-breaks.mp3");
+                  }
+                }}
+                className={`p-2 rounded-full transition-colors ${
+                  isAudioPlaying
+                    ? "bg-green-600 hover:bg-green-700"
+                    : "bg-orange-600 hover:bg-orange-700"
+                }`}
+                title={isAudioPlaying ? "Stop narration" : "Play narration"}
+              >
+                {isAudioPlaying ? (
+                  <Pause className="w-5 h-5 text-white" />
+                ) : (
+                  <Volume2 className="w-5 h-5 text-white" />
+                )}
+              </button>
+            </div>
             <p className="text-slate-300">
               The night ends and the sun begins to rise...
             </p>
+          </div>
+
+          {/* Narrator Guidance */}
+          <div className="bg-blue-900/30 border-2 border-blue-500 rounded-lg p-4 mb-6">
+            <h3 className="text-lg font-semibold mb-2 text-blue-200 flex items-center gap-2">
+              <AlertCircle className="w-5 h-5" />
+              Narrator Guide - Dawn Announcement Order
+            </h3>
+            <ol className="text-sm text-slate-200 space-y-1 list-decimal list-inside">
+              <li>
+                <strong>Dawn Breaks:</strong> Play automatically (or use button
+                above)
+              </li>
+              <li>
+                <strong>Morning Announcement:</strong> Choose "Victim
+                Announcement" or "No Death" based on eliminations
+              </li>
+              <li>
+                <strong>Bear Tamer:</strong> If shown below, announce bear
+                status (growls or calm)
+              </li>
+              <li>
+                <strong>Other Announcements:</strong> Any sheriff death or
+                knight effects shown below
+              </li>
+              <li>
+                <strong>Reveal Roles:</strong> Have eliminated players reveal
+                their roles if applicable
+              </li>
+            </ol>
           </div>
 
           <div className="space-y-4 mb-8">
@@ -427,10 +510,59 @@ export const DawnPhase = ({
                     <p className="text-lg text-slate-200">
                       {announcement.message}
                     </p>
+                    {/* Bear Tamer sound buttons */}
+                    {announcement.title === "Bear Tamer Announcement" && (
+                      <div className="mt-4 flex gap-3">
+                        <button
+                          onClick={() => playAudio("bear-growls.mp3")}
+                          className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-white font-semibold flex items-center gap-2 transition-colors"
+                        >
+                          <Volume2 className="w-4 h-4" />
+                          Play Bear Growls
+                        </button>
+                        <button
+                          onClick={() => playAudio("bear-calm.mp3")}
+                          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-semibold flex items-center gap-2 transition-colors"
+                        >
+                          <Volume2 className="w-4 h-4" />
+                          Play Bear Calm
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* Morning Announcements */}
+          <div className="bg-slate-800/50 rounded-lg p-4 mb-6">
+            <h3 className="text-lg font-semibold mb-3 text-amber-100 text-center">
+              Morning Announcements
+            </h3>
+            <div className="flex flex-wrap gap-3 justify-center">
+              <button
+                onClick={() => playAudio("morning-announcement.mp3")}
+                className="px-4 py-2 bg-orange-600 hover:bg-orange-700 rounded-lg text-white font-semibold flex items-center gap-2 transition-colors"
+              >
+                <Volume2 className="w-4 h-4" />
+                Morning Announcement
+              </button>
+              <button
+                onClick={() => playAudio("victim-announcement.mp3")}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-white font-semibold flex items-center gap-2 transition-colors"
+              >
+                <Volume2 className="w-4 h-4" />
+                Victim Announcement
+              </button>
+              <button
+                onClick={() => playAudio("no-death.mp3")}
+                className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-white font-semibold flex items-center gap-2 transition-colors"
+              >
+                <Volume2 className="w-4 h-4" />
+                No Death
+              </button>
+            </div>
           </div>
 
           <div className="text-center">

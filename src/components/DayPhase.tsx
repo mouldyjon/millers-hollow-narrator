@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Sun,
   Play,
@@ -8,6 +8,8 @@ import {
   Settings,
   PanelLeftOpen,
   PanelLeftClose,
+  Volume2,
+  AlertCircle,
 } from "lucide-react";
 import type { RoleId, Player, GameEvent } from "../types/game";
 import { PlayerList } from "./PlayerList";
@@ -15,6 +17,7 @@ import { EventLog } from "./EventLog";
 import { RoleReference } from "./RoleReference";
 import { VictoryAnnouncement } from "./VictoryAnnouncement";
 import { Button } from "./ui";
+import { useNarrationAudio } from "../hooks/useNarrationAudio";
 
 interface DayPhaseProps {
   selectedRoles: RoleId[];
@@ -78,6 +81,12 @@ export const DayPhase = ({
   const [isRunning, setIsRunning] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showSidebar, setShowSidebar] = useState(true);
+
+  // Audio narration
+  const { play: playAudio } = useNarrationAudio({
+    volume: 0.8,
+  });
+  const hasAttemptedAutoPlay = useRef(false);
   const [sidebarTab, setSidebarTab] = useState<"players" | "events" | "roles">(
     "players",
   );
@@ -85,6 +94,17 @@ export const DayPhase = ({
     winner: "village" | "werewolves" | "solo";
     message: string;
   } | null>(null);
+
+  // Auto-play day begins audio on mount
+  useEffect(() => {
+    if (!hasAttemptedAutoPlay.current) {
+      hasAttemptedAutoPlay.current = true;
+      const timer = setTimeout(() => {
+        playAudio("day-begins.mp3");
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [playAudio]);
 
   // Check win condition on mount and when players change
   useEffect(() => {
@@ -307,6 +327,101 @@ export const DayPhase = ({
                     <strong>3. Special Powers:</strong> Hunter shoots if
                     eliminated, Stuttering Judge can force double vote
                   </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Narrator Guidance */}
+            <div className="bg-blue-100 border-2 border-blue-400 rounded-lg p-4 mt-6">
+              <h3 className="text-lg font-semibold mb-2 text-blue-900 flex items-center gap-2">
+                <AlertCircle className="w-5 h-5" />
+                Narrator Guide - Day Phase Order
+              </h3>
+              <ol className="text-sm text-slate-700 space-y-1 list-decimal list-inside">
+                <li>
+                  <strong>Day Begins:</strong> Plays automatically when phase
+                  starts
+                </li>
+                <li>
+                  <strong>Discussion:</strong> Announce discussion period and
+                  start timer
+                </li>
+                <li>
+                  <strong>Voting:</strong> When discussion ends, announce voting
+                  time
+                </li>
+                <li>
+                  <strong>Result:</strong> Play "Elimination" or "No
+                  Elimination" based on vote outcome
+                </li>
+              </ol>
+            </div>
+
+            {/* Day Phase Announcements */}
+            <div className="bg-white rounded-lg shadow-lg p-6 mt-6">
+              <h3 className="text-lg font-semibold mb-4 text-slate-800 font-header">
+                Narration Controls
+              </h3>
+
+              {/* Phase Start */}
+              <div className="mb-4">
+                <h4 className="text-sm font-semibold text-slate-600 mb-2">
+                  Phase Start
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => playAudio("day-begins.mp3")}
+                    className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 rounded-lg text-white font-semibold flex items-center gap-2 transition-colors text-sm"
+                  >
+                    <Volume2 className="w-4 h-4" />
+                    Day Begins
+                  </button>
+                  <button
+                    onClick={() => playAudio("discussion-begins.mp3")}
+                    className="px-4 py-2 bg-amber-600 hover:bg-amber-700 rounded-lg text-white font-semibold flex items-center gap-2 transition-colors text-sm"
+                  >
+                    <Volume2 className="w-4 h-4" />
+                    Discussion Begins
+                  </button>
+                </div>
+              </div>
+
+              {/* Voting */}
+              <div className="mb-4">
+                <h4 className="text-sm font-semibold text-slate-600 mb-2">
+                  Voting
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => playAudio("voting-time.mp3")}
+                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-white font-semibold flex items-center gap-2 transition-colors text-sm"
+                  >
+                    <Volume2 className="w-4 h-4" />
+                    Voting Time
+                  </button>
+                </div>
+              </div>
+
+              {/* Results */}
+              <div>
+                <h4 className="text-sm font-semibold text-slate-600 mb-2">
+                  Vote Result
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => playAudio("elimination.mp3")}
+                    className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-white font-semibold flex items-center gap-2 transition-colors text-sm"
+                  >
+                    <Volume2 className="w-4 h-4" />
+                    Elimination
+                  </button>
+                  <button
+                    onClick={() => playAudio("no-elimination.mp3")}
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-semibold flex items-center gap-2 transition-colors text-sm"
+                  >
+                    <Volume2 className="w-4 h-4" />
+                    No Elimination
+                  </button>
                 </div>
               </div>
             </div>
