@@ -95,6 +95,38 @@ export const DawnPhase = ({
     }
   }, [players, onCheckWinCondition]);
 
+  // Auto-progress to day phase if no announcements or pending reveals
+  useEffect(() => {
+    // Build announcements to check count
+    const hasAnnouncements =
+      selectedRoles.includes("bear-tamer") ||
+      (sheriff && players.find((p) => p.number === sheriff && !p.isAlive)) ||
+      players.find((p) => p.actualRole === "knight-rusty-sword" && !p.isAlive);
+
+    if (
+      !hasAnnouncements &&
+      pendingRoleReveals.length === 0 &&
+      !eliminationAlert &&
+      !awaitingRoleReveal &&
+      !victoryState
+    ) {
+      // No announcements and all reveals done - skip directly to day
+      const timer = setTimeout(() => {
+        onStartDay();
+      }, 100); // Small delay to ensure state is settled
+      return () => clearTimeout(timer);
+    }
+  }, [
+    selectedRoles,
+    sheriff,
+    players,
+    pendingRoleReveals.length,
+    eliminationAlert,
+    awaitingRoleReveal,
+    victoryState,
+    onStartDay,
+  ]);
+
   // Handle role reveal for the current player
   const handleRoleReveal = (
     playerNumber: number,
@@ -324,30 +356,6 @@ export const DawnPhase = ({
       type: "danger",
     });
   }
-
-  // If no important announcements, auto-progress to day phase
-  useEffect(() => {
-    if (
-      announcements.length === 0 &&
-      pendingRoleReveals.length === 0 &&
-      !eliminationAlert &&
-      !awaitingRoleReveal &&
-      !victoryState
-    ) {
-      // No announcements and all reveals done - skip directly to day
-      const timer = setTimeout(() => {
-        onStartDay();
-      }, 100); // Small delay to ensure state is settled
-      return () => clearTimeout(timer);
-    }
-  }, [
-    announcements.length,
-    pendingRoleReveals.length,
-    eliminationAlert,
-    awaitingRoleReveal,
-    victoryState,
-    onStartDay,
-  ]);
 
   // If no announcements but haven't auto-progressed yet, show nothing (will auto-progress)
   if (announcements.length === 0) {
