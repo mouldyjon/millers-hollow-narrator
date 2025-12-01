@@ -22,18 +22,9 @@ export const WerewolfVictimModal = ({
   const alivePlayers = players.filter((p) => {
     if (!p.isAlive) return false;
 
-    // White Werewolf can only target other werewolves
-    if (werewolfType === "white") {
-      // Only show players with revealed werewolf roles or infected players
-      const isWerewolf =
-        p.actualRole &&
-        (p.actualRole === "simple-werewolf" ||
-          p.actualRole === "big-bad-wolf" ||
-          p.actualRole === "white-werewolf" ||
-          p.actualRole === "cursed-wolf-father");
-      return isWerewolf;
-    }
-
+    // For White Werewolf: show all alive players
+    // The White Werewolf player knows who the werewolves are and will indicate their choice
+    // The narrator simply records which player they point to
     return true;
   });
 
