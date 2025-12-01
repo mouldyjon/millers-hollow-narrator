@@ -10,6 +10,7 @@ interface RoleModalOrchestratorProps {
   players: Player[];
   cupidLovers: [number, number] | null | undefined;
   wildChildRoleModel: number | null | undefined;
+  cursedWolfFatherInfectedPlayer: number | undefined;
   onUseWitchHealingPotion: (playerNumber: number) => void;
   onUseWitchDeathPotion: (playerNumber: number) => void;
   onSetCupidLovers: (lover1: number, lover2: number) => void;
@@ -29,6 +30,7 @@ export const RoleModalOrchestrator = ({
   players,
   cupidLovers,
   wildChildRoleModel,
+  cursedWolfFatherInfectedPlayer,
   onUseWitchHealingPotion,
   onUseWitchDeathPotion,
   onSetCupidLovers,
@@ -123,6 +125,7 @@ export const RoleModalOrchestrator = ({
           <WerewolfVictimModal
             players={players}
             werewolfType={werewolfVictimModal}
+            cursedWolfFatherInfectedPlayer={cursedWolfFatherInfectedPlayer}
             onConfirm={(playerNumber) => {
               onSelectWerewolfVictim(playerNumber, werewolfVictimModal);
 

@@ -6,6 +6,7 @@ import { Button } from "./ui";
 interface WerewolfVictimModalProps {
   players: Player[];
   werewolfType: "simple" | "big-bad" | "white";
+  cursedWolfFatherInfectedPlayer?: number;
   onConfirm: (playerNumber: number) => void;
   onCancel: () => void;
 }
@@ -13,19 +14,51 @@ interface WerewolfVictimModalProps {
 export const WerewolfVictimModal = ({
   players,
   werewolfType,
+  cursedWolfFatherInfectedPlayer,
   onConfirm,
   onCancel,
 }: WerewolfVictimModalProps) => {
   const [selectedPlayer, setSelectedPlayer] = useState<number | null>(null);
 
+  // Werewolf role IDs
+  const werewolfRoles: string[] = [
+    "simple-werewolf",
+    "big-bad-wolf",
+    "white-werewolf",
+    "cursed-wolf-father",
+  ];
+
+  // Check if a player is a werewolf (by assigned role, infected status, or Wolf-Hound choice)
+  const isWerewolf = (player: Player): boolean => {
+    // Check if player has a werewolf role assigned
+    if (player.assignedRole && werewolfRoles.includes(player.assignedRole)) {
+      return true;
+    }
+    // Check if player was infected by Cursed Wolf-Father
+    if (cursedWolfFatherInfectedPlayer === player.number) {
+      return true;
+    }
+    // Check if Wolf-Hound chose werewolf team
+    if (
+      player.assignedRole === "wolf-hound" &&
+      player.wolfHoundTeam === "werewolf"
+    ) {
+      return true;
+    }
+    return false;
+  };
+
   // Filter players based on werewolf type
   const alivePlayers = players.filter((p) => {
     if (!p.isAlive) return false;
 
-    // For White Werewolf: show all alive players
-    // The White Werewolf player knows who the werewolves are and will indicate their choice
-    // The narrator simply records which player they point to
-    return true;
+    if (werewolfType === "white") {
+      // White Werewolf can ONLY kill other werewolves
+      return isWerewolf(p);
+    } else {
+      // Regular werewolves (simple, big-bad) cannot kill other werewolves
+      return !isWerewolf(p);
+    }
   });
 
   const getTitle = () => {

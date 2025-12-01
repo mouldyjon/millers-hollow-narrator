@@ -84,6 +84,7 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
     players,
     cupidLovers,
     wildChildRoleModel,
+    cursedWolfFatherInfectedPlayer,
     onUseWitchHealingPotion: useWitchHealingPotion,
     onUseWitchDeathPotion: useWitchDeathPotion,
     onSetCupidLovers: setCupidLovers,
