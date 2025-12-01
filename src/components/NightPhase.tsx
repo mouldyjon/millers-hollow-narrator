@@ -19,6 +19,7 @@ import { useGameContext } from "../contexts/GameStateContext";
 import { NightProgressTracker } from "./NightProgressTracker";
 import { RoleNarratorGuide } from "./RoleNarratorGuide";
 import { RoleModalOrchestrator } from "./RoleModalOrchestrator";
+import { RoleAssignmentReference } from "./RoleAssignmentReference";
 
 interface NightPhaseProps {
   onEndNight?: () => void;
@@ -659,6 +660,9 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
 
       {/* All role-specific modals */}
       {modalOrchestrator.renderModals()}
+
+      {/* Role Assignment Reference Panel */}
+      <RoleAssignmentReference players={players} />
     </div>
   );
 };

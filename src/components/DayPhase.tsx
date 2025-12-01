@@ -18,6 +18,7 @@ import { VictoryAnnouncement } from "./VictoryAnnouncement";
 import { Button } from "./ui";
 import { useNarrationAudio } from "../hooks/useNarrationAudio";
 import { useGameContext } from "../contexts/GameStateContext";
+import { RoleAssignmentReference } from "./RoleAssignmentReference";
 
 interface DayPhaseProps {
   onStartNight?: () => void;
@@ -499,6 +500,9 @@ export const DayPhase = ({ onStartNight }: DayPhaseProps = {}) => {
           </Button>
         </div>
       </div>
+
+      {/* Role Assignment Reference Panel */}
+      <RoleAssignmentReference players={players} />
     </>
   );
 };
