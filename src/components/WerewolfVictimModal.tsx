@@ -156,7 +156,16 @@ export const WerewolfVictimModal = ({
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-medium">Player {player.number}</span>
+                    <div className="flex flex-col">
+                      <span className="font-medium">
+                        {player.name || `Player ${player.number}`}
+                      </span>
+                      {player.name && (
+                        <span className="text-xs text-slate-400">
+                          Player {player.number}
+                        </span>
+                      )}
+                    </div>
                     {player.revealedRole && (
                       <span className="text-sm text-slate-300">
                         {player.revealedRole}

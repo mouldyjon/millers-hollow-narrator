@@ -63,9 +63,11 @@ export interface NightState {
 
 export interface Player {
   number: number;
+  name?: string; // Optional player name
   isAlive: boolean;
   revealedRole?: string;
   actualRole?: RoleId;
+  assignedRole?: RoleId; // Secret role assigned by narrator during setup
   notes?: string;
   wolfHoundTeam?: "village" | "werewolf";
 }

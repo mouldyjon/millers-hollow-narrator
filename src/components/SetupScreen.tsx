@@ -20,6 +20,7 @@ export const SetupScreen = ({ onStartGame }: SetupScreenProps = {}) => {
   const {
     gameState,
     setPlayerCount,
+    setPlayerName,
     toggleRole,
     removeRole,
     setSelectedRoles,
@@ -27,6 +28,7 @@ export const SetupScreen = ({ onStartGame }: SetupScreenProps = {}) => {
   } = useGameContext();
 
   const { playerCount, selectedRoles } = gameState.setup;
+  const { players } = gameState;
   const [showGeneratorModal, setShowGeneratorModal] = useState(false);
 
   const handleStartGame = onStartGame || startGame;
@@ -109,6 +111,36 @@ export const SetupScreen = ({ onStartGame }: SetupScreenProps = {}) => {
                 {totalRoleSlots} / {playerCount} roles selected
               </span>
             </div>
+          </div>
+        </div>
+
+        {/* Player Names (Optional) */}
+        <div className="bg-slate-800 rounded-lg p-6 mb-6">
+          <div className="flex items-center gap-3 mb-4">
+            <Users className="w-6 h-6 text-purple-400" />
+            <h2 className="text-2xl font-semibold">Player Names</h2>
+            <span className="text-sm text-slate-400">(Optional)</span>
+          </div>
+          <p className="text-sm text-slate-400 mb-4">
+            Add player names to make the game more personal. Leave blank to use
+            "Player 1", "Player 2", etc.
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            {players.map((player) => (
+              <div key={player.number} className="flex flex-col">
+                <label className="text-xs text-slate-400 mb-1">
+                  Player {player.number}
+                </label>
+                <input
+                  type="text"
+                  value={player.name || ""}
+                  onChange={(e) => setPlayerName(player.number, e.target.value)}
+                  placeholder={`Player ${player.number}`}
+                  className="bg-slate-700 border border-slate-600 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  maxLength={20}
+                />
+              </div>
+            ))}
           </div>
         </div>
 

@@ -71,7 +71,16 @@ export const WildChildRoleModelModal = ({
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-medium">Player {player.number}</span>
+                    <div className="flex flex-col">
+                      <span className="font-medium">
+                        {player.name || `Player ${player.number}`}
+                      </span>
+                      {player.name && (
+                        <span className="text-xs text-slate-400">
+                          Player {player.number}
+                        </span>
+                      )}
+                    </div>
                     {isSelected && (
                       <UserCircle className="w-4 h-4 text-purple-200" />
                     )}

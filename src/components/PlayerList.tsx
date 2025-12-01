@@ -9,6 +9,7 @@ type PlayerFilter = "all" | "alive" | "dead" | "revealed";
 
 interface Player {
   number: number;
+  name?: string;
   isAlive: boolean;
   revealedRole?: string;
   actualRole?: RoleId;
@@ -333,9 +334,16 @@ export const PlayerList = ({
                       <Skull className="w-4 h-4 text-red-400" />
                     )}
 
-                    <span className="font-bold text-lg">
-                      Player {player.number}
-                    </span>
+                    <div className="flex flex-col">
+                      <span className="font-bold text-lg">
+                        {player.name || `Player ${player.number}`}
+                      </span>
+                      {player.name && (
+                        <span className="text-xs text-slate-400">
+                          Player {player.number}
+                        </span>
+                      )}
+                    </div>
 
                     {player.number === cursedWolfFatherInfectedPlayer && (
                       <span className="px-2 py-0.5 bg-orange-600 text-white text-xs font-bold rounded-full border border-orange-400">

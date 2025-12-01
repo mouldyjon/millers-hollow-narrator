@@ -73,13 +73,38 @@ export const useGameState = () => {
   }, [gameState]);
 
   const setPlayerCount = (count: number) => {
+    setGameState((prev) => {
+      // Preserve existing player names when changing count
+      const newPlayers = createInitialPlayers(count);
+      const existingPlayers = prev.players;
+
+      // Copy names from existing players where available
+      return {
+        ...prev,
+        setup: {
+          ...prev.setup,
+          playerCount: count,
+        },
+        players: newPlayers.map((newPlayer) => {
+          const existingPlayer = existingPlayers.find(
+            (p) => p.number === newPlayer.number,
+          );
+          return existingPlayer
+            ? { ...newPlayer, name: existingPlayer.name }
+            : newPlayer;
+        }),
+      };
+    });
+  };
+
+  const setPlayerName = (playerNumber: number, name: string) => {
     setGameState((prev) => ({
       ...prev,
-      setup: {
-        ...prev.setup,
-        playerCount: count,
-      },
-      players: createInitialPlayers(count),
+      players: prev.players.map((p) =>
+        p.number === playerNumber
+          ? { ...p, name: name.trim() || undefined }
+          : p,
+      ),
     }));
   };
 
@@ -736,6 +761,7 @@ export const useGameState = () => {
   return {
     gameState,
     setPlayerCount,
+    setPlayerName,
     toggleRole,
     removeRole,
     setSelectedRoles,
