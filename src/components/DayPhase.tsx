@@ -37,7 +37,8 @@ export const DayPhase = ({ onStartNight }: DayPhaseProps = {}) => {
   } = useGameContext();
 
   const { selectedRoles } = gameState.setup;
-  const { players, gameEvents, cursedWolfFatherInfectedPlayer } = gameState;
+  const { players, gameEvents, cursedWolfFatherInfectedPlayer, cupidLovers } =
+    gameState;
 
   const handleStartNight = onStartNight || startNight;
   const [timerDuration, setTimerDuration] = useState(5 * 60); // 5 minutes in seconds
@@ -457,6 +458,7 @@ export const DayPhase = ({ onStartNight }: DayPhaseProps = {}) => {
                     cursedWolfFatherInfectedPlayer={
                       cursedWolfFatherInfectedPlayer
                     }
+                    cupidLovers={cupidLovers}
                     theme="day"
                     onToggleAlive={togglePlayerAlive}
                     onSetRevealedRole={setPlayerRevealedRole}

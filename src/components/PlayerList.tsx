@@ -21,6 +21,7 @@ interface PlayerListProps {
   players: Player[];
   selectedRoles: RoleId[];
   cursedWolfFatherInfectedPlayer?: number;
+  cupidLovers?: [number, number] | null;
   theme?: "night" | "day";
   onToggleAlive: (playerNumber: number) => void;
   onSetRevealedRole: (
@@ -59,6 +60,7 @@ export const PlayerList = ({
   players,
   selectedRoles,
   cursedWolfFatherInfectedPlayer,
+  cupidLovers,
   theme = "night",
   onToggleAlive,
   onSetRevealedRole,
@@ -340,6 +342,14 @@ export const PlayerList = ({
                         🦠 INFECTED
                       </span>
                     )}
+
+                    {cupidLovers &&
+                      (cupidLovers[0] === player.number ||
+                        cupidLovers[1] === player.number) && (
+                        <span className="px-2 py-0.5 bg-pink-600 text-white text-xs font-bold rounded-full border border-pink-400">
+                          💕 LOVER
+                        </span>
+                      )}
 
                     {player.revealedRole && (
                       <Eye className="w-4 h-4 text-blue-400" />
