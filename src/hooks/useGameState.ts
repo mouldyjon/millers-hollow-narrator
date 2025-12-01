@@ -679,20 +679,36 @@ export const useGameState = () => {
     // Check win conditions
     // Check for White Werewolf solo victory first (if in game)
     if (gameState.setup.selectedRoles.includes("white-werewolf")) {
+      // Calculate alive counts using totals minus dead (works even if roles not revealed)
+      // Exclude White Werewolf from werewolf count (they count as 1 werewolf in total)
+      const totalOtherWerewolves = totalWerewolves - 1;
+      const aliveOtherWerewolves = totalOtherWerewolves - deadWerewolves;
+      const aliveVillagers = totalVillagers - deadVillagers;
+
+      // Check if White Werewolf is alive
+      // First try to find them by actualRole (if revealed)
       const whiteWolfPlayer = gameState.players.find(
         (p) => p.actualRole === "white-werewolf",
       );
 
-      // White Werewolf wins if they're alive and all other players are dead
-      if (whiteWolfPlayer?.isAlive) {
-        const alivePlayers = gameState.players.filter((p) => p.isAlive);
-        if (alivePlayers.length === 1) {
-          return {
-            hasWinner: true,
-            winner: "solo",
-            message: "The White Werewolf is the last survivor and wins alone!",
-          };
-        }
+      // If not found by actualRole, they must be alive (not revealed yet)
+      // If found, check their isAlive status
+      const isWhiteWolfAlive = whiteWolfPlayer
+        ? whiteWolfPlayer.isAlive
+        : deadWerewolves < totalWerewolves; // If fewer werewolves dead than total, White Wolf is alive
+
+      // White Werewolf wins if they're alive, all other werewolves are dead, and at least one villager is alive
+      if (
+        isWhiteWolfAlive &&
+        aliveOtherWerewolves === 0 &&
+        aliveVillagers > 0
+      ) {
+        return {
+          hasWinner: true,
+          winner: "solo",
+          message:
+            "The White Werewolf has eliminated all other werewolves and wins alone!",
+        };
       }
     }
 

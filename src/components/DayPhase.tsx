@@ -110,8 +110,12 @@ export const DayPhase = ({
   useEffect(() => {
     const result = onCheckWinCondition();
     if (result.hasWinner && result.winner && result.message) {
-      // Only show victory for main teams (not solo)
-      if (result.winner === "village" || result.winner === "werewolves") {
+      // Show victory for all teams including solo
+      if (
+        result.winner === "village" ||
+        result.winner === "werewolves" ||
+        result.winner === "solo"
+      ) {
         setVictoryState({
           winner: result.winner,
           message: result.message,

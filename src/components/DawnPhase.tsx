@@ -398,7 +398,8 @@ export const DawnPhase = ({
   }
 
   // If no announcements but haven't auto-progressed yet, show nothing (will auto-progress)
-  if (announcements.length === 0) {
+  // Unless there's a victory state - then we need to show it!
+  if (announcements.length === 0 && !victoryState) {
     return null;
   }
 

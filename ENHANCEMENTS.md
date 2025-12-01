@@ -268,11 +268,198 @@ This document tracks planned improvements and feature requests for the Miller's 
 
 ### Technical Improvements
 
+**Strategic Refactoring Roadmap**
+
+#### **Phase 1: Fix State Management (1-2 weeks)**
+**Status**: Not Started  
+**Priority**: High  
+**Effort**: Medium | **Impact**: High
+
+**Why**: Eliminates heavy prop drilling (20+ props to NightPhase), creates cleaner component APIs, improves maintainability.
+
+**Work Required**:
+- [ ] Extract game state into React Context API
+  - [ ] Create `src/contexts/GameStateContext.tsx`
+  - [ ] Implement `GameStateProvider` component wrapping `useGameState` hook
+  - [ ] Export `useGameContext` custom hook for consuming components
+- [ ] Refactor App.tsx to use Context Provider
+  - [ ] Wrap application with `<GameStateProvider>`
+  - [ ] Remove prop drilling from App.tsx
+- [ ] Update phase components to consume context
+  - [ ] NightPhase: Replace 20+ props with `useGameContext()`
+  - [ ] DawnPhase: Use context instead of props
+  - [ ] DayPhase: Use context instead of props
+  - [ ] SetupScreen: Use context for state updates
+- [ ] Update modal components to use context
+  - [ ] WitchPotionModal, WerewolfVictimModal, etc.
+- [ ] Test thoroughly to ensure no regressions
+
+**Example Implementation**:
+```tsx
+// GameStateContext.tsx
+export const GameStateProvider = ({ children }) => {
+  const gameState = useGameState();
+  return <GameStateContext.Provider value={gameState}>{children}</GameStateContext.Provider>;
+};
+
+// NightPhase.tsx (before: 20+ props)
+const { players, eliminatePlayer, addGameEvent } = useGameContext();
+// After: Clean, no prop drilling
+```
+
+**Impact**: Cleaner component APIs, easier testing, reduced coupling between App.tsx and child components.
+
+---
+
+#### **Phase 2: Decompose Large Components (2-3 weeks)**
+**Status**: Not Started  
+**Priority**: High  
+**Effort**: Medium-High | **Impact**: High
+
+**Why**: NightPhase (~400 lines) is difficult to test and maintain. Breaking into focused sub-components improves code quality.
+
+**Work Required**:
+- [ ] Extract NightPhase sub-components:
+  - [ ] `RoleNarratorGuide.tsx` - Action checklist logic (~100 lines)
+    - Role instructions rendering
+    - Completion tracking UI
+    - Narrator guidance text
+  - [ ] `RoleModalOrchestrator.tsx` - Modal selection logic (~100 lines)
+    - Determines which modal to show
+    - Handles role-specific modal rendering
+    - Manages modal open/close state
+  - [ ] `NightProgressTracker.tsx` - UI state (~80 lines)
+    - Moon phase indicator
+    - Night number display
+    - Progress summary
+  - [ ] `PlayerListSidebar.tsx` - Already exists (enhance if needed)
+  - [ ] `EventLogSidebar.tsx` - Already exists (enhance if needed)
+- [ ] Refactor NightPhase.tsx to orchestrate sub-components
+- [ ] Ensure each component is <150 lines
+- [ ] Add prop-types or TypeScript interfaces for all props
+- [ ] Document component responsibilities
+
+**Target Architecture**:
+```tsx
+<NightPhase>
+  <NightProgressTracker />
+  <RoleNarratorGuide />
+  <RoleModalOrchestrator />
+  <PlayerListSidebar />
+  <EventLogSidebar />
+</NightPhase>
+```
+
+**Impact**: Each component <150 lines, easier to test, clearer separation of concerns, better maintainability.
+
+---
+
+#### **Phase 3: Add Testing (2-3 weeks)**
+**Status**: Not Started  
+**Priority**: High  
+**Effort**: Medium-High | **Impact**: Very High
+
+**Why**: Prevents regressions, enables confident refactoring, catches edge cases in complex game logic.
+
+**Work Required**:
+- [ ] Install testing dependencies:
+  ```bash
+  npm install -D vitest @testing-library/react @testing-library/jest-dom @testing-library/user-event
+  ```
+- [ ] Configure Vitest in `vite.config.ts`
+- [ ] Write unit tests for game logic:
+  - [ ] Win condition detection (village, werewolves, White Werewolf solo)
+  - [ ] Elimination consequences (lovers, knight, hunter, siblings)
+  - [ ] Role counting with multi-instance roles
+  - [ ] Wolf-Hound team allegiance logic
+  - [ ] Cursed Wolf-Father infection tracking
+  - [ ] Witch potion mutual exclusivity
+  - [ ] Setup validation rules
+- [ ] Write component tests:
+  - [ ] SetupScreen: Role selection, validation warnings
+  - [ ] NightPhase: Action checklist, modal triggering
+  - [ ] DawnPhase: Role reveal sequence, cascade eliminations
+  - [ ] DayPhase: Timer functionality, player elimination
+  - [ ] Modals: User interactions, state updates
+- [ ] Write integration tests:
+  - [ ] Full game flow: Setup → Night → Dawn → Day → Victory
+  - [ ] Complex scenarios: Hunter shoots lover, knight dies, etc.
+  - [ ] Edge cases: White Werewolf solo victory, infected player win conditions
+- [ ] Add test coverage reporting
+- [ ] Set minimum coverage thresholds (70%+)
+
+**Test Structure**:
+```typescript
+// useGameState.test.ts
+describe('Win Condition Detection', () => {
+  it('should detect village victory when all werewolves dead', () => { ... });
+  it('should detect White Werewolf solo victory', () => { ... });
+  it('should count infected players as werewolves', () => { ... });
+});
+```
+
+**Impact**: Confidence in refactoring, prevents regressions, documents expected behaviour, catches edge cases early.
+
+---
+
+#### **Phase 4: Improve Error Handling (1 week)**
+**Status**: Not Started  
+**Priority**: Medium  
+**Effort**: Low-Medium | **Impact**: Medium
+
+**Why**: localStorage corruption could lose entire game state. Prevents frustrating data loss for narrators mid-game.
+
+**Work Required**:
+- [ ] Add localStorage schema versioning
+  - [ ] Add `version: 1` field to saved game state
+  - [ ] Implement migration functions for future schema changes
+- [ ] Implement fallback states for corrupted data
+  - [ ] Try-catch around `localStorage.getItem`
+  - [ ] Validate JSON structure before parsing
+  - [ ] Fallback to empty game state if corrupted
+  - [ ] Show user-friendly error message
+- [ ] Add error boundary recovery UI
+  - [ ] Enhance ErrorBoundary with "Reset Game" and "Restore Backup" options
+  - [ ] Auto-save backup copy every phase transition
+  - [ ] Allow manual restore from backup
+- [ ] Add data integrity checks
+  - [ ] Validate player count matches role count
+  - [ ] Check for orphaned references (e.g., eliminated player in lovers)
+  - [ ] Warn user if inconsistencies detected
+- [ ] Implement auto-save confirmation
+  - [ ] Visual indicator when state saved (toast notification)
+  - [ ] Warning if localStorage quota exceeded
+
+**Implementation**:
+```typescript
+const GAME_STATE_VERSION = 1;
+
+const loadGameState = (): GameState | null => {
+  try {
+    const saved = localStorage.getItem('millers-hollow-game-state');
+    if (!saved) return null;
+    
+    const parsed = JSON.parse(saved);
+    if (parsed.version !== GAME_STATE_VERSION) {
+      return migrateGameState(parsed);
+    }
+    return validateGameState(parsed) ? parsed : null;
+  } catch (error) {
+    console.error('Failed to load game state:', error);
+    return null;
+  }
+};
+```
+
+**Impact**: Prevents data loss, better user experience, graceful degradation on errors.
+
+---
+
 **Code Quality**
-- [ ] Add unit tests for game state logic
-- [ ] Add E2E tests for critical user flows
+- [ ] Add unit tests for game state logic (see Phase 3)
+- [ ] Add E2E tests for critical user flows (see Phase 3)
 - [ ] Improve TypeScript type safety
-- [ ] Add error boundary components
+- [ ] Add error boundary components (see Phase 4)
 - [ ] Implement proper error logging
 
 **Performance**
