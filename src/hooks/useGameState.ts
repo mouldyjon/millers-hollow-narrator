@@ -108,6 +108,18 @@ export const useGameState = () => {
     }));
   };
 
+  const setPlayerAssignedRole = (
+    playerNumber: number,
+    roleId: RoleId | undefined,
+  ) => {
+    setGameState((prev) => ({
+      ...prev,
+      players: prev.players.map((p) =>
+        p.number === playerNumber ? { ...p, assignedRole: roleId } : p,
+      ),
+    }));
+  };
+
   const toggleRole = (roleId: RoleId) => {
     setGameState((prev) => {
       // Roles that can have multiple instances
@@ -762,6 +774,7 @@ export const useGameState = () => {
     gameState,
     setPlayerCount,
     setPlayerName,
+    setPlayerAssignedRole,
     toggleRole,
     removeRole,
     setSelectedRoles,

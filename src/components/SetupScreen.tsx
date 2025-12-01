@@ -21,6 +21,7 @@ export const SetupScreen = ({ onStartGame }: SetupScreenProps = {}) => {
     gameState,
     setPlayerCount,
     setPlayerName,
+    setPlayerAssignedRole,
     toggleRole,
     removeRole,
     setSelectedRoles,
@@ -67,6 +68,59 @@ export const SetupScreen = ({ onStartGame }: SetupScreenProps = {}) => {
     (r) => r.team === "werewolf",
   );
   const soloTeamRoles = Object.values(roles).filter((r) => r.team === "solo");
+
+  // Role assignment helpers
+  const showRoleAssignment = isValidSetup && totalRoleSlots === playerCount;
+
+  const getRoleAssignmentCounts = () => {
+    const counts: Partial<Record<RoleId, { total: number; assigned: number }>> =
+      {};
+
+    // Count total selected roles
+    selectedRoles.forEach((roleId) => {
+      const roleCount = getRoleCount(roleId);
+      if (!counts[roleId]) {
+        counts[roleId] = { total: roleCount, assigned: 0 };
+      } else {
+        counts[roleId].total += roleCount;
+      }
+    });
+
+    // Count assigned roles
+    players.forEach((player) => {
+      if (player.assignedRole) {
+        if (counts[player.assignedRole]) {
+          counts[player.assignedRole]!.assigned += 1;
+        }
+      }
+    });
+
+    return counts;
+  };
+
+  const roleAssignmentCounts = getRoleAssignmentCounts();
+
+  const canAssignRole = (roleId: RoleId) => {
+    const count = roleAssignmentCounts[roleId];
+    if (!count) return false;
+    return count.assigned < count.total;
+  };
+
+  const getAvailableRolesForPlayer = (playerNumber: number) => {
+    const player = players.find((p) => p.number === playerNumber);
+    const currentRole = player?.assignedRole;
+
+    return selectedRoles.filter((roleId, index, array) => {
+      // Remove duplicates for display
+      if (array.indexOf(roleId) !== index) return false;
+
+      // If this is the player's current role, always show it
+      if (roleId === currentRole) return true;
+
+      // Otherwise check if role is available
+      return canAssignRole(roleId);
+    });
+  };
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 p-6">
@@ -452,6 +506,93 @@ export const SetupScreen = ({ onStartGame }: SetupScreenProps = {}) => {
             </div>
           </div>
         </div>
+
+        {/* Role Assignment (Optional) */}
+        {showRoleAssignment && (
+          <div className="bg-slate-800 rounded-lg p-6 mb-6 mt-6 border-2 border-green-600/30">
+            <div className="flex items-center gap-3 mb-4">
+              <Users className="w-6 h-6 text-green-400" />
+              <h2 className="text-2xl font-semibold">
+                Assign Roles to Players
+              </h2>
+              <span className="text-sm text-slate-400">(Optional)</span>
+            </div>
+            <p className="text-sm text-slate-400 mb-4">
+              Assign roles to specific players. This enables automatic role
+              reveals and positional checks (Fox, Bear Tamer). Leave unassigned
+              to use manual selection during the game.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {players.map((player) => {
+                const availableRoles = getAvailableRolesForPlayer(
+                  player.number,
+                );
+                const hasAssignment = !!player.assignedRole;
+
+                return (
+                  <div
+                    key={player.number}
+                    className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-colors ${
+                      hasAssignment
+                        ? "bg-green-900/20 border-green-600/50"
+                        : "bg-slate-700/50 border-slate-600"
+                    }`}
+                  >
+                    <div className="flex-shrink-0 w-24">
+                      <div className="font-medium text-sm">
+                        {player.name || `Player ${player.number}`}
+                      </div>
+                      {player.name && (
+                        <div className="text-xs text-slate-400">
+                          Player {player.number}
+                        </div>
+                      )}
+                    </div>
+                    <select
+                      value={player.assignedRole || ""}
+                      onChange={(e) =>
+                        setPlayerAssignedRole(
+                          player.number,
+                          e.target.value
+                            ? (e.target.value as RoleId)
+                            : undefined,
+                        )
+                      }
+                      className="flex-1 bg-slate-700 border border-slate-600 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    >
+                      <option value="">Unassigned</option>
+                      {availableRoles.map((roleId) => {
+                        const role = roles[roleId];
+                        const count = roleAssignmentCounts[roleId];
+                        const remaining = count
+                          ? count.total - count.assigned
+                          : 0;
+                        const isPlayerCurrent = player.assignedRole === roleId;
+
+                        return (
+                          <option key={roleId} value={roleId}>
+                            {role.name}
+                            {count && count.total > 1 && !isPlayerCurrent
+                              ? ` (${remaining} remaining)`
+                              : ""}
+                          </option>
+                        );
+                      })}
+                    </select>
+                    {hasAssignment && (
+                      <div className="flex-shrink-0 text-green-400">✓</div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <div className="mt-4 text-sm text-slate-400 bg-slate-700/50 p-3 rounded">
+              <strong>Tip:</strong> Role assignment is completely optional. If
+              you skip this, you'll manually select roles when players are
+              eliminated (as before).
+            </div>
+          </div>
+        )}
 
         {/* Start Game Button */}
         <div className="mt-8 flex justify-center">

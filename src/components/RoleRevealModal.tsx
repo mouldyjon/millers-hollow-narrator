@@ -18,6 +18,10 @@ export const RoleRevealModal = ({
   onConfirm,
   onCancel,
 }: RoleRevealModalProps) => {
+  // Get the player and their assigned role
+  const player = players.find((p) => p.number === playerNumber);
+  const assignedRole = player?.assignedRole;
+
   const handleRoleSelect = (roleId: RoleId) => {
     const role = roles[roleId];
     onConfirm(playerNumber, role.name, roleId);
@@ -89,10 +93,23 @@ export const RoleRevealModal = ({
         </div>
 
         <div className="p-6 space-y-6">
-          <p className="text-slate-300">
-            Select the role that was revealed when Player {playerNumber} was
-            eliminated:
-          </p>
+          {assignedRole ? (
+            <div className="bg-green-900/20 border-2 border-green-600/50 rounded-lg p-4 mb-4">
+              <p className="text-green-200 font-semibold mb-2">
+                ✓ Pre-assigned Role
+              </p>
+              <p className="text-slate-300 text-sm">
+                This player was assigned{" "}
+                <strong>{roles[assignedRole].name}</strong> during setup. Click
+                the role below to confirm.
+              </p>
+            </div>
+          ) : (
+            <p className="text-slate-300">
+              Select the role that was revealed when{" "}
+              {player?.name || `Player ${playerNumber}`} was eliminated:
+            </p>
+          )}
 
           {/* Village Team */}
           {villageRoles.length > 0 && (
@@ -101,18 +118,28 @@ export const RoleRevealModal = ({
                 Village Team
               </h3>
               <div className="grid grid-cols-2 gap-3">
-                {villageRoles.map((role) => (
-                  <button
-                    key={role.id}
-                    onClick={() => handleRoleSelect(role.id)}
-                    className="p-4 bg-slate-700 hover:bg-blue-600 rounded-lg text-left transition-colors"
-                  >
-                    <div className="font-semibold">{role.name}</div>
-                    <div className="text-sm text-slate-400 mt-1 line-clamp-2">
-                      {role.description}
-                    </div>
-                  </button>
-                ))}
+                {villageRoles.map((role) => {
+                  const isAssigned = assignedRole === role.id;
+                  return (
+                    <button
+                      key={role.id}
+                      onClick={() => handleRoleSelect(role.id)}
+                      className={`p-4 rounded-lg text-left transition-colors ${
+                        isAssigned
+                          ? "bg-green-700 hover:bg-green-600 border-2 border-green-400"
+                          : "bg-slate-700 hover:bg-blue-600"
+                      }`}
+                    >
+                      <div className="font-semibold">
+                        {isAssigned && "✓ "}
+                        {role.name}
+                      </div>
+                      <div className="text-sm text-slate-400 mt-1 line-clamp-2">
+                        {role.description}
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -124,18 +151,28 @@ export const RoleRevealModal = ({
                 Werewolf Team
               </h3>
               <div className="grid grid-cols-2 gap-3">
-                {werewolfRoles.map((role) => (
-                  <button
-                    key={role.id}
-                    onClick={() => handleRoleSelect(role.id)}
-                    className="p-4 bg-slate-700 hover:bg-red-600 rounded-lg text-left transition-colors"
-                  >
-                    <div className="font-semibold">{role.name}</div>
-                    <div className="text-sm text-slate-400 mt-1 line-clamp-2">
-                      {role.description}
-                    </div>
-                  </button>
-                ))}
+                {werewolfRoles.map((role) => {
+                  const isAssigned = assignedRole === role.id;
+                  return (
+                    <button
+                      key={role.id}
+                      onClick={() => handleRoleSelect(role.id)}
+                      className={`p-4 rounded-lg text-left transition-colors ${
+                        isAssigned
+                          ? "bg-green-700 hover:bg-green-600 border-2 border-green-400"
+                          : "bg-slate-700 hover:bg-red-600"
+                      }`}
+                    >
+                      <div className="font-semibold">
+                        {isAssigned && "✓ "}
+                        {role.name}
+                      </div>
+                      <div className="text-sm text-slate-400 mt-1 line-clamp-2">
+                        {role.description}
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -147,18 +184,28 @@ export const RoleRevealModal = ({
                 Special Roles
               </h3>
               <div className="grid grid-cols-2 gap-3">
-                {soloRoles.map((role) => (
-                  <button
-                    key={role.id}
-                    onClick={() => handleRoleSelect(role.id)}
-                    className="p-4 bg-slate-700 hover:bg-purple-600 rounded-lg text-left transition-colors"
-                  >
-                    <div className="font-semibold">{role.name}</div>
-                    <div className="text-sm text-slate-400 mt-1 line-clamp-2">
-                      {role.description}
-                    </div>
-                  </button>
-                ))}
+                {soloRoles.map((role) => {
+                  const isAssigned = assignedRole === role.id;
+                  return (
+                    <button
+                      key={role.id}
+                      onClick={() => handleRoleSelect(role.id)}
+                      className={`p-4 rounded-lg text-left transition-colors ${
+                        isAssigned
+                          ? "bg-green-700 hover:bg-green-600 border-2 border-green-400"
+                          : "bg-slate-700 hover:bg-purple-600"
+                      }`}
+                    >
+                      <div className="font-semibold">
+                        {isAssigned && "✓ "}
+                        {role.name}
+                      </div>
+                      <div className="text-sm text-slate-400 mt-1 line-clamp-2">
+                        {role.description}
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}
