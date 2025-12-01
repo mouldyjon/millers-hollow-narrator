@@ -11,71 +11,35 @@ import {
   Volume2,
   AlertCircle,
 } from "lucide-react";
-import type { RoleId, Player, GameEvent } from "../types/game";
 import { PlayerList } from "./PlayerList";
 import { EventLog } from "./EventLog";
 import { RoleReference } from "./RoleReference";
 import { VictoryAnnouncement } from "./VictoryAnnouncement";
 import { Button } from "./ui";
 import { useNarrationAudio } from "../hooks/useNarrationAudio";
+import { useGameContext } from "../contexts/GameStateContext";
 
 interface DayPhaseProps {
-  selectedRoles: RoleId[];
-  players: Player[];
-  gameEvents: GameEvent[];
-  cursedWolfFatherInfectedPlayer?: number;
-  onStartNight: () => void;
-  onTogglePlayerAlive: (playerNumber: number) => void;
-  onUpdatePlayerNotes: (playerNumber: number, notes: string) => void;
-  onSetPlayerRevealedRole: (
-    playerNumber: number,
-    role: string,
-    roleId?: RoleId,
-  ) => void;
-  onSetPlayerWolfHoundTeam?: (
-    playerNumber: number,
-    team: "village" | "werewolf",
-  ) => void;
-  onCheckEliminationConsequences: (
-    playerNumber: number,
-    roleId?: RoleId,
-  ) => {
-    type:
-      | "none"
-      | "lovers"
-      | "knight-rusty-sword"
-      | "hunter"
-      | "siblings"
-      | "wild-child-transform";
-    affectedPlayers: number[];
-    message: string;
-    requiresPlayerSelection: boolean;
-  };
-  onAddGameEvent: (
-    type: "elimination" | "role_action" | "day_vote" | "special",
-    description: string,
-  ) => void;
-  onCheckWinCondition: () => {
-    hasWinner: boolean;
-    winner?: "village" | "werewolves" | "solo";
-    message?: string;
-  };
+  onStartNight?: () => void;
 }
 
-export const DayPhase = ({
-  selectedRoles,
-  players,
-  gameEvents,
-  cursedWolfFatherInfectedPlayer,
-  onStartNight,
-  onTogglePlayerAlive,
-  onUpdatePlayerNotes,
-  onSetPlayerRevealedRole,
-  onSetPlayerWolfHoundTeam,
-  onCheckEliminationConsequences,
-  onAddGameEvent,
-  onCheckWinCondition,
-}: DayPhaseProps) => {
+export const DayPhase = ({ onStartNight }: DayPhaseProps = {}) => {
+  const {
+    gameState,
+    startNight,
+    togglePlayerAlive,
+    updatePlayerNotes,
+    setPlayerRevealedRole,
+    setPlayerWolfHoundTeam,
+    checkEliminationConsequences,
+    addGameEvent,
+    checkWinCondition,
+  } = useGameContext();
+
+  const { selectedRoles } = gameState.setup;
+  const { players, gameEvents, cursedWolfFatherInfectedPlayer } = gameState;
+
+  const handleStartNight = onStartNight || startNight;
   const [timerDuration, setTimerDuration] = useState(5 * 60); // 5 minutes in seconds
   const [timeRemaining, setTimeRemaining] = useState(timerDuration);
   const [isRunning, setIsRunning] = useState(false);
@@ -108,7 +72,7 @@ export const DayPhase = ({
 
   // Check win condition on mount and when players change
   useEffect(() => {
-    const result = onCheckWinCondition();
+    const result = checkWinCondition();
     if (result.hasWinner && result.winner && result.message) {
       // Show victory for all teams including solo
       if (
@@ -122,7 +86,7 @@ export const DayPhase = ({
         });
       }
     }
-  }, [players, onCheckWinCondition]);
+  }, [players, checkWinCondition]);
 
   useEffect(() => {
     if (isRunning && timeRemaining > 0) {
@@ -433,7 +397,7 @@ export const DayPhase = ({
             {/* End Day Button */}
             <div className="mt-8 flex justify-center">
               <Button
-                onClick={onStartNight}
+                onClick={handleStartNight}
                 variant="primary"
                 size="lg"
                 className="bg-indigo-600 hover:bg-indigo-700 text-xl"
@@ -494,14 +458,14 @@ export const DayPhase = ({
                       cursedWolfFatherInfectedPlayer
                     }
                     theme="day"
-                    onToggleAlive={onTogglePlayerAlive}
-                    onSetRevealedRole={onSetPlayerRevealedRole}
-                    onUpdateNotes={onUpdatePlayerNotes}
-                    onSetWolfHoundTeam={onSetPlayerWolfHoundTeam}
+                    onToggleAlive={togglePlayerAlive}
+                    onSetRevealedRole={setPlayerRevealedRole}
+                    onUpdateNotes={updatePlayerNotes}
+                    onSetWolfHoundTeam={setPlayerWolfHoundTeam}
                     onCheckEliminationConsequences={
-                      onCheckEliminationConsequences
+                      checkEliminationConsequences
                     }
-                    onAddGameEvent={onAddGameEvent}
+                    onAddGameEvent={addGameEvent}
                   />
                 )}
                 {sidebarTab === "events" && (

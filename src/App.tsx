@@ -32,6 +32,9 @@ function AppContent() {
     resetGame,
   } = useGameContext();
 
+  // Note: DayPhase now gets most functions from context directly
+  // We only keep these in AppContent for NightPhase and DawnPhase (for now)
+
   const [transitionType, setTransitionType] = useState<"night" | "dawn" | null>(
     null,
   );
@@ -120,22 +123,7 @@ function AppContent() {
       )}
 
       {gameState.phase === "day" && (
-        <DayPhase
-          selectedRoles={gameState.setup.selectedRoles}
-          players={gameState.players}
-          gameEvents={gameState.gameEvents}
-          cursedWolfFatherInfectedPlayer={
-            gameState.cursedWolfFatherInfectedPlayer
-          }
-          onStartNight={handleStartNight}
-          onTogglePlayerAlive={togglePlayerAlive}
-          onUpdatePlayerNotes={updatePlayerNotes}
-          onSetPlayerRevealedRole={setPlayerRevealedRole}
-          onSetPlayerWolfHoundTeam={setPlayerWolfHoundTeam}
-          onCheckEliminationConsequences={checkEliminationConsequences}
-          onCheckWinCondition={checkWinCondition}
-          onAddGameEvent={addGameEvent}
-        />
+        <DayPhase onStartNight={handleStartNight} />
       )}
 
       {/* Floating Reset Button */}
