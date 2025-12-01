@@ -7,31 +7,11 @@ import { DayPhase } from "./components/DayPhase";
 import { PhaseTransition } from "./components/PhaseTransition";
 
 function AppContent() {
-  const {
-    gameState,
-    startGame,
-    startDawn,
-    startDay,
-    startNight,
-    nextNightStep,
-    useWitchHealingPotion,
-    useWitchDeathPotion,
-    useCursedWolfFatherInfection,
-    setCupidLovers,
-    setWildChildRoleModel,
-    selectWerewolfVictim,
-    togglePlayerAlive,
-    updatePlayerNotes,
-    setPlayerRevealedRole,
-    setPlayerWolfHoundTeam,
-    toggleActionComplete,
-    checkEliminationConsequences,
-    addGameEvent,
-    resetGame,
-  } = useGameContext();
+  const { gameState, startGame, startDawn, startDay, startNight, resetGame } =
+    useGameContext();
 
-  // Note: DayPhase and DawnPhase now get their functions from context directly
-  // We only keep these in AppContent for NightPhase (for now)
+  // Note: All phase components now get their functions from context directly
+  // AppContent only needs phase transition functions
 
   const [transitionType, setTransitionType] = useState<"night" | "dawn" | null>(
     null,
@@ -75,33 +55,7 @@ function AppContent() {
       )}
 
       {gameState.phase === "night" && (
-        <NightPhase
-          selectedRoles={gameState.setup.selectedRoles}
-          nightState={gameState.nightState}
-          currentNightStep={gameState.currentNightStep}
-          players={gameState.players}
-          gameEvents={gameState.gameEvents}
-          cupidLovers={gameState.cupidLovers}
-          wildChildRoleModel={gameState.wildChildRoleModel}
-          cursedWolfFatherInfectedPlayer={
-            gameState.cursedWolfFatherInfectedPlayer
-          }
-          onNextStep={nextNightStep}
-          onEndNight={handleStartDawn}
-          onUseWitchHealingPotion={useWitchHealingPotion}
-          onUseWitchDeathPotion={useWitchDeathPotion}
-          onUseCursedWolfFatherInfection={useCursedWolfFatherInfection}
-          onSetCupidLovers={setCupidLovers}
-          onSetWildChildRoleModel={setWildChildRoleModel}
-          onSelectWerewolfVictim={selectWerewolfVictim}
-          onTogglePlayerAlive={togglePlayerAlive}
-          onUpdatePlayerNotes={updatePlayerNotes}
-          onSetPlayerRevealedRole={setPlayerRevealedRole}
-          onSetPlayerWolfHoundTeam={setPlayerWolfHoundTeam}
-          onToggleActionComplete={toggleActionComplete}
-          onCheckEliminationConsequences={checkEliminationConsequences}
-          onAddGameEvent={addGameEvent}
-        />
+        <NightPhase onEndNight={handleStartDawn} />
       )}
 
       {gameState.phase === "dawn" && <DawnPhase onStartDay={handleStartDay} />}

@@ -11,7 +11,6 @@ import {
   VolumeX,
 } from "lucide-react";
 import { rolesByNightOrder } from "../data/roles";
-import type { RoleId, NightState, Player, GameEvent } from "../types/game";
 import { RoleActionGuide } from "./RoleActionGuide";
 import { PlayerList } from "./PlayerList";
 import { EventLog } from "./EventLog";
@@ -24,58 +23,10 @@ import { CursedWolfFatherModal } from "./CursedWolfFatherModal";
 import { Button } from "./ui";
 import { useNarrationAudio } from "../hooks/useNarrationAudio";
 import { getNarrationFile } from "../data/narrationFiles";
+import { useGameContext } from "../contexts/GameStateContext";
 
 interface NightPhaseProps {
-  selectedRoles: RoleId[];
-  nightState: NightState;
-  currentNightStep: number;
-  players: Player[];
-  gameEvents: GameEvent[];
-  cupidLovers?: [number, number];
-  wildChildRoleModel?: number;
-  cursedWolfFatherInfectedPlayer?: number;
-  onNextStep: () => void;
-  onEndNight: () => void;
-  onUseWitchHealingPotion: (playerNumber: number) => void;
-  onUseWitchDeathPotion: (playerNumber: number) => void;
-  onUseCursedWolfFatherInfection: (playerNumber: number) => void;
-  onSetCupidLovers?: (lover1: number, lover2: number) => void;
-  onSetWildChildRoleModel?: (playerNumber: number) => void;
-  onSelectWerewolfVictim?: (
-    playerNumber: number,
-    werewolfType: "simple" | "big-bad" | "white",
-  ) => void;
-  onTogglePlayerAlive: (playerNumber: number) => void;
-  onUpdatePlayerNotes: (playerNumber: number, notes: string) => void;
-  onSetPlayerRevealedRole: (
-    playerNumber: number,
-    role: string,
-    roleId?: RoleId,
-  ) => void;
-  onSetPlayerWolfHoundTeam?: (
-    playerNumber: number,
-    team: "village" | "werewolf",
-  ) => void;
-  onToggleActionComplete: (roleId: RoleId, stepIndex: number) => void;
-  onCheckEliminationConsequences: (
-    playerNumber: number,
-    roleId?: RoleId,
-  ) => {
-    type:
-      | "none"
-      | "lovers"
-      | "knight-rusty-sword"
-      | "hunter"
-      | "siblings"
-      | "wild-child-transform";
-    affectedPlayers: number[];
-    message: string;
-    requiresPlayerSelection: boolean;
-  };
-  onAddGameEvent: (
-    type: "elimination" | "role_action" | "day_vote" | "special",
-    description: string,
-  ) => void;
+  onEndNight?: () => void;
 }
 
 // Helper function to get moon phase emoji based on night number
@@ -95,31 +46,38 @@ const getMoonPhase = (nightNumber: number) => {
   return phases[phaseIndex];
 };
 
-export const NightPhase = ({
-  selectedRoles,
-  nightState,
-  currentNightStep,
-  players,
-  gameEvents,
-  cupidLovers,
-  wildChildRoleModel,
-  cursedWolfFatherInfectedPlayer,
-  onNextStep,
-  onEndNight,
-  onUseWitchHealingPotion,
-  onUseWitchDeathPotion,
-  onUseCursedWolfFatherInfection,
-  onSetCupidLovers,
-  onSetWildChildRoleModel,
-  onSelectWerewolfVictim,
-  onTogglePlayerAlive,
-  onUpdatePlayerNotes,
-  onSetPlayerRevealedRole,
-  onSetPlayerWolfHoundTeam,
-  onToggleActionComplete,
-  onCheckEliminationConsequences,
-  onAddGameEvent,
-}: NightPhaseProps) => {
+export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
+  const {
+    gameState,
+    startDawn,
+    nextNightStep,
+    useWitchHealingPotion,
+    useWitchDeathPotion,
+    useCursedWolfFatherInfection,
+    setCupidLovers,
+    setWildChildRoleModel,
+    selectWerewolfVictim,
+    togglePlayerAlive,
+    updatePlayerNotes,
+    setPlayerRevealedRole,
+    setPlayerWolfHoundTeam,
+    toggleActionComplete,
+    checkEliminationConsequences,
+    addGameEvent,
+  } = useGameContext();
+
+  const { selectedRoles } = gameState.setup;
+  const {
+    nightState,
+    currentNightStep,
+    players,
+    gameEvents,
+    cupidLovers,
+    wildChildRoleModel,
+    cursedWolfFatherInfectedPlayer,
+  } = gameState;
+
+  const handleEndNight = onEndNight || startDawn;
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [showSidebar, setShowSidebar] = useState(true);
   const [sidebarTab, setSidebarTab] = useState<"players" | "events" | "roles">(
@@ -345,9 +303,9 @@ export const NightPhase = ({
     }
 
     if (isLastStep) {
-      onEndNight();
+      handleEndNight();
     } else {
-      onNextStep();
+      nextNightStep();
     }
   };
 
@@ -584,7 +542,7 @@ export const NightPhase = ({
                 </div>
 
                 {/* Role-specific actions */}
-                {currentRole.id === "cupid" && onSetCupidLovers && (
+                {currentRole.id === "cupid" && (
                   <div className="mt-6">
                     <Button
                       onClick={() => setShowCupidModal(true)}
@@ -602,7 +560,7 @@ export const NightPhase = ({
                   </div>
                 )}
 
-                {currentRole.id === "wild-child" && onSetWildChildRoleModel && (
+                {currentRole.id === "wild-child" && (
                   <div className="mt-6">
                     <Button
                       onClick={() => setShowWildChildModal(true)}
@@ -762,7 +720,7 @@ export const NightPhase = ({
                       ] || []
                     }
                     onStepComplete={(stepIndex) =>
-                      onToggleActionComplete(currentRole.id, stepIndex)
+                      toggleActionComplete(currentRole.id, stepIndex)
                     }
                   />
                 )}
@@ -873,14 +831,12 @@ export const NightPhase = ({
                   cursedWolfFatherInfectedPlayer={
                     cursedWolfFatherInfectedPlayer
                   }
-                  onToggleAlive={onTogglePlayerAlive}
-                  onSetRevealedRole={onSetPlayerRevealedRole}
-                  onUpdateNotes={onUpdatePlayerNotes}
-                  onSetWolfHoundTeam={onSetPlayerWolfHoundTeam}
-                  onCheckEliminationConsequences={
-                    onCheckEliminationConsequences
-                  }
-                  onAddGameEvent={onAddGameEvent}
+                  onToggleAlive={togglePlayerAlive}
+                  onSetRevealedRole={setPlayerRevealedRole}
+                  onUpdateNotes={updatePlayerNotes}
+                  onSetWolfHoundTeam={setPlayerWolfHoundTeam}
+                  onCheckEliminationConsequences={checkEliminationConsequences}
+                  onAddGameEvent={addGameEvent}
                 />
               )}
               {sidebarTab === "events" && <EventLog events={gameEvents} />}
@@ -914,14 +870,14 @@ export const NightPhase = ({
           players={players}
           onConfirm={(playerNumber) => {
             if (witchPotionModal === "healing") {
-              onUseWitchHealingPotion(playerNumber);
-              onAddGameEvent(
+              useWitchHealingPotion(playerNumber);
+              addGameEvent(
                 "role_action",
                 `Witch used healing potion on Player ${playerNumber}`,
               );
             } else {
-              onUseWitchDeathPotion(playerNumber);
-              onAddGameEvent(
+              useWitchDeathPotion(playerNumber);
+              addGameEvent(
                 "role_action",
                 `Witch used death potion on Player ${playerNumber}`,
               );
@@ -933,13 +889,13 @@ export const NightPhase = ({
       )}
 
       {/* Cupid Lovers Modal */}
-      {showCupidModal && onSetCupidLovers && (
+      {showCupidModal && (
         <CupidLoversModal
           players={players}
           currentLovers={cupidLovers}
           onConfirm={(lover1, lover2) => {
-            onSetCupidLovers(lover1, lover2);
-            onAddGameEvent(
+            setCupidLovers(lover1, lover2);
+            addGameEvent(
               "role_action",
               `Cupid selected Player ${lover1} and Player ${lover2} as lovers`,
             );
@@ -950,13 +906,13 @@ export const NightPhase = ({
       )}
 
       {/* Wild Child Role Model Modal */}
-      {showWildChildModal && onSetWildChildRoleModel && (
+      {showWildChildModal && (
         <WildChildRoleModelModal
           players={players}
           currentRoleModel={wildChildRoleModel}
           onConfirm={(roleModelNumber) => {
-            onSetWildChildRoleModel(roleModelNumber);
-            onAddGameEvent(
+            setWildChildRoleModel(roleModelNumber);
+            addGameEvent(
               "role_action",
               `Wild Child selected Player ${roleModelNumber} as role model`,
             );
@@ -967,20 +923,20 @@ export const NightPhase = ({
       )}
 
       {/* Werewolf Victim Modal */}
-      {werewolfVictimModal && onSelectWerewolfVictim && (
+      {werewolfVictimModal && (
         <WerewolfVictimModal
           players={players}
           werewolfType={werewolfVictimModal}
           onConfirm={(playerNumber) => {
             // Eliminate the player and mark as selected
-            onSelectWerewolfVictim(playerNumber, werewolfVictimModal);
+            selectWerewolfVictim(playerNumber, werewolfVictimModal);
 
             const werewolfTypeNames = {
               simple: "Werewolves",
               "big-bad": "Big Bad Wolf",
               white: "White Werewolf",
             };
-            onAddGameEvent(
+            addGameEvent(
               "role_action",
               `${werewolfTypeNames[werewolfVictimModal]} eliminated Player ${playerNumber}`,
             );
@@ -995,8 +951,8 @@ export const NightPhase = ({
         <CursedWolfFatherModal
           players={players}
           onConfirm={(playerNumber) => {
-            onUseCursedWolfFatherInfection(playerNumber);
-            onAddGameEvent(
+            useCursedWolfFatherInfection(playerNumber);
+            addGameEvent(
               "role_action",
               `Cursed Wolf-Father infected Player ${playerNumber} - DISCREETLY NOTIFY PLAYER`,
             );
