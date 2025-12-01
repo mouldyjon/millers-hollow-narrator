@@ -284,6 +284,14 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
       return;
     }
 
+    // Play sleep audio for the current role before moving to next
+    if (currentRole && audioEnabled && !isLastStep) {
+      const sleepAudioFile = getNarrationFile(currentRole.id, "sleep");
+      if (sleepAudioFile) {
+        playAudio(sleepAudioFile);
+      }
+    }
+
     if (isLastStep) {
       handleEndNight();
     } else {
