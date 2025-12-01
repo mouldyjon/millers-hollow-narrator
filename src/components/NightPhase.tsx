@@ -6,45 +6,23 @@ import {
   Sun,
   PanelLeftOpen,
   PanelLeftClose,
-  AlertCircle,
   Play,
-  VolumeX,
 } from "lucide-react";
 import { rolesByNightOrder } from "../data/roles";
-import { RoleActionGuide } from "./RoleActionGuide";
 import { PlayerList } from "./PlayerList";
 import { EventLog } from "./EventLog";
 import { RoleReference } from "./RoleReference";
-import { WitchPotionModal } from "./WitchPotionModal";
-import { CupidLoversModal } from "./CupidLoversModal";
-import { WerewolfVictimModal } from "./WerewolfVictimModal";
-import { WildChildRoleModelModal } from "./WildChildRoleModelModal";
-import { CursedWolfFatherModal } from "./CursedWolfFatherModal";
 import { Button } from "./ui";
 import { useNarrationAudio } from "../hooks/useNarrationAudio";
 import { getNarrationFile } from "../data/narrationFiles";
 import { useGameContext } from "../contexts/GameStateContext";
+import { NightProgressTracker } from "./NightProgressTracker";
+import { RoleNarratorGuide } from "./RoleNarratorGuide";
+import { RoleModalOrchestrator } from "./RoleModalOrchestrator";
 
 interface NightPhaseProps {
   onEndNight?: () => void;
 }
-
-// Helper function to get moon phase emoji based on night number
-const getMoonPhase = (nightNumber: number) => {
-  const phases = [
-    { emoji: "🌑", name: "New Moon" },
-    { emoji: "🌒", name: "Waxing Crescent" },
-    { emoji: "🌓", name: "First Quarter" },
-    { emoji: "🌔", name: "Waxing Gibbous" },
-    { emoji: "🌕", name: "Full Moon" },
-    { emoji: "🌖", name: "Waning Gibbous" },
-    { emoji: "🌗", name: "Last Quarter" },
-    { emoji: "🌘", name: "Waning Crescent" },
-  ];
-  // Cycle through phases based on night number
-  const phaseIndex = (nightNumber - 1) % phases.length;
-  return phases[phaseIndex];
-};
 
 export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
   const {
@@ -100,16 +78,20 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
       }
     },
   });
-  const [witchPotionModal, setWitchPotionModal] = useState<
-    "healing" | "death" | null
-  >(null);
-  const [showCupidModal, setShowCupidModal] = useState(false);
-  const [showWildChildModal, setShowWildChildModal] = useState(false);
-  const [werewolfVictimModal, setWerewolfVictimModal] = useState<
-    "simple" | "big-bad" | "white" | null
-  >(null);
-  const [showCursedWolfFatherModal, setShowCursedWolfFatherModal] =
-    useState(false);
+
+  // Modal orchestrator for role-specific modals
+  const modalOrchestrator = RoleModalOrchestrator({
+    players,
+    cupidLovers,
+    wildChildRoleModel,
+    onUseWitchHealingPotion: useWitchHealingPotion,
+    onUseWitchDeathPotion: useWitchDeathPotion,
+    onSetCupidLovers: setCupidLovers,
+    onSetWildChildRoleModel: setWildChildRoleModel,
+    onSelectWerewolfVictim: selectWerewolfVictim,
+    onUseCursedWolfFatherInfection: useCursedWolfFatherInfection,
+    onAddGameEvent: addGameEvent,
+  });
 
   const isFirstNight = nightState.currentNightNumber === 1;
 
@@ -309,8 +291,6 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
     }
   };
 
-  const moonPhase = getMoonPhase(nightState.currentNightNumber);
-
   return (
     <div
       className="min-h-screen text-slate-100 p-6 relative overflow-hidden"
@@ -338,58 +318,18 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
       <div className="flex gap-6 max-w-7xl mx-auto relative z-10">
         {/* Main Content */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-4">
-              {/* Moon phase indicator */}
-              <div className="relative">
-                <div
-                  className="text-6xl leading-none filter drop-shadow-lg"
-                  title={moonPhase.name}
-                >
-                  {moonPhase.emoji}
-                </div>
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold font-header text-[var(--color-text-gold)] filter drop-shadow-lg">
-                  Night {nightState.currentNightNumber}
-                </h1>
-                <p className="text-sm text-indigo-300 italic">
-                  {moonPhase.name}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              {/* Audio toggle */}
-              <button
-                onClick={() => {
-                  setAudioEnabled(!audioEnabled);
-                  if (isAudioPlaying) {
-                    stopAudio();
-                  }
-                }}
-                className={`p-2 rounded-full transition-colors ${
-                  audioEnabled
-                    ? "bg-blue-600 hover:bg-blue-700"
-                    : "bg-slate-700 hover:bg-slate-600"
-                }`}
-                title={
-                  audioEnabled
-                    ? "Disable audio narration"
-                    : "Enable audio narration"
-                }
-              >
-                {audioEnabled ? (
-                  <Volume2 className="w-5 h-5 text-white" />
-                ) : (
-                  <VolumeX className="w-5 h-5 text-slate-400" />
-                )}
-              </button>
-
-              <div className="text-sm text-slate-400 bg-slate-800/50 px-3 py-1 rounded-full border border-slate-700">
-                Step {currentNightStep + 1} of {activeRoles.length}
-              </div>
-            </div>
-          </div>
+          <NightProgressTracker
+            nightNumber={nightState.currentNightNumber}
+            currentStep={currentNightStep}
+            totalSteps={activeRoles.length}
+            audioEnabled={audioEnabled}
+            onToggleAudio={() => {
+              setAudioEnabled(!audioEnabled);
+              if (isAudioPlaying) {
+                stopAudio();
+              }
+            }}
+          />
 
           {/* Current Role Card - with vintage texture */}
           <div
@@ -421,7 +361,7 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
             </div>
             {showIntro && currentNightStep === 0 ? (
               <div className="text-center">
-                <div className="text-6xl mb-6">{moonPhase.emoji}</div>
+                <div className="text-6xl mb-6">🌙</div>
                 <h2 className="text-4xl font-bold mb-4 font-header text-[var(--color-text-gold)]">
                   Night Falls
                 </h2>
@@ -541,187 +481,31 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
                   </div>
                 </div>
 
-                {/* Role-specific actions */}
-                {currentRole.id === "cupid" && (
-                  <div className="mt-6">
-                    <Button
-                      onClick={() => setShowCupidModal(true)}
-                      variant="primary"
-                      size="md"
-                      fullWidth
-                      className="bg-pink-600 hover:bg-pink-700"
-                    >
-                      <span>
-                        {cupidLovers
-                          ? `Lovers: Player ${cupidLovers[0]} & Player ${cupidLovers[1]}`
-                          : "Select Lovers"}
-                      </span>
-                    </Button>
-                  </div>
-                )}
-
-                {currentRole.id === "wild-child" && (
-                  <div className="mt-6">
-                    <Button
-                      onClick={() => setShowWildChildModal(true)}
-                      variant="primary"
-                      size="md"
-                      fullWidth
-                      className="bg-purple-600 hover:bg-purple-700"
-                    >
-                      <span>
-                        {wildChildRoleModel
-                          ? `Role Model: Player ${wildChildRoleModel}`
-                          : "Select Role Model"}
-                      </span>
-                    </Button>
-                  </div>
-                )}
-
-                {currentRole.id === "simple-werewolf" && (
-                  <div className="mt-6 space-y-4">
-                    {/* Infected Player Notification */}
-                    {cursedWolfFatherInfectedPlayer && (
-                      <div className="bg-orange-900/40 border-2 border-orange-500 rounded-lg p-4">
-                        <div className="flex items-start gap-3">
-                          <AlertCircle className="w-6 h-6 text-orange-400 flex-shrink-0 mt-0.5" />
-                          <div className="text-sm">
-                            <p className="font-bold text-orange-200 mb-2">
-                              ⚠️ INFECTED PLAYER ALERT
-                            </p>
-                            <p className="text-orange-100 mb-2">
-                              <strong>
-                                Player {cursedWolfFatherInfectedPlayer}
-                              </strong>{" "}
-                              has been infected by the Cursed Wolf-Father and is
-                              now secretly a werewolf.
-                            </p>
-                            <p className="text-orange-100 mb-2">
-                              They have <strong>lost all abilities</strong> from
-                              their original role and now act as a regular
-                              werewolf.
-                            </p>
-                            <p className="text-orange-100 font-semibold">
-                              You must discreetly signal this player to wake
-                              with the werewolves (tap shoulder, whisper, etc.)
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    <Button
-                      onClick={() => setWerewolfVictimModal("simple")}
-                      disabled={nightState.werewolfVictimSelectedThisNight}
-                      variant="danger"
-                      size="md"
-                      fullWidth
-                    >
-                      {nightState.werewolfVictimSelectedThisNight
-                        ? "Victim Selected"
-                        : "Select Victim"}
-                    </Button>
-                  </div>
-                )}
-
-                {currentRole.id === "big-bad-wolf" && (
-                  <div className="mt-6">
-                    <Button
-                      onClick={() => setWerewolfVictimModal("big-bad")}
-                      disabled={nightState.bigBadWolfVictimSelectedThisNight}
-                      variant="danger"
-                      size="md"
-                      fullWidth
-                    >
-                      {nightState.bigBadWolfVictimSelectedThisNight
-                        ? "Victim Selected"
-                        : "Select Additional Victim"}
-                    </Button>
-                  </div>
-                )}
-
-                {currentRole.id === "white-werewolf" && (
-                  <div className="mt-6">
-                    <Button
-                      onClick={() => setWerewolfVictimModal("white")}
-                      disabled={nightState.whiteWerewolfVictimSelectedThisNight}
-                      variant="danger"
-                      size="md"
-                      fullWidth
-                    >
-                      {nightState.whiteWerewolfVictimSelectedThisNight
-                        ? "Victim Selected"
-                        : "Eliminate Werewolf (Optional)"}
-                    </Button>
-                  </div>
-                )}
-
-                {currentRole.id === "cursed-wolf-father" && (
-                  <div className="mt-6">
-                    <Button
-                      onClick={() => setShowCursedWolfFatherModal(true)}
-                      disabled={nightState.cursedWolfFatherInfectionUsed}
-                      variant="primary"
-                      size="md"
-                      fullWidth
-                      className="bg-orange-600 hover:bg-orange-700"
-                    >
-                      {nightState.cursedWolfFatherInfectionUsed
-                        ? "Infection Already Used"
-                        : "Select Victim to Infect"}
-                    </Button>
-                  </div>
-                )}
-
-                {currentRole.id === "witch" && (
-                  <div className="mt-6 space-y-2">
-                    <Button
-                      onClick={() => setWitchPotionModal("healing")}
-                      disabled={
-                        nightState.witchHealingPotionUsed ||
-                        nightState.witchPotionUsedThisNight
-                      }
-                      variant="success"
-                      size="md"
-                      fullWidth
-                    >
-                      {nightState.witchHealingPotionUsed
-                        ? "Healing Potion Used"
-                        : nightState.witchPotionUsedThisNight
-                          ? "Potion Already Used This Night"
-                          : "Use Healing Potion"}
-                    </Button>
-                    <Button
-                      onClick={() => setWitchPotionModal("death")}
-                      disabled={
-                        nightState.witchDeathPotionUsed ||
-                        nightState.witchPotionUsedThisNight
-                      }
-                      variant="danger"
-                      size="md"
-                      fullWidth
-                    >
-                      {nightState.witchDeathPotionUsed
-                        ? "Death Potion Used"
-                        : nightState.witchPotionUsedThisNight
-                          ? "Potion Already Used This Night"
-                          : "Use Death Potion"}
-                    </Button>
-                  </div>
-                )}
-
-                {/* Role Action Guide */}
+                {/* Role-specific actions and narrator guide */}
                 {currentRole && (
-                  <RoleActionGuide
+                  <RoleNarratorGuide
                     roleId={currentRole.id}
-                    completedActions={
-                      nightState.completedActions[
-                        `${currentRole.id}-${nightState.currentNightNumber}`
-                      ] || []
+                    nightNumber={nightState.currentNightNumber}
+                    cursedWolfFatherInfectedPlayer={
+                      cursedWolfFatherInfectedPlayer
                     }
-                    onStepComplete={(stepIndex) =>
-                      toggleActionComplete(currentRole.id, stepIndex)
+                    cupidLovers={cupidLovers}
+                    wildChildRoleModel={wildChildRoleModel}
+                    nightState={nightState}
+                    onSetCupidModal={modalOrchestrator.setShowCupidModal}
+                    onSetWildChildModal={
+                      modalOrchestrator.setShowWildChildModal
                     }
+                    onSetWerewolfVictimModal={
+                      modalOrchestrator.setWerewolfVictimModal
+                    }
+                    onSetCursedWolfFatherModal={
+                      modalOrchestrator.setShowCursedWolfFatherModal
+                    }
+                    onSetWitchPotionModal={
+                      modalOrchestrator.setWitchPotionModal
+                    }
+                    onToggleActionComplete={toggleActionComplete}
                   />
                 )}
               </div>
@@ -863,104 +647,8 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
         </Button>
       </div>
 
-      {/* Witch Potion Modal */}
-      {witchPotionModal && (
-        <WitchPotionModal
-          potionType={witchPotionModal}
-          players={players}
-          onConfirm={(playerNumber) => {
-            if (witchPotionModal === "healing") {
-              useWitchHealingPotion(playerNumber);
-              addGameEvent(
-                "role_action",
-                `Witch used healing potion on Player ${playerNumber}`,
-              );
-            } else {
-              useWitchDeathPotion(playerNumber);
-              addGameEvent(
-                "role_action",
-                `Witch used death potion on Player ${playerNumber}`,
-              );
-            }
-            setWitchPotionModal(null);
-          }}
-          onCancel={() => setWitchPotionModal(null)}
-        />
-      )}
-
-      {/* Cupid Lovers Modal */}
-      {showCupidModal && (
-        <CupidLoversModal
-          players={players}
-          currentLovers={cupidLovers}
-          onConfirm={(lover1, lover2) => {
-            setCupidLovers(lover1, lover2);
-            addGameEvent(
-              "role_action",
-              `Cupid selected Player ${lover1} and Player ${lover2} as lovers`,
-            );
-            setShowCupidModal(false);
-          }}
-          onCancel={() => setShowCupidModal(false)}
-        />
-      )}
-
-      {/* Wild Child Role Model Modal */}
-      {showWildChildModal && (
-        <WildChildRoleModelModal
-          players={players}
-          currentRoleModel={wildChildRoleModel}
-          onConfirm={(roleModelNumber) => {
-            setWildChildRoleModel(roleModelNumber);
-            addGameEvent(
-              "role_action",
-              `Wild Child selected Player ${roleModelNumber} as role model`,
-            );
-            setShowWildChildModal(false);
-          }}
-          onCancel={() => setShowWildChildModal(false)}
-        />
-      )}
-
-      {/* Werewolf Victim Modal */}
-      {werewolfVictimModal && (
-        <WerewolfVictimModal
-          players={players}
-          werewolfType={werewolfVictimModal}
-          onConfirm={(playerNumber) => {
-            // Eliminate the player and mark as selected
-            selectWerewolfVictim(playerNumber, werewolfVictimModal);
-
-            const werewolfTypeNames = {
-              simple: "Werewolves",
-              "big-bad": "Big Bad Wolf",
-              white: "White Werewolf",
-            };
-            addGameEvent(
-              "role_action",
-              `${werewolfTypeNames[werewolfVictimModal]} eliminated Player ${playerNumber}`,
-            );
-            setWerewolfVictimModal(null);
-          }}
-          onCancel={() => setWerewolfVictimModal(null)}
-        />
-      )}
-
-      {/* Cursed Wolf-Father Infection Modal */}
-      {showCursedWolfFatherModal && (
-        <CursedWolfFatherModal
-          players={players}
-          onConfirm={(playerNumber) => {
-            useCursedWolfFatherInfection(playerNumber);
-            addGameEvent(
-              "role_action",
-              `Cursed Wolf-Father infected Player ${playerNumber} - DISCREETLY NOTIFY PLAYER`,
-            );
-            setShowCursedWolfFatherModal(false);
-          }}
-          onCancel={() => setShowCursedWolfFatherModal(false)}
-        />
-      )}
+      {/* All role-specific modals */}
+      {modalOrchestrator.renderModals()}
     </div>
   );
 };
