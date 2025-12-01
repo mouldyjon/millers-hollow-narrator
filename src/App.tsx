@@ -24,16 +24,14 @@ function AppContent() {
     updatePlayerNotes,
     setPlayerRevealedRole,
     setPlayerWolfHoundTeam,
-    clearPendingRoleReveals,
     toggleActionComplete,
     checkEliminationConsequences,
-    checkWinCondition,
     addGameEvent,
     resetGame,
   } = useGameContext();
 
-  // Note: DayPhase now gets most functions from context directly
-  // We only keep these in AppContent for NightPhase and DawnPhase (for now)
+  // Note: DayPhase and DawnPhase now get their functions from context directly
+  // We only keep these in AppContent for NightPhase (for now)
 
   const [transitionType, setTransitionType] = useState<"night" | "dawn" | null>(
     null,
@@ -106,21 +104,7 @@ function AppContent() {
         />
       )}
 
-      {gameState.phase === "dawn" && (
-        <DawnPhase
-          selectedRoles={gameState.setup.selectedRoles}
-          players={gameState.players}
-          pendingRoleReveals={gameState.pendingRoleReveals}
-          sheriff={gameState.sheriff}
-          onStartDay={handleStartDay}
-          onSetPlayerRevealedRole={setPlayerRevealedRole}
-          onTogglePlayerAlive={togglePlayerAlive}
-          onClearPendingReveals={clearPendingRoleReveals}
-          onCheckEliminationConsequences={checkEliminationConsequences}
-          onCheckWinCondition={checkWinCondition}
-          onAddGameEvent={addGameEvent}
-        />
-      )}
+      {gameState.phase === "dawn" && <DawnPhase onStartDay={handleStartDay} />}
 
       {gameState.phase === "day" && (
         <DayPhase onStartNight={handleStartNight} />

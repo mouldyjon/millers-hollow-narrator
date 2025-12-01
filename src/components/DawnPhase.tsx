@@ -8,65 +8,34 @@ import {
   Volume2,
   Pause,
 } from "lucide-react";
-import type { RoleId, Player } from "../types/game";
+import type { RoleId } from "../types/game";
 import { RoleRevealModal } from "./RoleRevealModal";
 import { EliminationAlert } from "./EliminationAlert";
 import { VictoryAnnouncement } from "./VictoryAnnouncement";
 import { Button } from "./ui";
 import { useNarrationAudio } from "../hooks/useNarrationAudio";
+import { useGameContext } from "../contexts/GameStateContext";
 
 interface DawnPhaseProps {
-  selectedRoles: RoleId[];
-  players: Player[];
-  pendingRoleReveals: number[];
-  sheriff?: number;
-  onStartDay: () => void;
-  onSetPlayerRevealedRole: (
-    playerNumber: number,
-    role: string,
-    roleId?: RoleId,
-  ) => void;
-  onTogglePlayerAlive: (playerNumber: number) => void;
-  onClearPendingReveals: () => void;
-  onCheckEliminationConsequences: (
-    playerNumber: number,
-    roleId?: RoleId,
-  ) => {
-    type:
-      | "none"
-      | "lovers"
-      | "knight-rusty-sword"
-      | "hunter"
-      | "siblings"
-      | "wild-child-transform";
-    affectedPlayers: number[];
-    message: string;
-    requiresPlayerSelection: boolean;
-  };
-  onAddGameEvent: (
-    type: "elimination" | "role_action" | "day_vote" | "special",
-    description: string,
-  ) => void;
-  onCheckWinCondition: () => {
-    hasWinner: boolean;
-    winner?: "village" | "werewolves" | "solo";
-    message?: string;
-  };
+  onStartDay?: () => void;
 }
 
-export const DawnPhase = ({
-  selectedRoles,
-  players,
-  pendingRoleReveals,
-  sheriff,
-  onStartDay,
-  onSetPlayerRevealedRole,
-  onTogglePlayerAlive,
-  onClearPendingReveals,
-  onCheckEliminationConsequences,
-  onAddGameEvent,
-  onCheckWinCondition,
-}: DawnPhaseProps) => {
+export const DawnPhase = ({ onStartDay }: DawnPhaseProps = {}) => {
+  const {
+    gameState,
+    startDay,
+    setPlayerRevealedRole,
+    togglePlayerAlive,
+    clearPendingRoleReveals,
+    checkEliminationConsequences,
+    addGameEvent,
+    checkWinCondition,
+  } = useGameContext();
+
+  const { selectedRoles } = gameState.setup;
+  const { players, pendingRoleReveals, sheriff } = gameState;
+
+  const handleStartDay = onStartDay || startDay;
   const [currentRevealIndex, setCurrentRevealIndex] = useState(0);
   const [victoryState, setVictoryState] = useState<{
     winner: "village" | "werewolves" | "solo";
@@ -113,7 +82,7 @@ export const DawnPhase = ({
 
   // Check win condition when players change (after role reveals)
   useEffect(() => {
-    const result = onCheckWinCondition();
+    const result = checkWinCondition();
     if (result.hasWinner && result.winner && result.message) {
       // Only show victory for main teams (not solo)
       if (
@@ -127,7 +96,7 @@ export const DawnPhase = ({
         });
       }
     }
-  }, [players, onCheckWinCondition]);
+  }, [players, checkWinCondition]);
 
   // Auto-progress to day phase if no announcements or pending reveals
   useEffect(() => {
@@ -152,7 +121,7 @@ export const DawnPhase = ({
     ) {
       // No announcements and all reveals done - skip directly to day
       const timer = setTimeout(() => {
-        onStartDay();
+        handleStartDay();
       }, 100); // Small delay to ensure state is settled
       return () => clearTimeout(timer);
     }
@@ -164,7 +133,7 @@ export const DawnPhase = ({
     eliminationAlert,
     awaitingRoleReveal,
     victoryState,
-    onStartDay,
+    handleStartDay,
   ]);
 
   // Handle role reveal for the current player
@@ -173,14 +142,14 @@ export const DawnPhase = ({
     role: string,
     roleId: RoleId,
   ) => {
-    onSetPlayerRevealedRole(playerNumber, role, roleId);
-    onAddGameEvent(
+    setPlayerRevealedRole(playerNumber, role, roleId);
+    addGameEvent(
       "elimination",
       `Player ${playerNumber} (${role}) was eliminated`,
     );
 
     // Check for elimination consequences
-    const consequences = onCheckEliminationConsequences(playerNumber, roleId);
+    const consequences = checkEliminationConsequences(playerNumber, roleId);
     if (consequences.type !== "none") {
       const alivePlayers = players
         .filter((p) => p.isAlive && p.number !== playerNumber)
@@ -203,7 +172,7 @@ export const DawnPhase = ({
       setCurrentRevealIndex(currentRevealIndex + 1);
     } else {
       // All roles revealed, clear the pending list
-      onClearPendingReveals();
+      clearPendingRoleReveals();
     }
   };
 
@@ -219,7 +188,7 @@ export const DawnPhase = ({
       if (eliminationAlert.affectedPlayers.length > 0) {
         const affectedPlayerNumber = eliminationAlert.affectedPlayers[0];
         // Kill the player first
-        onTogglePlayerAlive(affectedPlayerNumber);
+        togglePlayerAlive(affectedPlayerNumber);
         // Then show role reveal
         setAwaitingRoleReveal(affectedPlayerNumber);
         setEliminationAlert(null);
@@ -233,7 +202,7 @@ export const DawnPhase = ({
     if (currentRevealIndex + 1 < pendingRoleReveals.length) {
       setCurrentRevealIndex(currentRevealIndex + 1);
     } else {
-      onClearPendingReveals();
+      clearPendingRoleReveals();
     }
   };
 
@@ -241,7 +210,7 @@ export const DawnPhase = ({
     if (!eliminationAlert) return;
 
     // Kill the hunter's target first
-    onTogglePlayerAlive(targetPlayer);
+    togglePlayerAlive(targetPlayer);
     // Then show role reveal modal for the hunter's target
     setAwaitingRoleReveal(targetPlayer);
     setEliminationAlert(null);
@@ -252,15 +221,15 @@ export const DawnPhase = ({
     role: string,
     roleId: RoleId,
   ) => {
-    onSetPlayerRevealedRole(playerNumber, role, roleId);
-    onAddGameEvent(
+    setPlayerRevealedRole(playerNumber, role, roleId);
+    addGameEvent(
       "elimination",
       `Player ${playerNumber} (${role}) was eliminated`,
     );
     setAwaitingRoleReveal(null);
 
     // Check for more consequences
-    const consequences = onCheckEliminationConsequences(playerNumber, roleId);
+    const consequences = checkEliminationConsequences(playerNumber, roleId);
     if (consequences.type !== "none") {
       const alivePlayers = players
         .filter((p) => p.isAlive && p.number !== playerNumber)
@@ -282,7 +251,7 @@ export const DawnPhase = ({
     if (currentRevealIndex + 1 < pendingRoleReveals.length) {
       setCurrentRevealIndex(currentRevealIndex + 1);
     } else {
-      onClearPendingReveals();
+      clearPendingRoleReveals();
     }
   };
 
@@ -315,7 +284,7 @@ export const DawnPhase = ({
           if (currentRevealIndex + 1 < pendingRoleReveals.length) {
             setCurrentRevealIndex(currentRevealIndex + 1);
           } else {
-            onClearPendingReveals();
+            clearPendingRoleReveals();
           }
         }}
       />
@@ -338,7 +307,7 @@ export const DawnPhase = ({
           if (currentRevealIndex + 1 < pendingRoleReveals.length) {
             setCurrentRevealIndex(currentRevealIndex + 1);
           } else {
-            onClearPendingReveals();
+            clearPendingRoleReveals();
           }
         }}
       />
