@@ -1,18 +1,14 @@
 import { useState } from "react";
-import { useGameState } from "./hooks/useGameState";
+import { GameStateProvider, useGameContext } from "./contexts/GameStateContext";
 import { SetupScreen } from "./components/SetupScreen";
 import { NightPhase } from "./components/NightPhase";
 import { DawnPhase } from "./components/DawnPhase";
 import { DayPhase } from "./components/DayPhase";
 import { PhaseTransition } from "./components/PhaseTransition";
 
-function App() {
+function AppContent() {
   const {
     gameState,
-    setPlayerCount,
-    toggleRole,
-    removeRole,
-    setSelectedRoles,
     startGame,
     startDawn,
     startDay,
@@ -34,7 +30,7 @@ function App() {
     checkWinCondition,
     addGameEvent,
     resetGame,
-  } = useGameState();
+  } = useGameContext();
 
   const [transitionType, setTransitionType] = useState<"night" | "dawn" | null>(
     null,
@@ -74,15 +70,7 @@ function App() {
   return (
     <>
       {gameState.phase === "setup" && (
-        <SetupScreen
-          playerCount={gameState.setup.playerCount}
-          selectedRoles={gameState.setup.selectedRoles}
-          onPlayerCountChange={setPlayerCount}
-          onToggleRole={toggleRole}
-          onRemoveRole={removeRole}
-          onSetRoles={setSelectedRoles}
-          onStartGame={handleStartGame}
-        />
+        <SetupScreen onStartGame={handleStartGame} />
       )}
 
       {gameState.phase === "night" && (
@@ -168,6 +156,14 @@ function App() {
         />
       )}
     </>
+  );
+}
+
+function App() {
+  return (
+    <GameStateProvider>
+      <AppContent />
+    </GameStateProvider>
   );
 }
 

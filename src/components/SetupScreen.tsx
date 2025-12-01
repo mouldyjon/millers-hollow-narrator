@@ -10,30 +10,29 @@ import {
   getRecommendedRoles,
   canStartGame,
 } from "../utils/setupValidation";
+import { useGameContext } from "../contexts/GameStateContext";
 
 interface SetupScreenProps {
-  playerCount: number;
-  selectedRoles: RoleId[];
-  onPlayerCountChange: (count: number) => void;
-  onToggleRole: (roleId: RoleId) => void;
-  onRemoveRole: (roleId: RoleId) => void;
-  onSetRoles: (roles: RoleId[]) => void;
-  onStartGame: () => void;
+  onStartGame?: () => void;
 }
 
-export const SetupScreen = ({
-  playerCount,
-  selectedRoles,
-  onPlayerCountChange,
-  onToggleRole,
-  onRemoveRole,
-  onSetRoles,
-  onStartGame,
-}: SetupScreenProps) => {
+export const SetupScreen = ({ onStartGame }: SetupScreenProps = {}) => {
+  const {
+    gameState,
+    setPlayerCount,
+    toggleRole,
+    removeRole,
+    setSelectedRoles,
+    startGame,
+  } = useGameContext();
+
+  const { playerCount, selectedRoles } = gameState.setup;
   const [showGeneratorModal, setShowGeneratorModal] = useState(false);
 
+  const handleStartGame = onStartGame || startGame;
+
   const handleGeneratedRoles = (generatedRoles: RoleId[]) => {
-    onSetRoles(generatedRoles);
+    setSelectedRoles(generatedRoles);
     setShowGeneratorModal(false);
   };
   const getRoleCount = (roleId: RoleId): number => {
@@ -85,7 +84,7 @@ export const SetupScreen = ({
           </div>
           <div className="flex items-center gap-4">
             <button
-              onClick={() => onPlayerCountChange(Math.max(5, playerCount - 1))}
+              onClick={() => setPlayerCount(Math.max(5, playerCount - 1))}
               className="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg font-semibold"
             >
               -
@@ -94,7 +93,7 @@ export const SetupScreen = ({
               {playerCount}
             </span>
             <button
-              onClick={() => onPlayerCountChange(Math.min(30, playerCount + 1))}
+              onClick={() => setPlayerCount(Math.min(30, playerCount + 1))}
               className="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg font-semibold"
             >
               +
@@ -162,7 +161,7 @@ export const SetupScreen = ({
                 return (
                   <div
                     key={role.id}
-                    onClick={() => !isMultiSelect && onToggleRole(role.id)}
+                    onClick={() => !isMultiSelect && toggleRole(role.id)}
                     className={`
                       relative group cursor-pointer
                       bg-gradient-to-br from-slate-800 to-slate-900
@@ -215,7 +214,7 @@ export const SetupScreen = ({
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              if (selectedCount > 0) onRemoveRole(role.id);
+                              if (selectedCount > 0) removeRole(role.id);
                             }}
                             disabled={selectedCount === 0}
                             className="p-1.5 rounded-full bg-slate-700 hover:bg-red-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
@@ -228,7 +227,7 @@ export const SetupScreen = ({
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              onToggleRole(role.id);
+                              toggleRole(role.id);
                             }}
                             className="p-1.5 rounded-full bg-slate-700 hover:bg-green-600 transition-colors"
                           >
@@ -270,7 +269,7 @@ export const SetupScreen = ({
                 return (
                   <div
                     key={role.id}
-                    onClick={() => !isMultiSelect && onToggleRole(role.id)}
+                    onClick={() => !isMultiSelect && toggleRole(role.id)}
                     className={`
                       relative group cursor-pointer
                       bg-gradient-to-br from-slate-800 to-slate-900
@@ -322,7 +321,7 @@ export const SetupScreen = ({
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              if (selectedCount > 0) onRemoveRole(role.id);
+                              if (selectedCount > 0) removeRole(role.id);
                             }}
                             disabled={selectedCount === 0}
                             className="p-1.5 rounded-full bg-slate-700 hover:bg-red-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
@@ -335,7 +334,7 @@ export const SetupScreen = ({
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              onToggleRole(role.id);
+                              toggleRole(role.id);
                             }}
                             className="p-1.5 rounded-full bg-slate-700 hover:bg-green-600 transition-colors"
                           >
@@ -375,7 +374,7 @@ export const SetupScreen = ({
                 return (
                   <div
                     key={role.id}
-                    onClick={() => onToggleRole(role.id)}
+                    onClick={() => toggleRole(role.id)}
                     className={`
                       relative group cursor-pointer
                       bg-gradient-to-br from-slate-800 to-slate-900
@@ -425,7 +424,7 @@ export const SetupScreen = ({
         {/* Start Game Button */}
         <div className="mt-8 flex justify-center">
           <Button
-            onClick={onStartGame}
+            onClick={handleStartGame}
             disabled={!isValidSetup}
             variant="success"
             size="lg"
