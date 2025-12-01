@@ -24,9 +24,11 @@ export const RoleRevealModal = ({
   };
 
   // Count how many times each role has been revealed
+  // Only count dead players (not alive) to handle revive scenarios correctly
   const revealedRoleCounts = players.reduce(
     (counts, p) => {
-      if (p.actualRole) {
+      // Only count if they have a revealed role AND are currently dead
+      if (p.actualRole && !p.isAlive) {
         counts[p.actualRole] = (counts[p.actualRole] || 0) + 1;
       }
       return counts;
