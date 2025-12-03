@@ -306,7 +306,7 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
 
   return (
     <div
-      className="min-h-screen text-slate-100 p-6 relative overflow-hidden"
+      className="min-h-screen text-slate-100 p-6 relative"
       style={{
         background: `
           radial-gradient(ellipse at top, rgba(30, 41, 59, 0.4) 0%, transparent 60%),
@@ -330,7 +330,7 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
 
       <div className="flex gap-6 max-w-7xl mx-auto relative z-10">
         {/* Main Content */}
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 pb-48">
           <NightProgressTracker
             nightNumber={nightState.currentNightNumber}
             currentStep={currentNightStep}

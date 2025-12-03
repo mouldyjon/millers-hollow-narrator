@@ -32,7 +32,7 @@ export const RoleAssignmentReference = ({
   );
 
   return (
-    <div className="fixed bottom-20 left-4 z-50 max-w-[280px]">
+    <div className="fixed bottom-6 left-4 z-50 max-w-[280px]">
       <div className="bg-slate-800 rounded-lg shadow-xl border-2 border-green-600/30">
         {/* Header - Always visible */}
         <button

@@ -146,7 +146,7 @@ export const DayPhase = ({ onStartNight }: DayPhaseProps = {}) => {
       <div className="min-h-screen bg-amber-50 text-slate-900 p-6">
         <div className="flex gap-6 max-w-7xl mx-auto">
           {/* Main Content */}
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 pb-48">
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-3">
                 <Sun className="w-8 h-8 text-amber-500" />

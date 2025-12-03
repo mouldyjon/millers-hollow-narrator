@@ -395,7 +395,7 @@ export const DawnPhase = ({ onStartDay }: DawnPhaseProps = {}) => {
         />
       )}
 
-      <div className="min-h-screen bg-gradient-to-b from-slate-900 via-orange-900/20 to-slate-900 text-slate-100 p-6 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-slate-900 via-orange-900/20 to-slate-900 text-slate-100 p-6 pb-48 flex items-center justify-center">
         <div className="max-w-3xl w-full">
           <div className="text-center mb-8">
             <Sunrise className="w-16 h-16 text-orange-400 mx-auto mb-4" />
