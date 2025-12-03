@@ -249,6 +249,31 @@ export const useGameState = () => {
     }));
   };
 
+  const setUnusedRoles = (
+    role1: RoleId | undefined,
+    role2: RoleId | undefined,
+  ) => {
+    setGameState((prev) => {
+      // Allow partial selection - store as tuple only if both are set
+      let unusedRoles: [RoleId, RoleId] | undefined;
+
+      if (role1 && role2) {
+        unusedRoles = [role1, role2];
+      } else if (role1 || role2) {
+        // Keep partial selection by preserving what we have
+        unusedRoles = [role1 || ("" as RoleId), role2 || ("" as RoleId)] as any;
+      }
+
+      return {
+        ...prev,
+        setup: {
+          ...prev.setup,
+          unusedRoles,
+        },
+      };
+    });
+  };
+
   const startGame = () => {
     setGameState((prev) => ({
       ...prev,
@@ -503,11 +528,29 @@ export const useGameState = () => {
     });
   };
 
-  const setThiefChosenRole = (roleId: RoleId) => {
-    setGameState((prev) => ({
-      ...prev,
-      thiefChosenRole: roleId,
-    }));
+  const setThiefChosenRole = (roleId: RoleId | null) => {
+    setGameState((prev) => {
+      // Find the Thief player
+      const thiefPlayer = prev.players.find((p) => p.assignedRole === "thief");
+
+      if (!thiefPlayer) {
+        return prev;
+      }
+
+      // Update the Thief player's assigned role and actual role if they swapped
+      const newRole = roleId || "thief";
+      const updatedPlayers = prev.players.map((p) =>
+        p.number === thiefPlayer.number
+          ? { ...p, assignedRole: newRole, actualRole: newRole }
+          : p,
+      );
+
+      return {
+        ...prev,
+        thiefChosenRole: roleId || undefined,
+        players: updatedPlayers,
+      };
+    });
   };
 
   const toggleActionComplete = (roleId: RoleId, stepIndex: number) => {
@@ -778,6 +821,7 @@ export const useGameState = () => {
     toggleRole,
     removeRole,
     setSelectedRoles,
+    setUnusedRoles,
     startGame,
     startDawn,
     startDay,

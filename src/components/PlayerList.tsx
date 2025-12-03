@@ -385,6 +385,22 @@ export const PlayerList = ({
                   </div>
                 )}
 
+                {/* Show actual role for alive players (e.g., Thief who swapped) */}
+                {!player.revealedRole &&
+                  player.actualRole &&
+                  player.isAlive && (
+                    <div className="mb-2 px-2 py-1 rounded text-sm flex items-center gap-2 font-medium bg-purple-900/30 text-purple-200 border border-purple-600/30">
+                      <Users className="w-4 h-4" />
+                      <span>
+                        Role:{" "}
+                        {roles[player.actualRole]?.name || player.actualRole}
+                      </span>
+                      <span className="text-xs opacity-75">
+                        (Narrator Only)
+                      </span>
+                    </div>
+                  )}
+
                 {/* Wolf-Hound Team Toggle - only show if Wolf-Hound is in the game */}
                 {selectedRoles.includes("wolf-hound") && onSetWolfHoundTeam && (
                   <div className="mb-2">

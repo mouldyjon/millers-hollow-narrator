@@ -45,6 +45,7 @@ export interface Role {
 export interface GameSetup {
   playerCount: number;
   selectedRoles: RoleId[];
+  unusedRoles?: [RoleId, RoleId]; // Two unused roles for the Thief
 }
 
 export interface NightState {

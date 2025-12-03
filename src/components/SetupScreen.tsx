@@ -25,10 +25,11 @@ export const SetupScreen = ({ onStartGame }: SetupScreenProps = {}) => {
     toggleRole,
     removeRole,
     setSelectedRoles,
+    setUnusedRoles,
     startGame,
   } = useGameContext();
 
-  const { playerCount, selectedRoles } = gameState.setup;
+  const { playerCount, selectedRoles, unusedRoles } = gameState.setup;
   const { players } = gameState;
   const [showGeneratorModal, setShowGeneratorModal] = useState(false);
 
@@ -507,6 +508,92 @@ export const SetupScreen = ({ onStartGame }: SetupScreenProps = {}) => {
           </div>
         </div>
 
+        {/* Unused Roles for Thief (Optional) */}
+        {selectedRoles.includes("thief") && (
+          <div className="bg-slate-800 rounded-lg p-6 mb-6 mt-6 border-2 border-purple-600/30">
+            <div className="flex items-center gap-3 mb-4">
+              <Sparkles className="w-6 h-6 text-purple-400" />
+              <h2 className="text-2xl font-semibold">Thief's Unused Roles</h2>
+              <span className="text-sm text-slate-400">
+                (Required for Thief)
+              </span>
+            </div>
+            <p className="text-sm text-slate-400 mb-4">
+              Select 2 unused role cards for the Thief to choose from on the
+              first night.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Unused Role 1 */}
+              <div>
+                <label className="block text-sm font-medium mb-2 text-slate-300">
+                  Unused Role 1
+                </label>
+                <select
+                  value={unusedRoles?.[0] || ""}
+                  onChange={(e) =>
+                    setUnusedRoles(
+                      (e.target.value as RoleId) || undefined,
+                      unusedRoles?.[1],
+                    )
+                  }
+                  className="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                >
+                  <option value="">Select a role...</option>
+                  {Object.values(roles)
+                    .filter(
+                      (role) =>
+                        role.id !== "thief" && role.id !== unusedRoles?.[1],
+                    )
+                    .map((role) => (
+                      <option key={role.id} value={role.id}>
+                        {role.name} ({role.team})
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+              {/* Unused Role 2 */}
+              <div>
+                <label className="block text-sm font-medium mb-2 text-slate-300">
+                  Unused Role 2
+                </label>
+                <select
+                  value={unusedRoles?.[1] || ""}
+                  onChange={(e) =>
+                    setUnusedRoles(
+                      unusedRoles?.[0],
+                      (e.target.value as RoleId) || undefined,
+                    )
+                  }
+                  className="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                >
+                  <option value="">Select a role...</option>
+                  {Object.values(roles)
+                    .filter(
+                      (role) =>
+                        role.id !== "thief" && role.id !== unusedRoles?.[0],
+                    )
+                    .map((role) => (
+                      <option key={role.id} value={role.id}>
+                        {role.name} ({role.team})
+                      </option>
+                    ))}
+                </select>
+              </div>
+            </div>
+
+            {unusedRoles?.[0] && unusedRoles?.[1] && (
+              <div className="mt-4 p-3 bg-purple-900/20 border border-purple-600/30 rounded text-sm text-purple-200">
+                ✓ The Thief will choose between{" "}
+                <strong>{roles[unusedRoles[0]].name}</strong> and{" "}
+                <strong>{roles[unusedRoles[1]].name}</strong> on the first
+                night.
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Role Assignment (Optional) */}
         {showRoleAssignment && (
           <div className="bg-slate-800 rounded-lg p-6 mb-6 mt-6 border-2 border-green-600/30">
@@ -522,6 +609,37 @@ export const SetupScreen = ({ onStartGame }: SetupScreenProps = {}) => {
               reveals and positional checks (Fox, Bear Tamer). Leave unassigned
               to use manual selection during the game.
             </p>
+
+            <div className="mb-4">
+              <Button
+                onClick={() => {
+                  // Create array of all roles based on selectedRoles
+                  const rolesToAssign: RoleId[] = [];
+                  selectedRoles.forEach((roleId) => {
+                    const count = getRoleCount(roleId);
+                    for (let i = 0; i < count; i++) {
+                      rolesToAssign.push(roleId);
+                    }
+                  });
+
+                  // Shuffle the roles array
+                  const shuffled = [...rolesToAssign].sort(
+                    () => Math.random() - 0.5,
+                  );
+
+                  // Assign to players
+                  players.forEach((player, index) => {
+                    setPlayerAssignedRole(player.number, shuffled[index]);
+                  });
+                }}
+                variant="secondary"
+                size="md"
+                className="bg-green-700 hover:bg-green-600"
+              >
+                🎲 Random Assign All Roles
+              </Button>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {players.map((player) => {
                 const availableRoles = getAvailableRolesForPlayer(

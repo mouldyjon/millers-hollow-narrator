@@ -2,6 +2,7 @@ import { AlertCircle } from "lucide-react";
 import type { RoleId } from "../types/game";
 import { Button } from "./ui";
 import { RoleActionGuide } from "./RoleActionGuide";
+import { roles } from "../data/roles";
 
 interface RoleNarratorGuideProps {
   roleId: RoleId;
@@ -9,6 +10,7 @@ interface RoleNarratorGuideProps {
   cursedWolfFatherInfectedPlayer: number | null | undefined;
   cupidLovers: [number, number] | null | undefined;
   wildChildRoleModel: number | null | undefined;
+  thiefChosenRole: RoleId | undefined;
   nightState: {
     werewolfVictimSelectedThisNight: boolean;
     bigBadWolfVictimSelectedThisNight: boolean;
@@ -26,6 +28,7 @@ interface RoleNarratorGuideProps {
   ) => void;
   onSetCursedWolfFatherModal: (show: boolean) => void;
   onSetWitchPotionModal: (type: "healing" | "death" | null) => void;
+  onSetThiefModal: (show: boolean) => void;
   onToggleActionComplete: (roleId: RoleId, stepIndex: number) => void;
 }
 
@@ -35,17 +38,37 @@ export const RoleNarratorGuide = ({
   cursedWolfFatherInfectedPlayer,
   cupidLovers,
   wildChildRoleModel,
+  thiefChosenRole,
   nightState,
   onSetCupidModal,
   onSetWildChildModal,
   onSetWerewolfVictimModal,
   onSetCursedWolfFatherModal,
   onSetWitchPotionModal,
+  onSetThiefModal,
   onToggleActionComplete,
 }: RoleNarratorGuideProps) => {
   return (
     <>
       {/* Role-specific actions */}
+      {roleId === "thief" && (
+        <div className="mt-6">
+          <Button
+            onClick={() => onSetThiefModal(true)}
+            variant="primary"
+            size="md"
+            fullWidth
+            className="bg-purple-600 hover:bg-purple-700"
+          >
+            <span>
+              {thiefChosenRole
+                ? `Thief chose: ${roles[thiefChosenRole].name}`
+                : "Choose Role"}
+            </span>
+          </Button>
+        </div>
+      )}
+
       {roleId === "cupid" && (
         <div className="mt-6">
           <Button

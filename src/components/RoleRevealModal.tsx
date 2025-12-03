@@ -18,9 +18,9 @@ export const RoleRevealModal = ({
   onConfirm,
   onCancel,
 }: RoleRevealModalProps) => {
-  // Get the player and their assigned role
+  // Get the player and their actual role (handles Thief who swapped)
   const player = players.find((p) => p.number === playerNumber);
-  const assignedRole = player?.assignedRole;
+  const assignedRole = player?.actualRole || player?.assignedRole;
 
   const handleRoleSelect = (roleId: RoleId) => {
     const role = roles[roleId];

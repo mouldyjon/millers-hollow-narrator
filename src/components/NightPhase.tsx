@@ -36,6 +36,7 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
     setCupidLovers,
     setWildChildRoleModel,
     selectWerewolfVictim,
+    setThiefChosenRole,
     togglePlayerAlive,
     updatePlayerNotes,
     setPlayerRevealedRole,
@@ -86,12 +87,14 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
     cupidLovers,
     wildChildRoleModel,
     cursedWolfFatherInfectedPlayer,
+    unusedRoles: gameState.setup.unusedRoles,
     onUseWitchHealingPotion: useWitchHealingPotion,
     onUseWitchDeathPotion: useWitchDeathPotion,
     onSetCupidLovers: setCupidLovers,
     onSetWildChildRoleModel: setWildChildRoleModel,
     onSelectWerewolfVictim: selectWerewolfVictim,
     onUseCursedWolfFatherInfection: useCursedWolfFatherInfection,
+    onSetThiefChosenRole: setThiefChosenRole,
     onAddGameEvent: addGameEvent,
   });
 
@@ -501,6 +504,7 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
                     }
                     cupidLovers={cupidLovers}
                     wildChildRoleModel={wildChildRoleModel}
+                    thiefChosenRole={gameState.thiefChosenRole}
                     nightState={nightState}
                     onSetCupidModal={modalOrchestrator.setShowCupidModal}
                     onSetWildChildModal={
@@ -515,6 +519,7 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
                     onSetWitchPotionModal={
                       modalOrchestrator.setWitchPotionModal
                     }
+                    onSetThiefModal={modalOrchestrator.setShowThiefModal}
                     onToggleActionComplete={toggleActionComplete}
                   />
                 )}

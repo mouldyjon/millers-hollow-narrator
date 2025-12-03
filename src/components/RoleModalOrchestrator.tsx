@@ -1,16 +1,19 @@
 import { useState } from "react";
-import type { Player } from "../types/game";
+import type { Player, RoleId } from "../types/game";
 import { WitchPotionModal } from "./WitchPotionModal";
 import { CupidLoversModal } from "./CupidLoversModal";
 import { WerewolfVictimModal } from "./WerewolfVictimModal";
 import { WildChildRoleModelModal } from "./WildChildRoleModelModal";
 import { CursedWolfFatherModal } from "./CursedWolfFatherModal";
+import { ThiefSwapModal } from "./ThiefSwapModal";
+import { roles } from "../data/roles";
 
 interface RoleModalOrchestratorProps {
   players: Player[];
   cupidLovers: [number, number] | null | undefined;
   wildChildRoleModel: number | null | undefined;
   cursedWolfFatherInfectedPlayer: number | undefined;
+  unusedRoles: [RoleId, RoleId] | undefined;
   onUseWitchHealingPotion: (playerNumber: number) => void;
   onUseWitchDeathPotion: (playerNumber: number) => void;
   onSetCupidLovers: (lover1: number, lover2: number) => void;
@@ -20,6 +23,7 @@ interface RoleModalOrchestratorProps {
     werewolfType: "simple" | "big-bad" | "white",
   ) => void;
   onUseCursedWolfFatherInfection: (playerNumber: number) => void;
+  onSetThiefChosenRole: (roleId: RoleId | null) => void;
   onAddGameEvent: (
     type: "elimination" | "role_action" | "day_vote" | "special",
     description: string,
@@ -31,12 +35,14 @@ export const RoleModalOrchestrator = ({
   cupidLovers,
   wildChildRoleModel,
   cursedWolfFatherInfectedPlayer,
+  unusedRoles,
   onUseWitchHealingPotion,
   onUseWitchDeathPotion,
   onSetCupidLovers,
   onSetWildChildRoleModel,
   onSelectWerewolfVictim,
   onUseCursedWolfFatherInfection,
+  onSetThiefChosenRole,
   onAddGameEvent,
 }: RoleModalOrchestratorProps) => {
   const [witchPotionModal, setWitchPotionModal] = useState<
@@ -49,6 +55,7 @@ export const RoleModalOrchestrator = ({
   >(null);
   const [showCursedWolfFatherModal, setShowCursedWolfFatherModal] =
     useState(false);
+  const [showThiefModal, setShowThiefModal] = useState(false);
 
   return {
     // Modal state setters for RoleNarratorGuide
@@ -57,6 +64,7 @@ export const RoleModalOrchestrator = ({
     setWerewolfVictimModal,
     setShowCursedWolfFatherModal,
     setWitchPotionModal,
+    setShowThiefModal,
 
     // Render all modals
     renderModals: () => (
@@ -157,6 +165,33 @@ export const RoleModalOrchestrator = ({
               setShowCursedWolfFatherModal(false);
             }}
             onCancel={() => setShowCursedWolfFatherModal(false)}
+          />
+        )}
+
+        {/* Thief Swap Modal */}
+        {showThiefModal && unusedRoles && (
+          <ThiefSwapModal
+            unusedRoles={unusedRoles}
+            onConfirm={(chosenRole) => {
+              onSetThiefChosenRole(chosenRole);
+              if (chosenRole) {
+                onAddGameEvent(
+                  "role_action",
+                  `Thief swapped to ${roles[chosenRole].name}`,
+                );
+
+                // Immediately activate the new role's modal if applicable
+                if (chosenRole === "cupid") {
+                  setShowCupidModal(true);
+                } else if (chosenRole === "wild-child") {
+                  setShowWildChildModal(true);
+                }
+              } else {
+                onAddGameEvent("role_action", `Thief kept their role`);
+              }
+              setShowThiefModal(false);
+            }}
+            onCancel={() => setShowThiefModal(false)}
           />
         )}
       </>
