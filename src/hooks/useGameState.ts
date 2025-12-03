@@ -3,13 +3,46 @@ import type { GameState, RoleId } from "../types/game";
 import { roles } from "../data/roles";
 
 const STORAGE_KEY = "millers-hollow-game-state";
+const PLAYER_NAMES_CACHE_KEY = "millers-hollow-player-names-cache";
 
-const createInitialPlayers = (count: number) => {
+// Load cached player names
+const loadCachedPlayerNames = (): Record<number, string> => {
+  try {
+    const cached = localStorage.getItem(PLAYER_NAMES_CACHE_KEY);
+    if (cached) {
+      return JSON.parse(cached);
+    }
+  } catch (error) {
+    console.error("Failed to load cached player names:", error);
+  }
+  return {};
+};
+
+// Save player names to cache
+const saveCachedPlayerNames = (
+  players: { number: number; name?: string }[],
+) => {
+  try {
+    const nameCache: Record<number, string> = {};
+    players.forEach((player) => {
+      if (player.name && player.name.trim()) {
+        nameCache[player.number] = player.name;
+      }
+    });
+    localStorage.setItem(PLAYER_NAMES_CACHE_KEY, JSON.stringify(nameCache));
+  } catch (error) {
+    console.error("Failed to save cached player names:", error);
+  }
+};
+
+const createInitialPlayers = (count: number, useCachedNames = false) => {
+  const cachedNames = useCachedNames ? loadCachedPlayerNames() : {};
   return Array.from({ length: count }, (_, i) => ({
     number: i + 1,
     isAlive: true,
     revealedRole: undefined,
     notes: undefined,
+    name: cachedNames[i + 1],
   }));
 };
 
@@ -98,14 +131,21 @@ export const useGameState = () => {
   };
 
   const setPlayerName = (playerNumber: number, name: string) => {
-    setGameState((prev) => ({
-      ...prev,
-      players: prev.players.map((p) =>
+    setGameState((prev) => {
+      const updatedPlayers = prev.players.map((p) =>
         p.number === playerNumber
           ? { ...p, name: name.trim() || undefined }
           : p,
-      ),
-    }));
+      );
+
+      // Save to player names cache
+      saveCachedPlayerNames(updatedPlayers);
+
+      return {
+        ...prev,
+        players: updatedPlayers,
+      };
+    });
   };
 
   const setPlayerAssignedRole = (
@@ -253,25 +293,13 @@ export const useGameState = () => {
     role1: RoleId | undefined,
     role2: RoleId | undefined,
   ) => {
-    setGameState((prev) => {
-      // Allow partial selection - store as tuple only if both are set
-      let unusedRoles: [RoleId, RoleId] | undefined;
-
-      if (role1 && role2) {
-        unusedRoles = [role1, role2];
-      } else if (role1 || role2) {
-        // Keep partial selection by preserving what we have
-        unusedRoles = [role1 || ("" as RoleId), role2 || ("" as RoleId)] as any;
-      }
-
-      return {
-        ...prev,
-        setup: {
-          ...prev.setup,
-          unusedRoles,
-        },
-      };
-    });
+    setGameState((prev) => ({
+      ...prev,
+      setup: {
+        ...prev.setup,
+        unusedRoles: role1 && role2 ? [role1, role2] : undefined,
+      },
+    }));
   };
 
   const startGame = () => {
@@ -406,7 +434,12 @@ export const useGameState = () => {
   };
 
   const resetGame = () => {
-    setGameState(initialGameState);
+    // Create new game state with cached player names
+    const newGameState = {
+      ...initialGameState,
+      players: createInitialPlayers(initialGameState.setup.playerCount, true),
+    };
+    setGameState(newGameState);
     localStorage.removeItem(STORAGE_KEY);
   };
 
@@ -530,14 +563,13 @@ export const useGameState = () => {
 
   const setThiefChosenRole = (roleId: RoleId | null) => {
     setGameState((prev) => {
-      // Find the Thief player
       const thiefPlayer = prev.players.find((p) => p.assignedRole === "thief");
 
       if (!thiefPlayer) {
         return prev;
       }
 
-      // Update the Thief player's assigned role and actual role if they swapped
+      // Update both assigned and actual role
       const newRole = roleId || "thief";
       const updatedPlayers = prev.players.map((p) =>
         p.number === thiefPlayer.number
