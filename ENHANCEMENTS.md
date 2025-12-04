@@ -7,74 +7,86 @@ This document tracks planned improvements and feature requests for the Miller's 
 ### 1. Complex Role Implementations
 
 #### Prejudiced Manipulator
-**Status**: Not Started  
+**Status**: Partially Complete ✅  
 **Priority**: High  
 **Effort**: Medium | **Impact**: High
 
 **Role Description**: 
-The Prejudiced Manipulator is a solo role that divides the village into two groups on the first night and wins if their opposing group is completely eliminated.
+The Prejudiced Manipulator is a solo role that divides the village into two groups and wins if their target group is completely eliminated.
 
 **Official Rules** (based on research):
-- On the first night, the Prejudiced Manipulator mentally divides all players into two groups
+- The Prejudiced Manipulator mentally divides all players into two groups (A and B)
 - The groups can be based on any criteria (e.g., physical position, gender, clothing colour, etc.)
-- The Prejudiced Manipulator chooses which group they belong to and which group to eliminate
-- They win if the opposing group is completely eliminated (all members dead)
+- They choose which group to eliminate (the target group)
+- They win if the target group is completely eliminated (all members dead)
 - If the Prejudiced Manipulator dies, the game continues normally (village vs werewolves)
 - Can change target group if circumstances change (e.g., becoming Prejudiced Manipulator from Devoted Servant)
 
-**Implementation Requirements**:
+**Completed Implementation** ✅:
 
-**State Management**:
-- [ ] Add `prejudicedManipulatorGroups` to GameState:
-  ```typescript
-  prejudicedManipulatorGroups?: {
-    group1: number[]; // Player numbers in group 1
-    group2: number[]; // Player numbers in group 2
-    targetGroup: 1 | 2; // Which group must be eliminated to win
-  }
-  ```
-- [ ] Add function `setPrejudicedManipulatorGroups(group1, group2, targetGroup)`
-- [ ] Track which group each player belongs to
+**State Management** ✅:
+- [x] Added `prejudicedManipulatorGroup?: "A" | "B"` to Player interface
+- [x] Added `prejudicedManipulatorTargetGroup?: "A" | "B"` to GameState
+- [x] Created `setPlayerPrejudicedManipulatorGroup(playerNumber, group)` function
+- [x] Created `setPrejudicedManipulatorTargetGroup(group)` function
 
-**First Night Setup**:
-- [ ] Add Prejudiced Manipulator to night order (early, after role viewing)
-- [ ] Create `PrejudicedManipulatorModal` component:
-  - [ ] Display all alive players
-  - [ ] Allow narrator to assign each player to Group 1 or Group 2
-  - [ ] Visual distinction between groups (blue vs red background)
-  - [ ] Select which group the Manipulator wants to eliminate
-  - [ ] Validation: Both groups must have at least 1 player
-  - [ ] Show group summary before confirming
+**Setup Screen UI** ✅:
+- [x] Group assignment section appears when prejudiced-manipulator is selected
+- [x] Target group selection (A or B buttons with purple highlighting)
+- [x] Player group assignment grid:
+  - [x] Each player has Group A / Group B toggle buttons
+  - [x] Visual distinction: Group A = blue, Group B = red
+  - [x] Checkmark when player assigned to group
+- [x] Group summary showing count and player names in each group
+- [x] Clean, intuitive UI using existing design system
 
-**Narrator Guide**:
-- [ ] Add instructions in RoleNarratorGuide for first night
-- [ ] Display current group assignments in reference panel
-- [ ] Show group status (alive/dead counts) throughout game
+**Remaining Work** 📋:
 
 **Win Condition Detection**:
 - [ ] Add check in `checkWinCondition()`:
-  - [ ] If target group is completely eliminated, Prejudiced Manipulator wins
+  - [ ] Get all players in target group
+  - [ ] Check if all players in target group are dead
+  - [ ] If yes and Prejudiced Manipulator is alive → Manipulator wins
   - [ ] If Prejudiced Manipulator is dead, ignore this win condition
-  - [ ] Show "Prejudiced Manipulator Wins!" announcement
+  - [ ] Ensure this check happens BEFORE village/werewolf victory checks
 - [ ] Update VictoryAnnouncement component for Prejudiced Manipulator victory
+  - [ ] Add "Prejudiced Manipulator Wins!" message
+  - [ ] Show which group was eliminated
+  - [ ] Purple/solo themed victory screen
 
-**UI Components**:
-- [ ] Group assignment interface (drag-and-drop or toggle buttons)
-- [ ] Visual indicator on PlayerList showing group membership (narrator only)
-- [ ] Group status panel showing alive/dead counts per group
-- [ ] Victory screen specific to Prejudiced Manipulator win
+**In-Game UI**:
+- [ ] Display group membership in PlayerList (narrator only view):
+  - [ ] Show badge with "Group A" or "Group B" on each player
+  - [ ] Only visible when Prejudiced Manipulator is in game
+  - [ ] Similar styling to existing role badges
+- [ ] Add group status panel showing alive/dead counts per group:
+  - [ ] Could be in sidebar or collapsible panel
+  - [ ] Show: "Group A: 3 alive / 2 dead" 
+  - [ ] Show: "Group B: 2 alive / 3 dead"
+  - [ ] Highlight target group
+- [ ] Add RoleNarratorGuide note for Prejudiced Manipulator (if needed)
 
 **Edge Cases to Handle**:
 - [ ] What if Prejudiced Manipulator is in Cupid's lovers pair?
+  - [ ] Can they still win solo or do they win with lover?
 - [ ] What if Prejudiced Manipulator becomes infected by Cursed Wolf-Father?
+  - [ ] Do they become werewolf and lose solo win condition?
 - [ ] Handle group reassignment if role transfers (Devoted Servant scenario)
 - [ ] Prevent game from ending in village/werewolf victory if Manipulator can still win
+  - [ ] Add check: "if Manipulator alive and target group not eliminated, game continues"
+
+**Validation**:
+- [ ] Warn if not all players assigned to groups during setup
+- [ ] Warn if target group not selected
+- [ ] Consider adding "Quick Assign" button to randomly split players 50/50
 
 **Testing Scenarios**:
 - [ ] All of target group eliminated → Manipulator wins
 - [ ] Manipulator dies → game continues normally
 - [ ] Both groups have mixed village/werewolf → complex endgame
 - [ ] Manipulator is last survivor → they lose (can't eliminate opposing group)
+- [ ] Test with Cupid lovers including Manipulator
+- [ ] Test with Manipulator infected by Cursed Wolf-Father
 
 **References**:
 - [The Werewolves of Miller's Hollow: Characters Rulebook](https://manuals.plus/m/ddc2209b9b0fc3b5b1bfe2126f2816b611aac1b90a55638e17f692a2db9ce161)

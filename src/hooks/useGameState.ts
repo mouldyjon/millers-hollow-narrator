@@ -443,6 +443,27 @@ export const useGameState = () => {
     }));
   };
 
+  const setPlayerPrejudicedManipulatorGroup = (
+    playerNumber: number,
+    group: "A" | "B" | undefined,
+  ) => {
+    setGameState((prev) => ({
+      ...prev,
+      players: prev.players.map((p) =>
+        p.number === playerNumber
+          ? { ...p, prejudicedManipulatorGroup: group }
+          : p,
+      ),
+    }));
+  };
+
+  const setPrejudicedManipulatorTargetGroup = (group: "A" | "B") => {
+    setGameState((prev) => ({
+      ...prev,
+      prejudicedManipulatorTargetGroup: group,
+    }));
+  };
+
   const resetGame = () => {
     // Create new game state with cached player names
     const newGameState = {
@@ -880,6 +901,8 @@ export const useGameState = () => {
     setThiefChosenRole,
     setSheriff,
     useStutteringJudgeDoubleVote,
+    setPlayerPrejudicedManipulatorGroup,
+    setPrejudicedManipulatorTargetGroup,
     resetGame,
     setPhase,
     togglePlayerAlive,

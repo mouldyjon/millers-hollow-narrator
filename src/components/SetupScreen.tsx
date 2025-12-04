@@ -26,6 +26,8 @@ export const SetupScreen = ({ onStartGame }: SetupScreenProps = {}) => {
     removeRole,
     setSelectedRoles,
     setUnusedRoles,
+    setPlayerPrejudicedManipulatorGroup,
+    setPrejudicedManipulatorTargetGroup,
     startGame,
   } = useGameContext();
 
@@ -708,6 +710,138 @@ export const SetupScreen = ({ onStartGame }: SetupScreenProps = {}) => {
               <strong>Tip:</strong> Role assignment is completely optional. If
               you skip this, you'll manually select roles when players are
               eliminated (as before).
+            </div>
+          </div>
+        )}
+
+        {/* Prejudiced Manipulator Group Assignment */}
+        {selectedRoles.includes("prejudiced-manipulator") && (
+          <div className="bg-slate-800 rounded-lg p-6 mb-6 border-2 border-purple-600/30">
+            <div className="flex items-center gap-3 mb-4">
+              <Users className="w-6 h-6 text-purple-400" />
+              <h2 className="text-2xl font-semibold">
+                Prejudiced Manipulator - Group Assignment
+              </h2>
+              <span className="text-sm text-slate-400">(Required)</span>
+            </div>
+            <p className="text-sm text-slate-400 mb-4">
+              Divide all players into two groups (A and B). The Prejudiced
+              Manipulator wins if their target group is completely eliminated.
+            </p>
+
+            {/* Target Group Selection */}
+            <div className="mb-6 p-4 bg-purple-900/20 border-2 border-purple-600/50 rounded-lg">
+              <label className="block text-sm font-semibold mb-2 text-purple-200">
+                Which group should the Prejudiced Manipulator eliminate?
+              </label>
+              <div className="flex gap-4">
+                <button
+                  onClick={() => setPrejudicedManipulatorTargetGroup("A")}
+                  className={`flex-1 px-4 py-3 rounded-lg font-semibold transition-all ${
+                    gameState.prejudicedManipulatorTargetGroup === "A"
+                      ? "bg-purple-600 text-white border-2 border-purple-400"
+                      : "bg-slate-700 text-slate-300 border-2 border-slate-600 hover:bg-slate-600"
+                  }`}
+                >
+                  Target Group A
+                </button>
+                <button
+                  onClick={() => setPrejudicedManipulatorTargetGroup("B")}
+                  className={`flex-1 px-4 py-3 rounded-lg font-semibold transition-all ${
+                    gameState.prejudicedManipulatorTargetGroup === "B"
+                      ? "bg-purple-600 text-white border-2 border-purple-400"
+                      : "bg-slate-700 text-slate-300 border-2 border-slate-600 hover:bg-slate-600"
+                  }`}
+                >
+                  Target Group B
+                </button>
+              </div>
+            </div>
+
+            {/* Player Group Assignment */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {players.map((player) => (
+                <div
+                  key={player.number}
+                  className="flex items-center gap-3 p-3 rounded-lg border-2 bg-slate-700/50 border-slate-600"
+                >
+                  <div className="flex-shrink-0 w-24">
+                    <div className="font-medium text-sm">
+                      {player.name || `Player ${player.number}`}
+                    </div>
+                    {player.name && (
+                      <div className="text-xs text-slate-400">
+                        Player {player.number}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex gap-2 flex-1">
+                    <button
+                      onClick={() =>
+                        setPlayerPrejudicedManipulatorGroup(player.number, "A")
+                      }
+                      className={`flex-1 px-3 py-2 rounded text-sm font-semibold transition-all ${
+                        player.prejudicedManipulatorGroup === "A"
+                          ? "bg-blue-600 text-white"
+                          : "bg-slate-600 text-slate-300 hover:bg-slate-500"
+                      }`}
+                    >
+                      Group A
+                    </button>
+                    <button
+                      onClick={() =>
+                        setPlayerPrejudicedManipulatorGroup(player.number, "B")
+                      }
+                      className={`flex-1 px-3 py-2 rounded text-sm font-semibold transition-all ${
+                        player.prejudicedManipulatorGroup === "B"
+                          ? "bg-red-600 text-white"
+                          : "bg-slate-600 text-slate-300 hover:bg-slate-500"
+                      }`}
+                    >
+                      Group B
+                    </button>
+                  </div>
+                  {player.prejudicedManipulatorGroup && (
+                    <div className="flex-shrink-0 text-green-400">✓</div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Group Summary */}
+            <div className="mt-4 grid grid-cols-2 gap-4">
+              <div className="p-3 bg-blue-900/20 border-2 border-blue-600/50 rounded">
+                <div className="font-semibold text-blue-200 mb-1">
+                  Group A (
+                  {
+                    players.filter((p) => p.prejudicedManipulatorGroup === "A")
+                      .length
+                  }{" "}
+                  players)
+                </div>
+                <div className="text-xs text-slate-400">
+                  {players
+                    .filter((p) => p.prejudicedManipulatorGroup === "A")
+                    .map((p) => p.name || `Player ${p.number}`)
+                    .join(", ") || "None assigned"}
+                </div>
+              </div>
+              <div className="p-3 bg-red-900/20 border-2 border-red-600/50 rounded">
+                <div className="font-semibold text-red-200 mb-1">
+                  Group B (
+                  {
+                    players.filter((p) => p.prejudicedManipulatorGroup === "B")
+                      .length
+                  }{" "}
+                  players)
+                </div>
+                <div className="text-xs text-slate-400">
+                  {players
+                    .filter((p) => p.prejudicedManipulatorGroup === "B")
+                    .map((p) => p.name || `Player ${p.number}`)
+                    .join(", ") || "None assigned"}
+                </div>
+              </div>
             </div>
           </div>
         )}

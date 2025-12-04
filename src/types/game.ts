@@ -71,6 +71,7 @@ export interface Player {
   assignedRole?: RoleId; // Secret role assigned by narrator during setup
   notes?: string;
   wolfHoundTeam?: "village" | "werewolf";
+  prejudicedManipulatorGroup?: "A" | "B"; // For Prejudiced Manipulator role
 }
 
 export interface GameEvent {
@@ -93,6 +94,7 @@ export interface GameState {
   thiefChosenRole?: RoleId;
   sheriff?: number;
   cursedWolfFatherInfectedPlayer?: number; // Player who has been secretly converted to werewolf
+  prejudicedManipulatorTargetGroup?: "A" | "B"; // Which group the Prejudiced Manipulator wants to eliminate
   currentNightStep: number;
   gameEvents: GameEvent[];
 }
