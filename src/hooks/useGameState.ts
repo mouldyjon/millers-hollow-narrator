@@ -433,6 +433,16 @@ export const useGameState = () => {
     }));
   };
 
+  const useStutteringJudgeDoubleVote = () => {
+    setGameState((prev) => ({
+      ...prev,
+      nightState: {
+        ...prev.nightState,
+        stutteringJudgeDoubleVoteUsed: true,
+      },
+    }));
+  };
+
   const resetGame = () => {
     // Create new game state with cached player names
     const newGameState = {
@@ -869,6 +879,7 @@ export const useGameState = () => {
     selectWerewolfVictim,
     setThiefChosenRole,
     setSheriff,
+    useStutteringJudgeDoubleVote,
     resetGame,
     setPhase,
     togglePlayerAlive,

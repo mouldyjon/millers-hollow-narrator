@@ -4,7 +4,85 @@ This document tracks planned improvements and feature requests for the Miller's 
 
 ## 🎯 High Priority - To Do
 
-### 1. Role Card Visual Redesign
+### 1. Complex Role Implementations
+
+#### Prejudiced Manipulator
+**Status**: Not Started  
+**Priority**: High  
+**Effort**: Medium | **Impact**: High
+
+**Role Description**: 
+The Prejudiced Manipulator is a solo role that divides the village into two groups on the first night and wins if their opposing group is completely eliminated.
+
+**Official Rules** (based on research):
+- On the first night, the Prejudiced Manipulator mentally divides all players into two groups
+- The groups can be based on any criteria (e.g., physical position, gender, clothing colour, etc.)
+- The Prejudiced Manipulator chooses which group they belong to and which group to eliminate
+- They win if the opposing group is completely eliminated (all members dead)
+- If the Prejudiced Manipulator dies, the game continues normally (village vs werewolves)
+- Can change target group if circumstances change (e.g., becoming Prejudiced Manipulator from Devoted Servant)
+
+**Implementation Requirements**:
+
+**State Management**:
+- [ ] Add `prejudicedManipulatorGroups` to GameState:
+  ```typescript
+  prejudicedManipulatorGroups?: {
+    group1: number[]; // Player numbers in group 1
+    group2: number[]; // Player numbers in group 2
+    targetGroup: 1 | 2; // Which group must be eliminated to win
+  }
+  ```
+- [ ] Add function `setPrejudicedManipulatorGroups(group1, group2, targetGroup)`
+- [ ] Track which group each player belongs to
+
+**First Night Setup**:
+- [ ] Add Prejudiced Manipulator to night order (early, after role viewing)
+- [ ] Create `PrejudicedManipulatorModal` component:
+  - [ ] Display all alive players
+  - [ ] Allow narrator to assign each player to Group 1 or Group 2
+  - [ ] Visual distinction between groups (blue vs red background)
+  - [ ] Select which group the Manipulator wants to eliminate
+  - [ ] Validation: Both groups must have at least 1 player
+  - [ ] Show group summary before confirming
+
+**Narrator Guide**:
+- [ ] Add instructions in RoleNarratorGuide for first night
+- [ ] Display current group assignments in reference panel
+- [ ] Show group status (alive/dead counts) throughout game
+
+**Win Condition Detection**:
+- [ ] Add check in `checkWinCondition()`:
+  - [ ] If target group is completely eliminated, Prejudiced Manipulator wins
+  - [ ] If Prejudiced Manipulator is dead, ignore this win condition
+  - [ ] Show "Prejudiced Manipulator Wins!" announcement
+- [ ] Update VictoryAnnouncement component for Prejudiced Manipulator victory
+
+**UI Components**:
+- [ ] Group assignment interface (drag-and-drop or toggle buttons)
+- [ ] Visual indicator on PlayerList showing group membership (narrator only)
+- [ ] Group status panel showing alive/dead counts per group
+- [ ] Victory screen specific to Prejudiced Manipulator win
+
+**Edge Cases to Handle**:
+- [ ] What if Prejudiced Manipulator is in Cupid's lovers pair?
+- [ ] What if Prejudiced Manipulator becomes infected by Cursed Wolf-Father?
+- [ ] Handle group reassignment if role transfers (Devoted Servant scenario)
+- [ ] Prevent game from ending in village/werewolf victory if Manipulator can still win
+
+**Testing Scenarios**:
+- [ ] All of target group eliminated → Manipulator wins
+- [ ] Manipulator dies → game continues normally
+- [ ] Both groups have mixed village/werewolf → complex endgame
+- [ ] Manipulator is last survivor → they lose (can't eliminate opposing group)
+
+**References**:
+- [The Werewolves of Miller's Hollow: Characters Rulebook](https://manuals.plus/m/ddc2209b9b0fc3b5b1bfe2126f2816b611aac1b90a55638e17f692a2db9ce161)
+- [Werewolves Rules - UltraBoardGames](https://www.ultraboardgames.com/the-werewolves-of-millers-hollow/game-rules.php)
+
+---
+
+### 2. Role Card Visual Redesign
 **Status**: Not Started  
 **Priority**: High  
 **Effort**: Medium-High | **Impact**: High

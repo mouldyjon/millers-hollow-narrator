@@ -35,6 +35,7 @@ export const DayPhase = ({ onStartNight }: DayPhaseProps = {}) => {
     checkEliminationConsequences,
     addGameEvent,
     checkWinCondition,
+    useStutteringJudgeDoubleVote,
   } = useGameContext();
 
   const { selectedRoles } = gameState.setup;
@@ -300,6 +301,41 @@ export const DayPhase = ({ onStartNight }: DayPhaseProps = {}) => {
                 </div>
               </div>
             </div>
+
+            {/* Stuttering Judge Special Power */}
+            {selectedRoles.includes("stuttering-judge") && (
+              <div className="bg-purple-50 rounded-lg shadow-lg p-6 border-2 border-purple-300 mt-6">
+                <h3 className="text-lg font-semibold mb-3 text-purple-900 font-header">
+                  Stuttering Judge - Double Elimination
+                </h3>
+                <p className="text-sm text-slate-700 mb-4">
+                  Once per game, the Stuttering Judge can force{" "}
+                  <strong>two consecutive votes</strong> in a single day,
+                  resulting in <strong>two eliminations</strong>. The second
+                  vote happens immediately after the first, with no debate.
+                </p>
+                {gameState.nightState.stutteringJudgeDoubleVoteUsed ? (
+                  <div className="p-3 bg-slate-200 rounded-lg text-slate-600 text-sm">
+                    ✓ Double elimination ability has been used
+                  </div>
+                ) : (
+                  <Button
+                    onClick={() => {
+                      useStutteringJudgeDoubleVote();
+                      addGameEvent(
+                        "special",
+                        "Stuttering Judge activated double elimination - TWO consecutive votes will happen (no debate between votes)",
+                      );
+                    }}
+                    variant="primary"
+                    size="md"
+                    className="bg-purple-600 hover:bg-purple-700"
+                  >
+                    Activate Double Elimination
+                  </Button>
+                )}
+              </div>
+            )}
 
             {/* Narrator Guidance */}
             <div className="bg-blue-100 border-2 border-blue-400 rounded-lg p-4 mt-6">
