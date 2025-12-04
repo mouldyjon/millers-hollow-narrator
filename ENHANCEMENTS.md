@@ -94,6 +94,100 @@ The Prejudiced Manipulator is a solo role that divides the village into two grou
 
 ---
 
+#### Actor
+**Status**: Not Started  
+**Priority**: High  
+**Effort**: Medium-High | **Impact**: High
+
+**Role Description**: 
+The Actor can use powers from three pre-selected role cards each night, choosing one power per night to activate.
+
+**Official Narration**:
+> "Actor, wake up. Use one of your three available role powers."
+
+**How It Works**:
+- At game start, the narrator selects 3 role cards for the Actor to use
+- These 3 roles are recorded in the Actor player's notes
+- Each night, the Actor can use ONE of their 3 role powers
+- The Actor chooses which role power they want to use that night
+- The narrator performs that role's action as if the Actor were that role
+- Some powers may be limited use (e.g., Witch potions run out after use)
+
+**Implementation Requirements**:
+
+**State Management**:
+- [ ] Add `actorRoles?: [RoleId, RoleId, RoleId]` to GameState
+- [ ] Add `actorPowerUsages?: Record<RoleId, number>` to track limited-use powers
+- [ ] Create function `setActorRoles(role1, role2, role3)`
+- [ ] Create function `recordActorPowerUse(roleId)`
+
+**Setup Phase**:
+- [ ] Add Actor role card selection UI in SetupScreen (similar to Thief unused roles)
+- [ ] Show when Actor role is selected in setup
+- [ ] Allow narrator to select 3 roles from available roles
+- [ ] Display selected roles in setup summary
+- [ ] Automatically populate Actor player's notes with the 3 role names
+
+**Night Phase**:
+- [ ] Add Actor to night order (flexible position, after role viewing)
+- [ ] Create `ActorPowerSelectionModal` component:
+  - [ ] Display the 3 available role powers
+  - [ ] Show each role's description and current night action
+  - [ ] Indicate if a power has limited uses remaining
+  - [ ] Disable powers that are exhausted (e.g., Witch potions used up)
+  - [ ] "Skip Turn" option if Actor doesn't want to use power
+- [ ] When role selected, trigger that role's modal/action:
+  - [ ] If Seer power → open victim selection
+  - [ ] If Witch power → open potion selection (track potion usage separately)
+  - [ ] If Guard power → open player protection
+  - [ ] etc.
+
+**Narrator Guide**:
+- [ ] Add instructions in RoleNarratorGuide
+- [ ] Show which 3 powers Actor has
+- [ ] Display power usage history
+- [ ] Indicate which powers are still available
+
+**UI Components**:
+- [ ] Role card selection interface (3 dropdowns or card picker)
+- [ ] Power selection modal with role cards displayed
+- [ ] Power usage tracking display
+- [ ] Visual indicator of exhausted powers
+
+**Limited-Use Power Tracking**:
+- [ ] Track Witch potions separately for Actor (don't affect real Witch)
+- [ ] Track any one-time-use powers
+- [ ] Reset appropriate powers each night
+- [ ] Disable powers that can't be used (e.g., Guard can't protect same player twice)
+
+**Edge Cases to Handle**:
+- [ ] What if Actor chooses Cupid power but lovers already selected?
+- [ ] What if Actor chooses Wild Child but role model already set?
+- [ ] Can Actor use investigative powers on themselves?
+- [ ] What happens if Actor dies - do their powers disappear?
+- [ ] Can Actor have same role as another player in game?
+- [ ] How to handle role-specific game state (e.g., Witch potions vs Actor using Witch power)
+
+**Validation**:
+- [ ] Ensure 3 different roles selected for Actor
+- [ ] Warn if Actor roles conflict with game state
+- [ ] Prevent selecting roles that only work on first night (if past first night)
+
+**Testing Scenarios**:
+- [ ] Actor uses different power each night
+- [ ] Actor exhausts limited-use power (Witch)
+- [ ] Actor uses same power multiple nights in a row
+- [ ] Actor dies mid-game
+- [ ] Actor with 3 investigative roles vs 3 protective roles vs mixed
+
+**Design Considerations**:
+- Actor is extremely flexible and powerful - balance carefully
+- Some role combinations may be too strong
+- Consider limiting Actor to non-first-night-only roles
+- May want to prevent certain role combinations (e.g., all werewolf roles)
+
+---
+
 ### 2. Role Card Visual Redesign
 **Status**: Not Started  
 **Priority**: High  
