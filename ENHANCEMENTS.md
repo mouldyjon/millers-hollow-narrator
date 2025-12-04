@@ -7,7 +7,7 @@ This document tracks planned improvements and feature requests for the Miller's 
 ### 1. Complex Role Implementations
 
 #### Prejudiced Manipulator
-**Status**: Partially Complete ✅  
+**Status**: Partially Complete  
 **Priority**: High  
 **Effort**: Medium | **Impact**: High
 
@@ -22,15 +22,15 @@ The Prejudiced Manipulator is a solo role that divides the village into two grou
 - If the Prejudiced Manipulator dies, the game continues normally (village vs werewolves)
 - Can change target group if circumstances change (e.g., becoming Prejudiced Manipulator from Devoted Servant)
 
-**Completed Implementation** ✅:
+**Completed Implementation**:
 
-**State Management** ✅:
+**State Management**:
 - [x] Added `prejudicedManipulatorGroup?: "A" | "B"` to Player interface
 - [x] Added `prejudicedManipulatorTargetGroup?: "A" | "B"` to GameState
 - [x] Created `setPlayerPrejudicedManipulatorGroup(playerNumber, group)` function
 - [x] Created `setPrejudicedManipulatorTargetGroup(group)` function
 
-**Setup Screen UI** ✅:
+**Setup Screen UI**:
 - [x] Group assignment section appears when prejudiced-manipulator is selected
 - [x] Target group selection (A or B buttons with purple highlighting)
 - [x] Player group assignment grid:
@@ -40,7 +40,7 @@ The Prejudiced Manipulator is a solo role that divides the village into two grou
 - [x] Group summary showing count and player names in each group
 - [x] Clean, intuitive UI using existing design system
 
-**Remaining Work** 📋:
+**Remaining Work**:
 
 **Win Condition Detection**:
 - [ ] Add check in `checkWinCondition()`:
@@ -212,7 +212,7 @@ The Actor can use powers from three pre-selected role cards each night, choosing
 - Cards should feel tactile and satisfying to interact with
 - Clear visual feedback for all states (unselected, selected, disabled)
 
-### 2. Setup Validation & Warnings
+### 3. Setup Validation & Warnings
 **Status**: Partially Complete  
 **Priority**: High  
 **Effort**: Low | **Impact**: Medium
@@ -249,94 +249,10 @@ The Actor can use powers from three pre-selected role cards each night, choosing
 - ⏳ Warn if no protective roles (8+ players) - To Do
 - ⏳ Warn about unused special mechanics - To Do
 
-### 3. Better Visual Design (One Night Ultimate Werewolf Style)
-**Status**: Phase 3A Complete ✅  
+### 4. Better Visual Design - Remaining Enhancements
+**Status**: Phase 3A & 3B Complete, Future Enhancements Remain  
 **Priority**: High  
 **Inspiration**: One Night Ultimate Werewolf Android app + Miller's Hollow board game art
-
-#### Phase 3A: Core Design System ✅ (Completed 2025-11-25)
-
-**Colour Palette & Backgrounds**
-- [x] Textured dark blue background with weathered texture overlay
-- [x] Dark blue-grey base (#1a2332 - deep dark blue-grey)
-- [x] Subtle vignette effect at edges
-- [x] CSS custom properties for theming
-
-**Typography**
-- [x] Cinzel medieval serif font for headers (from Google Fonts)
-- [x] Inter clean sans-serif for body text
-- [x] Golden text (#fbbf24) for role names and important headers
-- [x] Consistent font-header utility class throughout
-
-**Component Library**
-- [x] Button component with 6 variants (primary, secondary, danger, success, ghost, gold)
-- [x] Pill-shaped rounded-full design
-- [x] 3 sizes (sm, md, lg)
-- [x] Loading states with spinner
-- [x] Card component with team-specific styling
-- [x] Proper disabled and focus states
-
-**Applied Throughout**
-- [x] SetupScreen: Golden headers, mystical tagline, Button components
-- [x] NightPhase: All headers with Cinzel font, all buttons converted
-- [x] DawnPhase: Golden "Dawn" header, announcement titles
-- [x] DayPhase: Cinzel headers, all button controls updated
-- [x] All 7 modals: Headers with Cinzel font, Button components
-- [x] Day/Night theme support for PlayerList and EventLog sidebars
-
-**Files Created**:
-- `src/styles/designTokens.ts` - Design system tokens
-- `src/components/ui/Button.tsx` - Reusable button component
-- `src/components/ui/Card.tsx` - Card container component
-- `src/components/ui/index.ts` - Export barrel
-- `src/index.css` - Updated with Tailwind v4 @theme configuration
-
-**Day Phase Theme Enhancement** ✅
-- [x] PlayerList adapts to day/night theme (light backgrounds, better contrast during day)
-- [x] EventLog adapts to day/night theme
-- [x] Role reveal badges use light blue during day phase
-- [x] All text colours optimised for readability in both themes
-
-#### Phase 3B: Visual Enhancements ✅ (Completed 2025-11-25)
-
-**Timer Display** ✅
-- [x] Massive monospace numbers (text-9xl, like 04:56)
-- [x] Dynamic header text ("VOTE NOW" / "TIME REMAINING" / "READY TO START")
-- [x] Subtext explaining context
-- [x] Pulse animation when < 30 seconds
-- [x] Progress bar that turns red in final 30 seconds
-- [x] Dark gradient background (slate-800 to slate-900) with border
-- [x] Removed circular progress for cleaner ONUW aesthetic
-
-**Role Cards Redesign** ✅
-- [x] Grid layout (2-5 columns responsive)
-- [x] Card-based design with gradient backgrounds
-- [x] Border design with team-specific colours (blue/red/purple)
-- [x] Hover effects: scale-105, shadow glow, border colour change
-- [x] Selected state: border glow, shadow effects, scale-up
-- [x] Semi-transparent appearance for unselected cards (opacity-70)
-- [x] Quantity badge in top-right corner for multi-card roles
-- [x] Letter-based icon placeholders (first character of role name)
-- [x] Hover tooltip with role descriptions (smart positioning for multi-select)
-- [x] Interactive +/- controls for Villager and Simple Werewolf
-- [x] Recommended role badges with green borders
-- [x] Smooth transitions on all interactions (duration-300)
-
-**Implementation Details**:
-- Card grid uses responsive breakpoints: 2 (mobile), 3 (tablet), 4-5 (desktop)
-- Touch-friendly button sizes (p-1.5, rounded-full)
-- pointer-events-none on tooltips to prevent blocking controls
-- Team-specific styling throughout (village blue, werewolf red, solo purple)
-- Aspect-square icons maintain consistent card proportions
-
-**Character Art & Theming** ✅ (Completed 2025-11-25)
-- [x] Illustrated character art for all 24 roles (replaces letter placeholders)
-- [x] 400x400px optimised PNG images (~180-290KB each, 6.5MB total)
-- [x] Images integrated into role cards on setup screen
-- [x] Proper image paths with base URL support
-- [x] All role IDs match image filenames
-- [x] Moon phases for night progression (cycles through 8 phases: 🌑🌒🌓🌔🌕🌖🌗🌘)
-- [x] Moon phase indicator displayed in night phase header with name
 
 **Remaining Visual Enhancements** (Future Phase)
 
@@ -454,104 +370,7 @@ The Actor can use powers from three pre-selected role cards each night, choosing
 
 **Strategic Refactoring Roadmap**
 
-#### **Phase 1: Fix State Management (1-2 weeks)** ✅ (Completed 2025-12-01)
-**Status**: Completed ✅  
-**Priority**: High  
-**Effort**: Medium | **Impact**: High
-
-**Why**: Eliminates heavy prop drilling (20+ props to NightPhase), creates cleaner component APIs, improves maintainability.
-
-**Work Completed**:
-- [x] Extract game state into React Context API
-  - [x] Create `src/contexts/GameStateContext.tsx`
-  - [x] Implement `GameStateProvider` component wrapping `useGameState` hook
-  - [x] Export `useGameContext` custom hook for consuming components
-- [x] Refactor App.tsx to use Context Provider
-  - [x] Wrap application with `<GameStateProvider>`
-  - [x] Remove prop drilling from App.tsx
-- [x] Update phase components to consume context
-  - [x] SetupScreen: Replace 7 props with `useGameContext()` (100% reduction)
-  - [x] DayPhase: Replace 10 props with `useGameContext()` (90% reduction)
-  - [x] DawnPhase: Replace 8 props with `useGameContext()` (88% reduction)
-  - [x] NightPhase: Replace 21 props with `useGameContext()` (95% reduction)
-- [x] Test thoroughly to ensure no regressions
-- [x] Bug fix: Role reveal modal for revived then re-eliminated players
-
-**Example Implementation**:
-```tsx
-// GameStateContext.tsx
-export const GameStateProvider = ({ children }) => {
-  const gameState = useGameState();
-  return <GameStateContext.Provider value={gameState}>{children}</GameStateContext.Provider>;
-};
-
-// NightPhase.tsx (before: 20+ props)
-const { players, eliminatePlayer, addGameEvent } = useGameContext();
-// After: Clean, no prop drilling
-```
-
-**Results Achieved**:
-- ✅ **Total props eliminated**: 46 → 3 (93% reduction!)
-- ✅ **App.tsx simplified**: From ~160 lines to ~100 lines
-- ✅ **Zero prop drilling** across entire application
-- ✅ **Consistent pattern** across all components
-- ✅ All tests passing, app fully functional
-
-**Impact**: Cleaner component APIs, easier testing, reduced coupling between App.tsx and child components.
-
----
-
-#### **Phase 2: Decompose Large Components (2-3 weeks)** ✅ (Completed 2025-12-01)
-**Status**: Completed  
-**Priority**: High  
-**Effort**: Medium-High | **Impact**: High
-
-**Why**: NightPhase (~966 lines) was difficult to test and maintain. Breaking into focused sub-components improves code quality.
-
-**Work Completed**:
-- [x] Extract NightPhase sub-components:
-  - [x] `NightProgressTracker.tsx` - Progress UI (~80 lines)
-    - Moon phase indicator with cycling emoji
-    - Night number display
-    - Audio enable/disable toggle
-    - Progress summary (Step X of Y)
-  - [x] `RoleNarratorGuide.tsx` - Action checklist logic (~230 lines)
-    - Role-specific action buttons (Cupid, Witch, Werewolves, etc.)
-    - RoleActionGuide integration
-    - Infected player alerts
-    - Consolidated 170+ lines of conditional role UI
-  - [x] `RoleModalOrchestrator.tsx` - Modal management (~170 lines)
-    - Centralised modal state (5 modals)
-    - Modal rendering logic
-    - Modal callbacks and game event logging
-    - Removed 100+ lines of modal JSX from NightPhase
-- [x] Refactor NightPhase.tsx to orchestrate sub-components
-- [x] All components have TypeScript interfaces
-- [x] Verified build passes with no errors
-
-**Final Architecture**:
-```tsx
-<NightPhase>
-  <NightProgressTracker />
-  {/* Role card display */}
-  <RoleNarratorGuide />
-  {/* Sidebar with PlayerList/EventLog/RoleReference */}
-  {modalOrchestrator.renderModals()}
-</NightPhase>
-```
-
-**Results Achieved**:
-- **NightPhase reduced from ~966 lines to 654 lines** (32% reduction)
-- Net addition of ~480 lines across 3 focused components
-- Each component has clear, single responsibility
-- Improved maintainability and testability
-- All functionality preserved
-
-**Impact**: Significantly improved code organization, easier to test components in isolation, clearer separation of concerns, better maintainability for future enhancements.
-
----
-
-#### **Phase 3: Add Testing (2-3 weeks)**
+#### Phase 3: Add Testing (2-3 weeks)
 **Status**: Not Started  
 **Priority**: High  
 **Effort**: Medium-High | **Impact**: Very High
@@ -599,7 +418,7 @@ describe('Win Condition Detection', () => {
 
 ---
 
-#### **Phase 4: Improve Error Handling (1 week)**
+#### Phase 4: Improve Error Handling (1 week)
 **Status**: Not Started  
 **Priority**: Medium  
 **Effort**: Low-Medium | **Impact**: Medium
@@ -723,19 +542,198 @@ const loadGameState = (): GameState | null => {
 - [ ] Service worker cache invalidation on app update
 - [ ] Timer continues in background on mobile (pause on tab switch)
 
-### Recently Fixed (2025-11-25)
-- [x] React Hooks order violation in DawnPhase component (Three Brothers elimination)
-- [x] Bear Tamer elimination causing blank screen (auto-progress logic fixed)
-- [x] White Werewolf not appearing in night sequence (role filtering fixed)
-- [x] White Werewolf night schedule off-by-one error
-- [x] White background borders on character card images (transparency added)
-
 ---
 
 ## ✅ Completed Features
 
-### Phase Transition Animations ✅
-**Status**: Completed (2025-11-21)  
+### Phase 1: Fix State Management ✅ (Completed 2025-12-01)
+**Status**: Completed  
+**Priority**: High  
+**Effort**: Medium | **Impact**: High
+
+**Why**: Eliminates heavy prop drilling (20+ props to NightPhase), creates cleaner component APIs, improves maintainability.
+
+**Work Completed**:
+- [x] Extract game state into React Context API
+  - [x] Create `src/contexts/GameStateContext.tsx`
+  - [x] Implement `GameStateProvider` component wrapping `useGameState` hook
+  - [x] Export `useGameContext` custom hook for consuming components
+- [x] Refactor App.tsx to use Context Provider
+  - [x] Wrap application with `<GameStateProvider>`
+  - [x] Remove prop drilling from App.tsx
+- [x] Update phase components to consume context
+  - [x] SetupScreen: Replace 7 props with `useGameContext()` (100% reduction)
+  - [x] DayPhase: Replace 10 props with `useGameContext()` (90% reduction)
+  - [x] DawnPhase: Replace 8 props with `useGameContext()` (88% reduction)
+  - [x] NightPhase: Replace 21 props with `useGameContext()` (95% reduction)
+- [x] Test thoroughly to ensure no regressions
+- [x] Bug fix: Role reveal modal for revived then re-eliminated players
+
+**Example Implementation**:
+```tsx
+// GameStateContext.tsx
+export const GameStateProvider = ({ children }) => {
+  const gameState = useGameState();
+  return <GameStateContext.Provider value={gameState}>{children}</GameStateContext.Provider>;
+};
+
+// NightPhase.tsx (before: 20+ props)
+const { players, eliminatePlayer, addGameEvent } = useGameContext();
+// After: Clean, no prop drilling
+```
+
+**Results Achieved**:
+- ✅ **Total props eliminated**: 46 → 3 (93% reduction!)
+- ✅ **App.tsx simplified**: From ~160 lines to ~100 lines
+- ✅ **Zero prop drilling** across entire application
+- ✅ **Consistent pattern** across all components
+- ✅ All tests passing, app fully functional
+
+**Impact**: Cleaner component APIs, easier testing, reduced coupling between App.tsx and child components.
+
+---
+
+### Phase 2: Decompose Large Components ✅ (Completed 2025-12-01)
+**Status**: Completed  
+**Priority**: High  
+**Effort**: Medium-High | **Impact**: High
+
+**Why**: NightPhase (~966 lines) was difficult to test and maintain. Breaking into focused sub-components improves code quality.
+
+**Work Completed**:
+- [x] Extract NightPhase sub-components:
+  - [x] `NightProgressTracker.tsx` - Progress UI (~80 lines)
+    - Moon phase indicator with cycling emoji
+    - Night number display
+    - Audio enable/disable toggle
+    - Progress summary (Step X of Y)
+  - [x] `RoleNarratorGuide.tsx` - Action checklist logic (~230 lines)
+    - Role-specific action buttons (Cupid, Witch, Werewolves, etc.)
+    - RoleActionGuide integration
+    - Infected player alerts
+    - Consolidated 170+ lines of conditional role UI
+  - [x] `RoleModalOrchestrator.tsx` - Modal management (~170 lines)
+    - Centralised modal state (5 modals)
+    - Modal rendering logic
+    - Modal callbacks and game event logging
+    - Removed 100+ lines of modal JSX from NightPhase
+- [x] Refactor NightPhase.tsx to orchestrate sub-components
+- [x] All components have TypeScript interfaces
+- [x] Verified build passes with no errors
+
+**Final Architecture**:
+```tsx
+<NightPhase>
+  <NightProgressTracker />
+  {/* Role card display */}
+  <RoleNarratorGuide />
+  {/* Sidebar with PlayerList/EventLog/RoleReference */}
+  {modalOrchestrator.renderModals()}
+</NightPhase>
+```
+
+**Results Achieved**:
+- **NightPhase reduced from ~966 lines to 654 lines** (32% reduction)
+- Net addition of ~480 lines across 3 focused components
+- Each component has clear, single responsibility
+- Improved maintainability and testability
+- All functionality preserved
+
+**Impact**: Significantly improved code organization, easier to test components in isolation, clearer separation of concerns, better maintainability for future enhancements.
+
+---
+
+### Phase 3A: Core Design System ✅ (Completed 2025-11-25)
+**Priority**: High  
+**Inspiration**: One Night Ultimate Werewolf Android app + Miller's Hollow board game art
+
+**Colour Palette & Backgrounds**
+- [x] Textured dark blue background with weathered texture overlay
+- [x] Dark blue-grey base (#1a2332 - deep dark blue-grey)
+- [x] Subtle vignette effect at edges
+- [x] CSS custom properties for theming
+
+**Typography**
+- [x] Cinzel medieval serif font for headers (from Google Fonts)
+- [x] Inter clean sans-serif for body text
+- [x] Golden text (#fbbf24) for role names and important headers
+- [x] Consistent font-header utility class throughout
+
+**Component Library**
+- [x] Button component with 6 variants (primary, secondary, danger, success, ghost, gold)
+- [x] Pill-shaped rounded-full design
+- [x] 3 sizes (sm, md, lg)
+- [x] Loading states with spinner
+- [x] Card component with team-specific styling
+- [x] Proper disabled and focus states
+
+**Applied Throughout**
+- [x] SetupScreen: Golden headers, mystical tagline, Button components
+- [x] NightPhase: All headers with Cinzel font, all buttons converted
+- [x] DawnPhase: Golden "Dawn" header, announcement titles
+- [x] DayPhase: Cinzel headers, all button controls updated
+- [x] All 7 modals: Headers with Cinzel font, Button components
+- [x] Day/Night theme support for PlayerList and EventLog sidebars
+
+**Files Created**:
+- `src/styles/designTokens.ts` - Design system tokens
+- `src/components/ui/Button.tsx` - Reusable button component
+- `src/components/ui/Card.tsx` - Card container component
+- `src/components/ui/index.ts` - Export barrel
+- `src/index.css` - Updated with Tailwind v4 @theme configuration
+
+**Day Phase Theme Enhancement**
+- [x] PlayerList adapts to day/night theme (light backgrounds, better contrast during day)
+- [x] EventLog adapts to day/night theme
+- [x] Role reveal badges use light blue during day phase
+- [x] All text colours optimised for readability in both themes
+
+---
+
+### Phase 3B: Visual Enhancements ✅ (Completed 2025-11-25)
+
+**Timer Display**
+- [x] Massive monospace numbers (text-9xl, like 04:56)
+- [x] Dynamic header text ("VOTE NOW" / "TIME REMAINING" / "READY TO START")
+- [x] Subtext explaining context
+- [x] Pulse animation when < 30 seconds
+- [x] Progress bar that turns red in final 30 seconds
+- [x] Dark gradient background (slate-800 to slate-900) with border
+- [x] Removed circular progress for cleaner ONUW aesthetic
+
+**Role Cards Redesign**
+- [x] Grid layout (2-5 columns responsive)
+- [x] Card-based design with gradient backgrounds
+- [x] Border design with team-specific colours (blue/red/purple)
+- [x] Hover effects: scale-105, shadow glow, border colour change
+- [x] Selected state: border glow, shadow effects, scale-up
+- [x] Semi-transparent appearance for unselected cards (opacity-70)
+- [x] Quantity badge in top-right corner for multi-card roles
+- [x] Letter-based icon placeholders (first character of role name)
+- [x] Hover tooltip with role descriptions (smart positioning for multi-select)
+- [x] Interactive +/- controls for Villager and Simple Werewolf
+- [x] Recommended role badges with green borders
+- [x] Smooth transitions on all interactions (duration-300)
+
+**Implementation Details**:
+- Card grid uses responsive breakpoints: 2 (mobile), 3 (tablet), 4-5 (desktop)
+- Touch-friendly button sizes (p-1.5, rounded-full)
+- pointer-events-none on tooltips to prevent blocking controls
+- Team-specific styling throughout (village blue, werewolf red, solo purple)
+- Aspect-square icons maintain consistent card proportions
+
+**Character Art & Theming** ✅ (Completed 2025-11-25)
+- [x] Illustrated character art for all 24 roles (replaces letter placeholders)
+- [x] 400x400px optimised PNG images (~180-290KB each, 6.5MB total)
+- [x] Images integrated into role cards on setup screen
+- [x] Proper image paths with base URL support
+- [x] All role IDs match image filenames
+- [x] Moon phases for night progression (cycles through 8 phases: 🌑🌒🌓🌔🌕🌖🌗🌘)
+- [x] Moon phase indicator displayed in night phase header with name
+
+---
+
+### Phase Transition Animations ✅ (Completed 2025-11-21)
 **Priority**: High  
 **Effort**: Low-Medium | **Impact**: Medium-High
 
@@ -772,9 +770,7 @@ const loadGameState = (): GameState | null => {
 
 ---
 
-### Phase 2 Enhancements ✅ (2025-11-25)
-
-#### Win Condition Detection ✅
+### Win Condition Detection ✅ (Completed 2025-11-25)
 **Status**: Completed
 
 **Implemented**:
@@ -801,7 +797,9 @@ const loadGameState = (): GameState | null => {
 - `src/components/DawnPhase.tsx` (victory check)
 - `src/components/DayPhase.tsx` (victory check)
 
-#### Role Filtering Improvements ✅
+---
+
+### Role Filtering Improvements ✅ (Completed 2025-11-25)
 **Status**: Completed
 
 **Implemented**:
@@ -822,7 +820,9 @@ const loadGameState = (): GameState | null => {
 - `src/components/RoleRevealModal.tsx` (role counting logic)
 - `src/components/NightPhase.tsx` (role filtering)
 
-#### Player Status At-a-Glance ✅
+---
+
+### Player Status At-a-Glance ✅ (Completed 2025-11-25)
 **Status**: Completed
 
 **Implemented**:
@@ -870,6 +870,8 @@ const loadGameState = (): GameState | null => {
 - `src/components/RoleGeneratorModal.tsx`: Modal UI component
 - Integration in `src/components/SetupScreen.tsx`
 - All setups validated for balance and playability
+
+---
 
 ### Core Gameplay Features ✅
 
@@ -924,34 +926,36 @@ const loadGameState = (): GameState | null => {
 - [x] Transition automatically to day phase after dawn
 - [x] All elimination consequences (lovers, hunter, etc.) trigger at dawn
 
-#### Role-Specific Features ✅
+---
 
-**Wolf-Hound Team Toggle**
+### Role-Specific Features ✅
+
+**Wolf-Hound Team Toggle** ✅
 - [x] Visual toggle buttons for Village/Werewolf allegiance
 - [x] Appears for all players when Wolf-Hound is in game
 - [x] Icons for each team choice
 
-**Cupid Lovers Selection**
+**Cupid Lovers Selection** ✅
 - [x] Interactive modal for selecting two lovers
 - [x] Shows current lovers if already selected
 - [x] Visual heart icons and pink theming
 - [x] Event logging when lovers selected
 
-**Wild Child Role Model Selection**
+**Wild Child Role Model Selection** ✅
 - [x] Modal for selecting role model on first night
 - [x] Shows current role model if already selected
 - [x] Purple theming
 - [x] Event logging
 - [x] Transformation handled in elimination consequences
 
-**Werewolf Victim Selection with Guidance**
+**Werewolf Victim Selection with Guidance** ✅
 - [x] Detailed voting rules and guidance modal
 - [x] Separate modals for Simple Werewolves, Big Bad Wolf, White Werewolf
 - [x] Victims actually eliminated when selected
 - [x] Buttons disabled after selection
 - [x] Flags reset each night
 
-**White Werewolf Functionality ✅** (2025-11-25)
+**White Werewolf Functionality** ✅ (Completed 2025-11-25)
 - [x] Wakes every other night (nights 2, 4, 6, etc.)
 - [x] Appears in night sequence on correct nights
 - [x] Enhanced modal with detailed rules and narrator guidance
@@ -960,7 +964,7 @@ const loadGameState = (): GameState | null => {
 - [x] Fixed night number calculation for wake schedule
 - [x] Fixed role filtering to include in night sequence
 
-**Witch Potion Functionality**
+**Witch Potion Functionality** ✅
 - [x] Fixed mutual exclusivity (only one potion per night)
 - [x] Healing potion revives dead player
 - [x] Healing potion cancels role reveal at dawn
@@ -968,7 +972,7 @@ const loadGameState = (): GameState | null => {
 - [x] Player selection modals
 - [x] Event logging
 
-**Cursed Wolf-Father Silent Infection ✅** (2025-11-25)
+**Cursed Wolf-Father Silent Infection** ✅ (Completed 2025-11-25)
 - [x] Player selection modal for choosing victim to infect
 - [x] Infected player tracked in game state
 - [x] Silent conversion: player becomes werewolf, keeps original role card
@@ -983,12 +987,14 @@ const loadGameState = (): GameState | null => {
 - [x] Modal guidance on discreet player notification
 - [x] Alert banner during werewolf phase with instructions
 
-**Actor Role Guidance**
+**Actor Role Guidance** ✅
 - [x] Comprehensive narrator instructions
 - [x] Guidance for selecting 3 role cards at setup
 - [x] Instructions for using one power per night
 
-#### Day Phase Enhancements ✅
+---
+
+### Day Phase Enhancements ✅
 - [x] Player list available during day phase
 - [x] Same sidebar layout as night phase
 - [x] Toggleable sidebar with player list and event log
@@ -1001,10 +1007,10 @@ const loadGameState = (): GameState | null => {
 - [x] Note-taking area for each player
 - [x] Role reveal tracking
 - [x] Collapsible sidebar
-- [x] Tabbed sidebar with Players/Events/Roles views ✅ (2025-11-25)
-- [x] Role Reference panel showing all selected roles ✅ (2025-11-25)
-- [x] Roles grouped by team with descriptions and quantities ✅ (2025-11-25)
-- [x] Day/night theme adaptation for sidebar tabs ✅ (2025-11-25)
+- [x] Tabbed sidebar with Players/Events/Roles views ✅ (Completed 2025-11-25)
+- [x] Role Reference panel showing all selected roles ✅ (Completed 2025-11-25)
+- [x] Roles grouped by team with descriptions and quantities ✅ (Completed 2025-11-25)
+- [x] Day/night theme adaptation for sidebar tabs ✅ (Completed 2025-11-25)
 
 ### Advanced State Tracking ✅
 - [x] Record Cupid's lover choices (Player X & Y)
@@ -1015,6 +1021,15 @@ const loadGameState = (): GameState | null => {
 - [x] Detailed action cards for each role
 - [x] Narrator action checklists
 - [x] Track role-specific state (Witch potions, Wolf-Father infection, etc.)
+
+---
+
+### Recently Fixed (2025-11-25)
+- [x] React Hooks order violation in DawnPhase component (Three Brothers elimination)
+- [x] Bear Tamer elimination causing blank screen (auto-progress logic fixed)
+- [x] White Werewolf not appearing in night sequence (role filtering fixed)
+- [x] White Werewolf night schedule off-by-one error
+- [x] White background borders on character card images (transparency added)
 
 ---
 
@@ -1034,4 +1049,4 @@ To work on any of these enhancements:
 - **Medium Priority**: UX enhancements, visual polish
 - **Low Priority**: Nice-to-have features, advanced functionality
 
-Last Updated: 2025-11-25
+Last Updated: 2025-12-04
