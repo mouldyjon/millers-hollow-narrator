@@ -196,10 +196,11 @@ export const validateRoleBalance = (
   const warnings: string[] = [];
   const distribution = analyseRoleDistribution(selectedRoles);
 
-  // Check role count matches player count
-  if (selectedRoles.length !== playerCount) {
+  // Check total role slots matches player count (accounting for multi-player roles)
+  const totalSlots = calculateTotalSlots(selectedRoles);
+  if (totalSlots !== playerCount) {
     warnings.push(
-      `Role count (${selectedRoles.length}) doesn't match player count (${playerCount})`,
+      `Total role slots (${totalSlots}) doesn't match player count (${playerCount})`,
     );
   }
 

@@ -820,7 +820,61 @@ export const useGameState = () => {
     });
 
     // Check win conditions
-    // Check for White Werewolf solo victory first (if in game)
+    // Check solo roles first (highest priority)
+
+    // Check for Angel solo victory (if eliminated on first day/night)
+    if (gameState.setup.selectedRoles.includes("angel")) {
+      const angelPlayer = gameState.players.find(
+        (p) => p.actualRole === "angel",
+      );
+
+      // Angel wins if they were eliminated during night 1 or the first day
+      if (
+        angelPlayer &&
+        !angelPlayer.isAlive &&
+        gameState.nightState.currentNightNumber <= 2
+      ) {
+        return {
+          hasWinner: true,
+          winner: "solo",
+          message:
+            "The Angel was eliminated first and wins! They now join the village.",
+        };
+      }
+    }
+
+    // Check for Prejudiced Manipulator solo victory
+    if (gameState.setup.selectedRoles.includes("prejudiced-manipulator")) {
+      const manipulatorPlayer = gameState.players.find(
+        (p) => p.actualRole === "prejudiced-manipulator",
+      );
+
+      // Only check if Manipulator is alive and has set a target group
+      if (
+        manipulatorPlayer?.isAlive &&
+        gameState.prejudicedManipulatorTargetGroup
+      ) {
+        const targetGroup = gameState.prejudicedManipulatorTargetGroup;
+
+        // Check if all players in the target group are dead
+        const targetGroupPlayers = gameState.players.filter(
+          (p) => p.prejudicedManipulatorGroup === targetGroup,
+        );
+        const allTargetsDead =
+          targetGroupPlayers.length > 0 &&
+          targetGroupPlayers.every((p) => !p.isAlive);
+
+        if (allTargetsDead) {
+          return {
+            hasWinner: true,
+            winner: "solo",
+            message: `The Prejudiced Manipulator has eliminated all of Group ${targetGroup} and wins!`,
+          };
+        }
+      }
+    }
+
+    // Check for White Werewolf solo victory
     if (gameState.setup.selectedRoles.includes("white-werewolf")) {
       // Calculate alive counts using totals minus dead (works even if roles not revealed)
       // Exclude White Werewolf from werewolf count (they count as 1 werewolf in total)
