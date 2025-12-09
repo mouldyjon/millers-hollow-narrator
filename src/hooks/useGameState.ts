@@ -8,6 +8,7 @@ import {
 import { usePlayerManager } from "./usePlayerManager";
 import { useNightActions } from "./useNightActions";
 import { useRoleManager } from "./useRoleManager";
+import { usePhaseManager } from "./usePhaseManager";
 
 const createInitialPlayers = (count: number, useCachedNames = false) => {
   const cachedNames = useCachedNames ? loadCachedPlayerNames() : {};
@@ -58,61 +59,8 @@ export const useGameState = () => {
   // Role management operations
   const roleManager = useRoleManager(gameState, setGameState);
 
-  const startGame = () => {
-    setGameState((prev) => ({
-      ...prev,
-      phase: "night",
-      nightState: {
-        ...prev.nightState,
-        currentNightNumber: 1,
-      },
-    }));
-  };
-
-  const startDawn = () => {
-    setGameState((prev) => ({
-      ...prev,
-      phase: "dawn",
-    }));
-  };
-
-  const startDay = () => {
-    setGameState((prev) => ({
-      ...prev,
-      phase: "day",
-    }));
-  };
-
-  const startNight = () => {
-    setGameState((prev) => ({
-      ...prev,
-      phase: "night",
-      currentNightStep: 0,
-      nightState: {
-        ...prev.nightState,
-        currentNightNumber: prev.nightState.currentNightNumber + 1,
-        whiteWerewolfNight: (prev.nightState.currentNightNumber + 1) % 2 === 0,
-        witchPotionUsedThisNight: false, // Reset per-night flag
-        werewolfVictimSelectedThisNight: false,
-        bigBadWolfVictimSelectedThisNight: false,
-        whiteWerewolfVictimSelectedThisNight: false,
-      },
-    }));
-  };
-
-  const nextNightStep = () => {
-    setGameState((prev) => ({
-      ...prev,
-      currentNightStep: prev.currentNightStep + 1,
-    }));
-  };
-
-  const setPrejudicedManipulatorTargetGroup = (group: "A" | "B") => {
-    setGameState((prev) => ({
-      ...prev,
-      prejudicedManipulatorTargetGroup: group,
-    }));
-  };
+  // Phase management operations
+  const phaseManager = usePhaseManager(gameState, setGameState);
 
   const resetGame = () => {
     // Create new game state with cached player names
@@ -122,38 +70,6 @@ export const useGameState = () => {
     };
     setGameState(newGameState);
     // Note: State will be automatically saved to localStorage by useGamePersistence
-  };
-
-  const setPhase = (phase: "setup" | "night" | "day" | "ended") => {
-    setGameState((prev) => ({
-      ...prev,
-      phase,
-    }));
-  };
-
-  const addGameEvent = (
-    type: "elimination" | "role_action" | "day_vote" | "special",
-    description: string,
-  ) => {
-    setGameState((prev) => ({
-      ...prev,
-      gameEvents: [
-        ...prev.gameEvents,
-        {
-          night: prev.nightState.currentNightNumber,
-          type,
-          description,
-          timestamp: new Date(),
-        },
-      ],
-    }));
-  };
-
-  const clearPendingRoleReveals = () => {
-    setGameState((prev) => ({
-      ...prev,
-      pendingRoleReveals: [],
-    }));
   };
 
   const checkEliminationConsequences = (
@@ -184,13 +100,17 @@ export const useGameState = () => {
     removeRole: roleManager.removeRole,
     setSelectedRoles: roleManager.setSelectedRoles,
     setUnusedRoles: roleManager.setUnusedRoles,
-    // Phase management
-    startGame,
-    startDawn,
-    startDay,
-    startNight,
-    nextNightStep,
-    setPhase,
+    // Phase management (from usePhaseManager)
+    startGame: phaseManager.startGame,
+    startDawn: phaseManager.startDawn,
+    startDay: phaseManager.startDay,
+    startNight: phaseManager.startNight,
+    nextNightStep: phaseManager.nextNightStep,
+    setPhase: phaseManager.setPhase,
+    setPrejudicedManipulatorTargetGroup:
+      phaseManager.setPrejudicedManipulatorTargetGroup,
+    addGameEvent: phaseManager.addGameEvent,
+    clearPendingRoleReveals: phaseManager.clearPendingRoleReveals,
     resetGame,
     // Night actions (from useNightActions)
     useWitchHealingPotion: nightActions.useWitchHealingPotion,
@@ -204,10 +124,7 @@ export const useGameState = () => {
     setSheriff: nightActions.setSheriff,
     useStutteringJudgeDoubleVote: nightActions.useStutteringJudgeDoubleVote,
     toggleActionComplete: nightActions.toggleActionComplete,
-    setPrejudicedManipulatorTargetGroup,
-    // Events and game logic
-    addGameEvent,
-    clearPendingRoleReveals,
+    // Game logic
     checkEliminationConsequences,
     checkWinCondition,
   };
