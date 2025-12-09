@@ -8,8 +8,8 @@ import {
 import {
   useGamePersistence,
   loadCachedPlayerNames,
-  saveCachedPlayerNames,
 } from "./useGamePersistence";
+import { usePlayerManager } from "./usePlayerManager";
 
 const createInitialPlayers = (count: number, useCachedNames = false) => {
   const cachedNames = useCachedNames ? loadCachedPlayerNames() : {};
@@ -51,60 +51,8 @@ const initialGameState: GameState = {
 export const useGameState = () => {
   const [gameState, setGameState] = useGamePersistence(initialGameState);
 
-  const setPlayerCount = (count: number) => {
-    setGameState((prev) => {
-      // Preserve existing player names when changing count
-      const newPlayers = createInitialPlayers(count);
-      const existingPlayers = prev.players;
-
-      // Copy names from existing players where available
-      return {
-        ...prev,
-        setup: {
-          ...prev.setup,
-          playerCount: count,
-        },
-        players: newPlayers.map((newPlayer) => {
-          const existingPlayer = existingPlayers.find(
-            (p) => p.number === newPlayer.number,
-          );
-          return existingPlayer
-            ? { ...newPlayer, name: existingPlayer.name }
-            : newPlayer;
-        }),
-      };
-    });
-  };
-
-  const setPlayerName = (playerNumber: number, name: string) => {
-    setGameState((prev) => {
-      const updatedPlayers = prev.players.map((p) =>
-        p.number === playerNumber
-          ? { ...p, name: name.trim() || undefined }
-          : p,
-      );
-
-      // Save to player names cache
-      saveCachedPlayerNames(updatedPlayers);
-
-      return {
-        ...prev,
-        players: updatedPlayers,
-      };
-    });
-  };
-
-  const setPlayerAssignedRole = (
-    playerNumber: number,
-    roleId: RoleId | undefined,
-  ) => {
-    setGameState((prev) => ({
-      ...prev,
-      players: prev.players.map((p) =>
-        p.number === playerNumber ? { ...p, assignedRole: roleId } : p,
-      ),
-    }));
-  };
+  // Player management operations
+  const playerManager = usePlayerManager(gameState, setGameState);
 
   const toggleRole = (roleId: RoleId) => {
     setGameState((prev) => {
@@ -378,20 +326,6 @@ export const useGameState = () => {
     }));
   };
 
-  const setPlayerPrejudicedManipulatorGroup = (
-    playerNumber: number,
-    group: "A" | "B" | undefined,
-  ) => {
-    setGameState((prev) => ({
-      ...prev,
-      players: prev.players.map((p) =>
-        p.number === playerNumber
-          ? { ...p, prejudicedManipulatorGroup: group }
-          : p,
-      ),
-    }));
-  };
-
   const setPrejudicedManipulatorTargetGroup = (group: "A" | "B") => {
     setGameState((prev) => ({
       ...prev,
@@ -413,39 +347,6 @@ export const useGameState = () => {
     setGameState((prev) => ({
       ...prev,
       phase,
-    }));
-  };
-
-  const togglePlayerAlive = (playerNumber: number) => {
-    setGameState((prev) => ({
-      ...prev,
-      players: prev.players.map((p) =>
-        p.number === playerNumber ? { ...p, isAlive: !p.isAlive } : p,
-      ),
-    }));
-  };
-
-  const updatePlayerNotes = (playerNumber: number, notes: string) => {
-    setGameState((prev) => ({
-      ...prev,
-      players: prev.players.map((p) =>
-        p.number === playerNumber ? { ...p, notes } : p,
-      ),
-    }));
-  };
-
-  const setPlayerRevealedRole = (
-    playerNumber: number,
-    role: string,
-    roleId?: RoleId,
-  ) => {
-    setGameState((prev) => ({
-      ...prev,
-      players: prev.players.map((p) =>
-        p.number === playerNumber
-          ? { ...p, revealedRole: role, actualRole: roleId }
-          : p,
-      ),
     }));
   };
 
@@ -478,18 +379,6 @@ export const useGameState = () => {
     setGameState((prev) => ({
       ...prev,
       wolfHoundTeam: team,
-    }));
-  };
-
-  const setPlayerWolfHoundTeam = (
-    playerNumber: number,
-    team: "village" | "werewolf",
-  ) => {
-    setGameState((prev) => ({
-      ...prev,
-      players: prev.players.map((p) =>
-        p.number === playerNumber ? { ...p, wolfHoundTeam: team } : p,
-      ),
     }));
   };
 
@@ -584,39 +473,45 @@ export const useGameState = () => {
 
   return {
     gameState,
-    setPlayerCount,
-    setPlayerName,
-    setPlayerAssignedRole,
+    // Player management (from usePlayerManager)
+    setPlayerCount: playerManager.setPlayerCount,
+    setPlayerName: playerManager.setPlayerName,
+    setPlayerAssignedRole: playerManager.setPlayerAssignedRole,
+    togglePlayerAlive: playerManager.togglePlayerAlive,
+    updatePlayerNotes: playerManager.updatePlayerNotes,
+    setPlayerRevealedRole: playerManager.setPlayerRevealedRole,
+    setPlayerWolfHoundTeam: playerManager.setPlayerWolfHoundTeam,
+    setPlayerPrejudicedManipulatorGroup:
+      playerManager.setPlayerPrejudicedManipulatorGroup,
+    // Role management
     toggleRole,
     removeRole,
     setSelectedRoles,
     setUnusedRoles,
+    // Phase management
     startGame,
     startDawn,
     startDay,
     startNight,
     nextNightStep,
+    setPhase,
+    resetGame,
+    // Night actions
     useWitchHealingPotion,
     useWitchDeathPotion,
     useCursedWolfFatherInfection,
     setCupidLovers,
     setWildChildRoleModel,
     setWolfHoundTeam,
-    setPlayerWolfHoundTeam,
     selectWerewolfVictim,
     setThiefChosenRole,
     setSheriff,
     useStutteringJudgeDoubleVote,
-    setPlayerPrejudicedManipulatorGroup,
     setPrejudicedManipulatorTargetGroup,
-    resetGame,
-    setPhase,
-    togglePlayerAlive,
-    updatePlayerNotes,
-    setPlayerRevealedRole,
+    toggleActionComplete,
+    // Events and game logic
     addGameEvent,
     clearPendingRoleReveals,
-    toggleActionComplete,
     checkEliminationConsequences,
     checkWinCondition,
   };
