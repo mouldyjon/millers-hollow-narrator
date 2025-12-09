@@ -140,7 +140,16 @@ src/
 │   ├── VictoryAnnouncement.tsx # Win condition modal
 │   └── *Modal.tsx           # Various modals (role selection, etc.)
 ├── hooks/               # Custom React hooks
-│   └── useGameState.ts      # Central game state management
+│   ├── useGameState.ts          # Central game state coordinator
+│   ├── useGamePersistence.ts    # State persistence & localStorage
+│   ├── usePlayerManager.ts      # Player-related operations
+│   ├── useNightActions.ts       # Night phase action handlers
+│   ├── useRoleManager.ts        # Role selection & management
+│   └── usePhaseManager.ts       # Game phase transitions
+├── logic/               # Pure business logic
+│   ├── winConditions.ts         # Win condition checking
+│   ├── eliminationConsequences.ts # Cascade elimination effects
+│   └── roleSlotCalculations.ts  # Role slot utilities
 ├── data/                # Static game data
 │   └── roles.ts             # All 28 role definitions
 ├── styles/              # Design system
@@ -155,7 +164,14 @@ src/
 
 ### Key Design Decisions
 
-**State Management**: Uses a centralised `useGameState` hook with reducer-like pattern for predictable state updates. All game state lives in a single object passed down through props.
+**State Management**: Modular hook-based architecture following Single Responsibility Principle:
+- `useGameState`: Coordinator hook that composes specialized sub-hooks
+- `useGamePersistence`: Handles localStorage save/load and player name caching
+- `usePlayerManager`: Player-related state operations (alive/dead, roles, notes)
+- `useNightActions`: Night phase abilities (witch potions, werewolf victims, etc.)
+- `useRoleManager`: Role selection and validation logic
+- `usePhaseManager`: Game phase transitions and event logging
+- Pure logic modules (`winConditions`, `eliminationConsequences`) for testability
 
 **Role System**: Roles are defined with metadata including:
 - Night order (when they wake up)
@@ -269,6 +285,9 @@ See [ENHANCEMENTS.md](./ENHANCEMENTS.md) for the complete roadmap.
 - ✅ **Phase Transitions** (Phase 2) - Animated transitions with atmospheric effects
 - ✅ **Medieval Design System** (Phase 3A) - Complete visual overhaul with Cinzel fonts and golden aesthetic
 - ✅ **Day/Night Themes** (Phase 3A) - Adaptive UI that changes with game phase
+- ✅ **Codebase Refactoring** (v0.1.0) - Decomposed 917-line God Hook into 6 specialized hooks following SRP
+- ✅ **Critical Bug Fixes** (v0.1.0) - Fixed role slot validation, added missing Angel and Prejudiced Manipulator win conditions
+- ✅ **Actor Roles** - Implemented Prejudiced Manipulator group assignment and Stuttering Judge double elimination
 
 ### Upcoming Features
 - **Role Card Visual Redesign** (Phase 3B): Illustrated character art and card-based layout
