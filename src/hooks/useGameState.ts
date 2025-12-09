@@ -1,6 +1,11 @@
 import { useState, useEffect } from "react";
 import type { GameState, RoleId } from "../types/game";
-import { roles } from "../data/roles";
+import { checkWinCondition as checkWinConditionPure } from "../logic/winConditions";
+import { checkEliminationConsequences as checkEliminationConsequencesPure } from "../logic/eliminationConsequences";
+import {
+  calculateTotalSlots,
+  getRoleSlotCount,
+} from "../logic/roleSlotCalculations";
 
 const STORAGE_KEY = "millers-hollow-game-state";
 const PLAYER_NAMES_CACHE_KEY = "millers-hollow-player-names-cache";
@@ -165,17 +170,6 @@ export const useGameState = () => {
       // Roles that can have multiple instances
       const multiSelectRoles: RoleId[] = ["villager", "simple-werewolf"];
 
-      // Helper to calculate total role slots
-      const getRoleSlots = (roleId: RoleId): number => {
-        if (roleId === "two-sisters") return 2;
-        if (roleId === "three-brothers") return 3;
-        return 1;
-      };
-
-      const calculateTotalSlots = (roles: RoleId[]): number => {
-        return roles.reduce((sum, id) => sum + getRoleSlots(id), 0);
-      };
-
       if (multiSelectRoles.includes(roleId)) {
         // Check current count of this role
         const currentCount = prev.setup.selectedRoles.filter(
@@ -231,7 +225,7 @@ export const useGameState = () => {
           const currentTotalSlots = calculateTotalSlots(
             prev.setup.selectedRoles,
           );
-          const newRoleSlots = getRoleSlots(roleId);
+          const newRoleSlots = getRoleSlotCount(roleId);
           if (currentTotalSlots + newRoleSlots > prev.setup.playerCount) {
             // Would exceed player count
             return prev;
@@ -639,295 +633,12 @@ export const useGameState = () => {
   const checkEliminationConsequences = (
     playerNumber: number,
     roleId?: RoleId,
-  ): {
-    type:
-      | "none"
-      | "lovers"
-      | "knight-rusty-sword"
-      | "hunter"
-      | "siblings"
-      | "wild-child-transform";
-    affectedPlayers: number[];
-    message: string;
-    requiresPlayerSelection: boolean;
-  } => {
-    const state = gameState;
-
-    // Check if eliminated player is a lover
-    if (state.cupidLovers && state.cupidLovers.includes(playerNumber)) {
-      const otherLover = state.cupidLovers.find((p) => p !== playerNumber);
-      if (otherLover) {
-        const otherPlayer = state.players.find((p) => p.number === otherLover);
-        if (otherPlayer?.isAlive) {
-          return {
-            type: "lovers",
-            affectedPlayers: [otherLover],
-            message: `Player ${otherLover} was in love with Player ${playerNumber} and dies of heartbreak!`,
-            requiresPlayerSelection: false,
-          };
-        }
-      }
-    }
-
-    // Check if eliminated player is Wild Child's role model
-    if (state.wildChildRoleModel === playerNumber) {
-      const wildChild = state.players.find(
-        (p) => p.actualRole === "wild-child" && p.isAlive,
-      );
-      if (wildChild) {
-        return {
-          type: "wild-child-transform",
-          affectedPlayers: [wildChild.number],
-          message: `Player ${wildChild.number} (Wild Child) loses their role model and transforms into a werewolf!`,
-          requiresPlayerSelection: false,
-        };
-      }
-    }
-
-    // Check role-specific consequences
-    if (roleId === "knight-rusty-sword") {
-      // Find right-hand neighbour (next player number, wrapping around)
-      const rightNeighbour =
-        playerNumber === state.setup.playerCount ? 1 : playerNumber + 1;
-      const neighbour = state.players.find((p) => p.number === rightNeighbour);
-      if (neighbour?.isAlive) {
-        return {
-          type: "knight-rusty-sword",
-          affectedPlayers: [rightNeighbour],
-          message: `The Knight's rusty sword breaks and strikes Player ${rightNeighbour} (right-hand neighbour)!`,
-          requiresPlayerSelection: false,
-        };
-      }
-    }
-
-    if (roleId === "hunter") {
-      const alivePlayers = state.players
-        .filter((p) => p.isAlive && p.number !== playerNumber)
-        .map((p) => p.number);
-      if (alivePlayers.length > 0) {
-        return {
-          type: "hunter",
-          affectedPlayers: [],
-          message: `The Hunter fires their dying shot! Choose who to eliminate:`,
-          requiresPlayerSelection: true,
-        };
-      }
-    }
-
-    // Check for siblings (informational only)
-    if (roleId === "two-sisters" || roleId === "three-brothers") {
-      const siblingsAlive = state.players.filter(
-        (p) =>
-          p.actualRole === roleId && p.isAlive && p.number !== playerNumber,
-      );
-      if (siblingsAlive.length > 0) {
-        const siblingNumbers = siblingsAlive.map((p) => p.number);
-        const siblingWord = roleId === "two-sisters" ? "sister" : "brother";
-        return {
-          type: "siblings",
-          affectedPlayers: siblingNumbers,
-          message: `Player ${playerNumber}'s ${siblingWord}(s) (${siblingNumbers.join(", ")}) should be informed of this death.`,
-          requiresPlayerSelection: false,
-        };
-      }
-    }
-
-    return {
-      type: "none",
-      affectedPlayers: [],
-      message: "",
-      requiresPlayerSelection: false,
-    };
+  ) => {
+    return checkEliminationConsequencesPure(gameState, playerNumber, roleId);
   };
 
-  const checkWinCondition = (): {
-    hasWinner: boolean;
-    winner?: "village" | "werewolves" | "solo";
-    message?: string;
-  } => {
-    // Count total werewolf and village roles in the game
-    let totalWerewolves = 0;
-    let totalVillagers = 0;
-
-    gameState.setup.selectedRoles.forEach((roleId) => {
-      const roleData = roles[roleId];
-      if (!roleData) return;
-
-      let multiplier = 1;
-      if (roleId === "two-sisters") multiplier = 2;
-      if (roleId === "three-brothers") multiplier = 3;
-
-      if (roleData.team === "werewolf") {
-        totalWerewolves += multiplier;
-      } else if (roleData.team === "village") {
-        totalVillagers += multiplier;
-      }
-    });
-
-    // Check if Wolf-Hound has chosen a team
-    const wolfHoundPlayer = gameState.players.find(
-      (p) => p.actualRole === "wolf-hound",
-    );
-    if (wolfHoundPlayer?.wolfHoundTeam) {
-      // Wolf-Hound starts as village, so adjust counts based on their choice
-      if (wolfHoundPlayer.wolfHoundTeam === "werewolf") {
-        // They chose werewolves, so subtract from village and add to werewolves
-        totalVillagers -= 1;
-        totalWerewolves += 1;
-      }
-      // If they chose village, no adjustment needed as they're already counted as village
-    }
-
-    // If a player has been infected by Cursed Wolf-Father, they become a werewolf
-    if (gameState.cursedWolfFatherInfectedPlayer) {
-      totalWerewolves += 1;
-      // The infected player was originally a villager, so subtract from villagers
-      totalVillagers -= 1;
-    }
-
-    // Count revealed dead players by team
-    let deadWerewolves = 0;
-    let deadVillagers = 0;
-
-    gameState.players.forEach((player) => {
-      if (!player.isAlive && player.actualRole) {
-        // Check if this player was infected by Cursed Wolf-Father
-        if (player.number === gameState.cursedWolfFatherInfectedPlayer) {
-          // They're now a werewolf regardless of their original role
-          deadWerewolves++;
-          return;
-        }
-
-        const roleData = roles[player.actualRole];
-        if (!roleData) return;
-
-        // Handle Wolf-Hound team choice
-        if (player.actualRole === "wolf-hound" && player.wolfHoundTeam) {
-          if (player.wolfHoundTeam === "werewolf") {
-            deadWerewolves++;
-          } else {
-            deadVillagers++;
-          }
-          return;
-        }
-
-        if (roleData.team === "werewolf") {
-          deadWerewolves++;
-        } else if (roleData.team === "village") {
-          deadVillagers++;
-        }
-      }
-    });
-
-    // Check win conditions
-    // Check solo roles first (highest priority)
-
-    // Check for Angel solo victory (if eliminated on first day/night)
-    if (gameState.setup.selectedRoles.includes("angel")) {
-      const angelPlayer = gameState.players.find(
-        (p) => p.actualRole === "angel",
-      );
-
-      // Angel wins if they were eliminated during night 1 or the first day
-      if (
-        angelPlayer &&
-        !angelPlayer.isAlive &&
-        gameState.nightState.currentNightNumber <= 2
-      ) {
-        return {
-          hasWinner: true,
-          winner: "solo",
-          message:
-            "The Angel was eliminated first and wins! They now join the village.",
-        };
-      }
-    }
-
-    // Check for Prejudiced Manipulator solo victory
-    if (gameState.setup.selectedRoles.includes("prejudiced-manipulator")) {
-      const manipulatorPlayer = gameState.players.find(
-        (p) => p.actualRole === "prejudiced-manipulator",
-      );
-
-      // Only check if Manipulator is alive and has set a target group
-      if (
-        manipulatorPlayer?.isAlive &&
-        gameState.prejudicedManipulatorTargetGroup
-      ) {
-        const targetGroup = gameState.prejudicedManipulatorTargetGroup;
-
-        // Check if all players in the target group are dead
-        const targetGroupPlayers = gameState.players.filter(
-          (p) => p.prejudicedManipulatorGroup === targetGroup,
-        );
-        const allTargetsDead =
-          targetGroupPlayers.length > 0 &&
-          targetGroupPlayers.every((p) => !p.isAlive);
-
-        if (allTargetsDead) {
-          return {
-            hasWinner: true,
-            winner: "solo",
-            message: `The Prejudiced Manipulator has eliminated all of Group ${targetGroup} and wins!`,
-          };
-        }
-      }
-    }
-
-    // Check for White Werewolf solo victory
-    if (gameState.setup.selectedRoles.includes("white-werewolf")) {
-      // Calculate alive counts using totals minus dead (works even if roles not revealed)
-      // Exclude White Werewolf from werewolf count (they count as 1 werewolf in total)
-      const totalOtherWerewolves = totalWerewolves - 1;
-      const aliveOtherWerewolves = totalOtherWerewolves - deadWerewolves;
-      const aliveVillagers = totalVillagers - deadVillagers;
-
-      // Check if White Werewolf is alive
-      // First try to find them by actualRole (if revealed)
-      const whiteWolfPlayer = gameState.players.find(
-        (p) => p.actualRole === "white-werewolf",
-      );
-
-      // If not found by actualRole, they must be alive (not revealed yet)
-      // If found, check their isAlive status
-      const isWhiteWolfAlive = whiteWolfPlayer
-        ? whiteWolfPlayer.isAlive
-        : deadWerewolves < totalWerewolves; // If fewer werewolves dead than total, White Wolf is alive
-
-      // White Werewolf wins if they're alive, all other werewolves are dead, and at least one villager is alive
-      if (
-        isWhiteWolfAlive &&
-        aliveOtherWerewolves === 0 &&
-        aliveVillagers > 0
-      ) {
-        return {
-          hasWinner: true,
-          winner: "solo",
-          message:
-            "The White Werewolf has eliminated all other werewolves and wins alone!",
-        };
-      }
-    }
-
-    // Village wins if all werewolves are dead (and at least one has been revealed)
-    if (deadWerewolves > 0 && deadWerewolves >= totalWerewolves) {
-      return {
-        hasWinner: true,
-        winner: "village",
-        message: "All werewolves have been eliminated. The Village wins!",
-      };
-    }
-
-    // Werewolves win if all villagers are dead (and at least one has been revealed)
-    if (deadVillagers > 0 && deadVillagers >= totalVillagers) {
-      return {
-        hasWinner: true,
-        winner: "werewolves",
-        message: "All villagers have been eliminated. The Werewolves win!",
-      };
-    }
-
-    return { hasWinner: false };
+  const checkWinCondition = () => {
+    return checkWinConditionPure(gameState);
   };
 
   return {

@@ -1,5 +1,6 @@
 import type { RoleId } from "../types/game";
 import { roles } from "../data/roles";
+import { calculateTotalSlots } from "../logic/roleSlotCalculations";
 
 export interface RoleDistribution {
   villageRoles: RoleId[];
@@ -33,21 +34,7 @@ const SPECIAL_WEREWOLF_ROLES: RoleId[] = [
   "cursed-wolf-father",
 ];
 
-/**
- * Get the number of player slots a role occupies
- */
-const getRoleSlotCount = (roleId: RoleId): number => {
-  if (roleId === "two-sisters") return 2;
-  if (roleId === "three-brothers") return 3;
-  return 1;
-};
-
-/**
- * Calculate total player slots from an array of roles
- */
-const calculateTotalSlots = (roles: RoleId[]): number => {
-  return roles.reduce((sum, roleId) => sum + getRoleSlotCount(roleId), 0);
-};
+// Note: getRoleSlotCount and calculateTotalSlots are now imported from logic/roleSlotCalculations
 
 /**
  * Calculate recommended number of werewolves based on player count
