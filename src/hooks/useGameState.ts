@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import type { GameState, RoleId } from "../types/game";
 import { checkWinCondition as checkWinConditionPure } from "../logic/winConditions";
 import { checkEliminationConsequences as checkEliminationConsequencesPure } from "../logic/eliminationConsequences";
@@ -6,39 +5,11 @@ import {
   calculateTotalSlots,
   getRoleSlotCount,
 } from "../logic/roleSlotCalculations";
-
-const STORAGE_KEY = "millers-hollow-game-state";
-const PLAYER_NAMES_CACHE_KEY = "millers-hollow-player-names-cache";
-
-// Load cached player names
-const loadCachedPlayerNames = (): Record<number, string> => {
-  try {
-    const cached = localStorage.getItem(PLAYER_NAMES_CACHE_KEY);
-    if (cached) {
-      return JSON.parse(cached);
-    }
-  } catch (error) {
-    console.error("Failed to load cached player names:", error);
-  }
-  return {};
-};
-
-// Save player names to cache
-const saveCachedPlayerNames = (
-  players: { number: number; name?: string }[],
-) => {
-  try {
-    const nameCache: Record<number, string> = {};
-    players.forEach((player) => {
-      if (player.name && player.name.trim()) {
-        nameCache[player.number] = player.name;
-      }
-    });
-    localStorage.setItem(PLAYER_NAMES_CACHE_KEY, JSON.stringify(nameCache));
-  } catch (error) {
-    console.error("Failed to save cached player names:", error);
-  }
-};
+import {
+  useGamePersistence,
+  loadCachedPlayerNames,
+  saveCachedPlayerNames,
+} from "./useGamePersistence";
 
 const createInitialPlayers = (count: number, useCachedNames = false) => {
   const cachedNames = useCachedNames ? loadCachedPlayerNames() : {};
@@ -77,38 +48,8 @@ const initialGameState: GameState = {
   gameEvents: [],
 };
 
-// Load saved state from localStorage
-const loadSavedState = (): GameState => {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      // Restore Date objects for gameEvents
-      if (parsed.gameEvents) {
-        parsed.gameEvents = parsed.gameEvents.map((event: any) => ({
-          ...event,
-          timestamp: new Date(event.timestamp),
-        }));
-      }
-      return parsed;
-    }
-  } catch (error) {
-    console.error("Failed to load game state:", error);
-  }
-  return initialGameState;
-};
-
 export const useGameState = () => {
-  const [gameState, setGameState] = useState<GameState>(loadSavedState);
-
-  // Save state to localStorage whenever it changes
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState));
-    } catch (error) {
-      console.error("Failed to save game state:", error);
-    }
-  }, [gameState]);
+  const [gameState, setGameState] = useGamePersistence(initialGameState);
 
   const setPlayerCount = (count: number) => {
     setGameState((prev) => {
@@ -465,7 +406,7 @@ export const useGameState = () => {
       players: createInitialPlayers(initialGameState.setup.playerCount, true),
     };
     setGameState(newGameState);
-    localStorage.removeItem(STORAGE_KEY);
+    // Note: State will be automatically saved to localStorage by useGamePersistence
   };
 
   const setPhase = (phase: "setup" | "night" | "day" | "ended") => {
