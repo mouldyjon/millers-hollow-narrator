@@ -185,8 +185,7 @@ export const PlayerList = ({
           | "knight-rusty-sword"
           | "hunter"
           | "siblings"
-          | "wild-child-transform"
-          | "none",
+          | "wild-child-transform",
         message: consequences.message,
         affectedPlayers: consequences.affectedPlayers,
         requiresPlayerSelection: consequences.requiresPlayerSelection,
