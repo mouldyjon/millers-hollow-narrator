@@ -370,39 +370,94 @@ The Actor can use powers from three pre-selected role cards each night, choosing
 
 **Strategic Refactoring Roadmap**
 
-#### Phase 3: Add Testing (2-3 weeks)
+#### Phase 2: Tech Stack Enhancements (1-2 weeks)
 **Status**: Not Started  
-**Priority**: High  
+**Priority**: Medium  
+**Effort**: Low-Medium | **Impact**: Medium-High
+
+**Why**: Address gaps in current tech stack to improve developer experience, code quality, and maintainability.
+
+**Recommended Additions**:
+
+1. **State Management: Zustand** (Optional)
+   - [ ] Evaluate if Context re-renders are causing performance issues
+   - [ ] Consider adding Zustand (~1KB) for better DevTools and simpler testing
+   - **When to add**: If prop drilling becomes painful or performance degrades
+   - **Benefits**: Time-travel debugging, no Context re-render issues, easier unit testing
+   - **Decision**: Monitor performance first, add only if needed
+
+2. **Component Library: shadcn/ui** (Recommended for Phase 3B)
+   - [ ] Add shadcn/ui components for modal/dialog primitives
+   - [ ] Replace custom modal implementations with Radix UI-based components
+   - [ ] Utilise accessible form components for role setup
+   - **When to add**: During Phase 3B role card visual redesign
+   - **Benefits**: Copy-paste components (you own the code), built on Tailwind, accessible by default
+   - **Install**: `npx shadcn-ui@latest init`
+
+3. **Form Validation: Zod** (Optional)
+   - [ ] Evaluate if current validation logic becomes unwieldy
+   - [ ] Consider Zod for runtime validation with TypeScript inference
+   - **When to add**: If setup validation gets more complex
+   - **Benefits**: TypeScript-first, runtime validation, better error messages
+   - **Decision**: Current validation is adequate; revisit if complexity increases
+
+**What NOT to Add**:
+- ❌ **Next.js/Remix** - Overkill for a PWA game narrator (no SSR needed)
+- ❌ **Redux Toolkit** - Too heavy; Zustand is lighter if state management needed
+- ❌ **Emotion/Styled Components** - Already using Tailwind; don't mix paradigms
+- ❌ **Framer Motion** - Current transitions adequate; only add if animations get complex
+
+---
+
+#### Phase 3: Add Testing (2-3 weeks) ✅
+**Status**: COMPLETED (2025-12-12)
+**Priority**: HIGH - Critical Gap  
 **Effort**: Medium-High | **Impact**: Very High
 
 **Why**: Prevents regressions, enables confident refactoring, catches edge cases in complex game logic.
 
-**Work Required**:
-- [ ] Install testing dependencies:
+**Work Completed**:
+- [x] Install testing dependencies:
   ```bash
-  npm install -D vitest @testing-library/react @testing-library/jest-dom @testing-library/user-event
+  npm install -D vitest @testing-library/react @testing-library/jest-dom @testing-library/user-event jsdom @vitest/coverage-v8
   ```
-- [ ] Configure Vitest in `vite.config.ts`
-- [ ] Write unit tests for game logic:
-  - [ ] Win condition detection (village, werewolves, White Werewolf solo)
-  - [ ] Elimination consequences (lovers, knight, hunter, siblings)
-  - [ ] Role counting with multi-instance roles
-  - [ ] Wolf-Hound team allegiance logic
-  - [ ] Cursed Wolf-Father infection tracking
-  - [ ] Witch potion mutual exclusivity
-  - [ ] Setup validation rules
-- [ ] Write component tests:
-  - [ ] SetupScreen: Role selection, validation warnings
-  - [ ] NightPhase: Action checklist, modal triggering
-  - [ ] DawnPhase: Role reveal sequence, cascade eliminations
-  - [ ] DayPhase: Timer functionality, player elimination
-  - [ ] Modals: User interactions, state updates
-- [ ] Write integration tests:
-  - [ ] Full game flow: Setup → Night → Dawn → Day → Victory
-  - [ ] Complex scenarios: Hunter shoots lover, knight dies, etc.
-  - [ ] Edge cases: White Werewolf solo victory, infected player win conditions
-- [ ] Add test coverage reporting
-- [ ] Set minimum coverage thresholds (70%+)
+- [x] Configure Vitest in `vite.config.ts` with coverage settings
+- [x] Write unit tests for game logic:
+  - [x] Win condition detection (village, werewolves, White Werewolf solo)
+  - [x] Elimination consequences (lovers, knight, hunter, siblings)
+  - [x] Role counting with multi-instance roles
+  - [x] Wolf-Hound team allegiance logic
+  - [x] Cursed Wolf-Father infection tracking
+  - [x] Multi-card roles (Two Sisters, Three Brothers)
+  - [x] Angel and Prejudiced Manipulator solo victories
+- [x] Write component tests:
+  - [x] Button component with all variants and states
+  - [x] Card component with team theming
+- [x] Add test coverage reporting with HTML/JSON/LCOV output
+- [x] Set coverage thresholds (70%+) and exclusions
+- [x] Create test documentation (`src/test/README.md`)
+- [x] Add GitHub Actions CI workflow for automated testing
+
+**Test Files Created**:
+- `src/logic/winConditions.test.ts` - 15 comprehensive win condition tests
+- `src/logic/eliminationConsequences.test.ts` - 12 cascade elimination tests
+- `src/logic/roleSlotCalculations.test.ts` - 8 role counting tests
+- `src/components/ui/Button.test.tsx` - 18 button component tests
+- `src/components/ui/Card.test.tsx` - 16 card component tests
+- `src/test/setup.ts` - Global test configuration
+- `.github/workflows/test.yml` - CI/CD automation
+
+**Test Commands Available**:
+- `npm run test` - Run tests in watch mode
+- `npm run test:ui` - Run tests with UI
+- `npm run test:coverage` - Generate coverage report
+
+**Still Needed** (Future Work):
+- [ ] Integration tests for full game flows
+- [ ] Hook tests (`useGameState`, `usePlayerManager`, etc.)
+- [ ] Phase component tests (NightPhase, DawnPhase, DayPhase)
+- [ ] Setup validation tests
+- [ ] Modal interaction tests
 
 **Test Structure**:
 ```typescript

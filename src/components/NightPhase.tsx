@@ -260,7 +260,7 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
 
     // For roles, try audio first, fall back to speech synthesis
     if (currentRole) {
-      const audioFile = getNarrationFile(currentRole.id, "wake");
+      const audioFile = getNarrationFile(currentRole.id, "wake", selectedRoles);
       if (audioFile && audioEnabled) {
         if (isAudioPlaying) {
           stopAudio();
@@ -289,19 +289,30 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
       return;
     }
 
+    if (isLastStep) {
+      handleEndNight();
+      return;
+    }
+
     // Play sleep audio for the current role before moving to next
-    if (currentRole && audioEnabled && !isLastStep) {
-      const sleepAudioFile = getNarrationFile(currentRole.id, "sleep");
+    if (currentRole && audioEnabled) {
+      const sleepAudioFile = getNarrationFile(
+        currentRole.id,
+        "sleep",
+        selectedRoles,
+      );
       if (sleepAudioFile) {
-        playAudio(sleepAudioFile);
+        // Play sleep audio and wait for it to finish before advancing
+        playAudio(sleepAudioFile, () => {
+          // This callback runs when sleep audio finishes
+          nextNightStep();
+        });
+        return;
       }
     }
 
-    if (isLastStep) {
-      handleEndNight();
-    } else {
-      nextNightStep();
-    }
+    // If no sleep audio, advance immediately
+    nextNightStep();
   };
 
   return (
@@ -466,12 +477,17 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
                     </p>
                     {/* Audio narration button */}
                     {audioEnabled &&
-                      getNarrationFile(currentRole.id, "wake") && (
+                      getNarrationFile(
+                        currentRole.id,
+                        "wake",
+                        selectedRoles,
+                      ) && (
                         <button
                           onClick={() => {
                             const filename = getNarrationFile(
                               currentRole.id,
                               "wake",
+                              selectedRoles,
                             );
                             if (filename) {
                               playAudio(filename);

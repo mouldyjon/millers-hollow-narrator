@@ -38,6 +38,7 @@ export const roles: Record<string, Role> = {
     hasLimitedUse: false,
     allowMultiple: false,
     maxQuantity: 3,
+    isOptional: true,
   },
   seer: {
     id: "seer",
@@ -117,6 +118,7 @@ export const roles: Record<string, Role> = {
     wakeFirstNightOnly: false,
     hasLimitedUse: true,
     allowMultiple: false,
+    isOptional: true,
   },
   fox: {
     id: "fox",
@@ -150,6 +152,7 @@ export const roles: Record<string, Role> = {
     wakeFirstNightOnly: false,
     hasLimitedUse: false,
     allowMultiple: false,
+    isOptional: true,
   },
   actor: {
     id: "actor",
@@ -161,6 +164,7 @@ export const roles: Record<string, Role> = {
     wakeFirstNightOnly: false,
     hasLimitedUse: false,
     allowMultiple: false,
+    isOptional: true,
   },
   "simple-werewolf": {
     id: "simple-werewolf",
@@ -229,6 +233,7 @@ export const roles: Record<string, Role> = {
     wakeFirstNightOnly: false,
     hasLimitedUse: false,
     allowMultiple: false,
+    isOptional: true,
   },
   "wild-child": {
     id: "wild-child",
@@ -266,6 +271,7 @@ export const roles: Record<string, Role> = {
     wakeFirstNightOnly: true,
     hasLimitedUse: false,
     allowMultiple: false,
+    isOptional: true,
   },
   sheriff: {
     id: "sheriff",

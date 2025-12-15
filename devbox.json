@@ -6,13 +6,16 @@
       "echo 'Node version:' && node --version",
       "echo 'NPM version:' && npm --version",
       "npm install",
-      "npm install -D @tailwindcss/postcss tailwindcss@latest postcss autoprefixer vite-plugin-pwa"
+      "npm install -D @tailwindcss/postcss tailwindcss@latest postcss autoprefixer vite-plugin-pwa",
+      "npm install -D vitest @testing-library/react @testing-library/jest-dom @testing-library/user-event jsdom @vitest/coverage-v8"
     ],
     "scripts": {
       "install": "npm install",
       "dev": "npm run dev",
       "build": "npm run build",
-      "preview": "npm run preview"
+      "preview": "npm run preview",
+      "test": "npm run test",
+      "test:coverage": "npm run test:coverage"
     }
   }
 }

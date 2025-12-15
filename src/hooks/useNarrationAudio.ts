@@ -11,6 +11,7 @@ export const useNarrationAudio = (options: UseNarrationAudioOptions = {}) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentAudio, setCurrentAudio] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const onEndedCallbackRef = useRef<(() => void) | null>(null);
 
   // Initialize audio element
   useEffect(() => {
@@ -19,6 +20,12 @@ export const useNarrationAudio = (options: UseNarrationAudioOptions = {}) => {
 
     const handleEnded = () => {
       setIsPlaying(false);
+      // Call per-play callback if provided
+      if (onEndedCallbackRef.current) {
+        onEndedCallbackRef.current();
+        onEndedCallbackRef.current = null;
+      }
+      // Then call global callback
       if (onEnded) {
         onEnded();
       }
@@ -44,7 +51,7 @@ export const useNarrationAudio = (options: UseNarrationAudioOptions = {}) => {
   }, [volume]);
 
   // Play audio file
-  const play = (filename: string) => {
+  const play = (filename: string, onPlayEnded?: () => void) => {
     if (!audioRef.current) {
       console.error("Audio ref not initialized");
       return;
@@ -63,6 +70,9 @@ export const useNarrationAudio = (options: UseNarrationAudioOptions = {}) => {
       audio.currentTime = 0;
     }
 
+    // Store the per-play callback
+    onEndedCallbackRef.current = onPlayEnded || null;
+
     audio.src = audioPath;
     setCurrentAudio(filename);
 
@@ -76,6 +86,8 @@ export const useNarrationAudio = (options: UseNarrationAudioOptions = {}) => {
         console.error("Failed to play audio:", error);
         console.error("Audio path:", audioPath);
         setIsPlaying(false);
+        // Clear callback on error
+        onEndedCallbackRef.current = null;
       });
   };
 
@@ -86,6 +98,8 @@ export const useNarrationAudio = (options: UseNarrationAudioOptions = {}) => {
       audioRef.current.currentTime = 0;
       setIsPlaying(false);
       setCurrentAudio(null);
+      // Clear any pending callback
+      onEndedCallbackRef.current = null;
     }
   };
 

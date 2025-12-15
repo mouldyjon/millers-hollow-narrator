@@ -40,6 +40,7 @@ export interface Role {
   hasLimitedUse: boolean;
   allowMultiple?: boolean;
   maxQuantity?: number;
+  isOptional?: boolean; // Mark roles as optional/advanced for filtering
 }
 
 export interface GameSetup {

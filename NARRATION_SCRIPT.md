@@ -35,8 +35,11 @@ This document contains all the narration text for voice recording with ElevenLab
 
 ### Werewolves
 
-#### `werewolves-wake.mp3`
+#### `werewolves-wake.mp3` (when Little Girl is in the game)
 "Werewolves, wake up. Open your eyes and recognise each other. Together, choose a victim by pointing at them. Little Girl, you may peek, but beware... if they catch you, you may not survive the night."
+
+#### `werewolves-wake-no-little-girl.mp3` (when Little Girl is NOT in the game)
+"Werewolves, wake up. Open your eyes and recognise each other. Together, choose a victim by pointing at them."
 
 #### `werewolves-sleep.mp3`
 "Werewolves, close your eyes and go back to sleep."
@@ -216,7 +219,12 @@ This document contains all the narration text for voice recording with ElevenLab
 "The village gathers in the square. Accusations fly. Who is the werewolf among you?"
 
 ### `voting-time.mp3`
-"The time has come to vote. Point at the player you wish to eliminate. The player with the most votes will be eliminated."
+"The time has come to vote. On the count of three, point at the player you wish to eliminate. The player with the most votes will be eliminated. One... Two... Three... Vote now!"
+
+**Recording Notes:**
+- Pause 1-2 seconds between each number (One... *pause* Two... *pause* Three...)
+- Emphasize "Vote now!" for the action cue
+- Keep the countdown pace steady and dramatic
 
 ### `elimination.mp3`
 "The village has spoken. Step forward and reveal your role."
@@ -246,7 +254,7 @@ This document contains all the narration text for voice recording with ElevenLab
 
 Save files as: `/public/audio/narration/{filename}.mp3`
 
-**Total Files Needed:** ~65 audio files
+**Total Files Needed:** ~66 audio files (includes conditional werewolf narration)
 
 **Estimated Total Size:** 6-10 MB
 
@@ -258,6 +266,19 @@ Save files as: `/public/audio/narration/{filename}.mp3`
 - Record multiple takes and choose the best
 
 ---
+
+## Recent Updates
+
+### Conditional Narration
+- **Werewolves Wake**: Two versions now exist based on Little Girl presence
+  - `werewolves-wake.mp3` - Includes Little Girl warning
+  - `werewolves-wake-no-little-girl.mp3` - Standard version without Little Girl
+  - Game automatically selects correct version based on selected roles
+
+### Enhanced Day Phase
+- **Voting Time**: Updated with countdown for synchronized voting
+  - Includes dramatic "One... Two... Three... Vote now!" countdown
+  - Creates clear voting moment for all players
 
 ## Next Steps
 

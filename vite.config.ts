@@ -5,6 +5,22 @@ import { VitePWA } from "vite-plugin-pwa";
 // https://vite.dev/config/
 export default defineConfig({
   base: "/millers-hollow-narrator/",
+  test: {
+    globals: true,
+    environment: "jsdom",
+    setupFiles: "./src/test/setup.ts",
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "json", "html"],
+      exclude: [
+        "node_modules/",
+        "src/test/",
+        "**/*.config.{js,ts}",
+        "**/types/**",
+        "src/main.tsx",
+      ],
+    },
+  },
   plugins: [
     react(),
     VitePWA({

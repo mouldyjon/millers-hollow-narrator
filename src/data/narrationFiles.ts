@@ -149,10 +149,22 @@ export const hasNarrationFile = (
 
 /**
  * Get narration filename for a role
+ * @param roleId - The role to get narration for
+ * @param type - Whether this is wake or sleep narration
+ * @param selectedRoles - Optional array of selected roles to check context (e.g., for Little Girl)
  */
 export const getNarrationFile = (
   roleId: RoleId,
   type: "wake" | "sleep",
+  selectedRoles?: RoleId[],
 ): string | null => {
+  // Special case: Simple Werewolf wake narration depends on Little Girl presence
+  if (roleId === "simple-werewolf" && type === "wake" && selectedRoles) {
+    const hasLittleGirl = selectedRoles.includes("little-girl");
+    return hasLittleGirl
+      ? "werewolves-wake.mp3"
+      : "werewolves-wake-no-little-girl.mp3";
+  }
+
   return narrationFiles.roles[roleId]?.[type] || null;
 };
