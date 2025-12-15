@@ -273,7 +273,144 @@ The Actor can use powers from three pre-selected role cards each night, choosing
 
 ## 🎨 Medium Priority - To Do
 
-### 1. Quick Action Buttons During Night
+### 1. Auto-Narrator Mode Implementation
+**Status**: In Progress  
+**Priority**: High  
+**Effort**: Medium-Large | **Impact**: Very High
+
+**Why**: Enables fully automated gameplay where players interact directly with a shared device, eliminating the need for a human narrator.
+
+**Work Required**:
+- [ ] Finish implementing night phase automation
+  - [ ] Integrate SleepScreen and WakeUpPrompt components into NightPhase
+  - [ ] Implement 4-second delay between role transitions
+  - [ ] Add auto-advance logic after role actions complete
+- [ ] Add role-specific action screens for player interaction
+  - [ ] Simplified, player-facing UI for each role's actions
+  - [ ] Touch-friendly buttons for selections
+  - [ ] Clear "Done" confirmation buttons
+- [ ] Implement sleep screen transitions
+  - [ ] Dark screen with "Keep your eyes closed" message
+  - [ ] Smooth fade in/out animations
+  - [ ] 4-second countdown before next role
+- [ ] Test the full automated flow
+  - [ ] End-to-end testing of complete night phase
+  - [ ] Ensure audio timing works correctly
+  - [ ] Verify all role actions work in auto mode
+- [ ] Day phase voting remains manual (as planned)
+
+**Notes**:
+- Phase 1 approach: single-device pass-and-play
+- Future enhancement: multi-device networked gameplay
+
+### 2. Additional Features & Enhancements
+
+#### Sound Effects for Phase Transitions
+**Status**: Not Started  
+**Priority**: Medium  
+**Effort**: Small | **Impact**: Medium
+
+**Work Required**:
+- [ ] Add sound effects for dawn/day/night transitions
+- [ ] Implement volume controls specifically for sound effects
+- [ ] Add subtle background ambience for each phase
+
+#### Volume Controls Enhancement
+**Status**: Not Started  
+**Priority**: Medium  
+**Effort**: Small | **Impact**: Medium
+
+**Work Required**:
+- [ ] Separate volume controls for narration vs sound effects
+- [ ] Add mute/unmute quick toggle
+- [ ] Persist volume preferences in localStorage
+
+#### Player Name Customization
+**Status**: Not Started  
+**Priority**: Medium  
+**Effort**: Small | **Impact**: Medium
+
+**Work Required**:
+- [ ] Add name input fields in setup screen
+- [ ] Display custom names throughout game
+- [ ] Persist player names in game state
+- [ ] Option to import/export player lists
+
+#### Role Distribution Statistics
+**Status**: Not Started  
+**Priority**: Low-Medium  
+**Effort**: Medium | **Impact**: Low
+
+**Work Required**:
+- [ ] Track role distribution across games
+- [ ] Show analytics on most/least played roles
+- [ ] Display win rate statistics by role and team
+- [ ] Export data as CSV or JSON
+
+#### Game History & Replay
+**Status**: Not Started  
+**Priority**: Medium  
+**Effort**: Medium | **Impact**: Medium
+
+**Work Required**:
+- [ ] Save completed games to history
+- [ ] View past game summaries (players, roles, winner, duration)
+- [ ] Replay game events chronologically
+- [ ] Export game logs
+- [ ] Search/filter game history
+
+### 3. Add More Roles
+**Status**: Not Started  
+**Priority**: Low  
+**Effort**: Small-Medium | **Impact**: Low-Medium
+
+**Work Required**:
+- [ ] Research additional roles from official expansions
+- [ ] Implement role logic and state management
+- [ ] Add role cards and descriptions
+- [ ] Update win condition logic if needed
+- [ ] Add tests for new roles
+
+### 4. Improve Testing
+**Status**: Partially Complete  
+**Priority**: Medium  
+**Effort**: Medium | **Impact**: High
+
+**Completed**:
+- [x] Unit tests for game logic (96 tests)
+- [x] Component tests for UI components
+- [x] Coverage reporting
+- [x] CI/CD integration
+
+**Work Required**:
+- [ ] Add integration tests for complete game flows
+- [ ] Test auto-narrator mode end-to-end
+- [ ] Increase test coverage to 80%+
+- [ ] Add visual regression testing
+- [ ] Test accessibility compliance
+
+### 5. UI/UX Improvements
+**Status**: Not Started  
+**Priority**: Medium  
+**Effort**: Small-Medium | **Impact**: Medium
+
+**Work Required**:
+- [ ] Enhance mobile responsiveness
+  - [ ] Optimize layout for small screens
+  - [ ] Improve touch targets (minimum 44px)
+  - [ ] Test on various device sizes
+- [ ] Add animations and transitions
+  - [ ] Smooth phase transitions
+  - [ ] Role card animations
+  - [ ] Button hover/click feedback
+- [ ] Improve accessibility
+  - [ ] WCAG 2.1 AA compliance
+  - [ ] Keyboard navigation for all features
+  - [ ] Screen reader optimisation
+  - [ ] High contrast mode support
+  - [ ] Focus indicators
+
+### 6. Quick Action Buttons During Night
 **Status**: Not Started  
 **Priority**: Medium-High  
 **Effort**: Medium | **Impact**: High
