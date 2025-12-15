@@ -20,6 +20,8 @@ import { NightProgressTracker } from "./NightProgressTracker";
 import { RoleNarratorGuide } from "./RoleNarratorGuide";
 import { RoleModalOrchestrator } from "./RoleModalOrchestrator";
 import { RoleAssignmentReference } from "./RoleAssignmentReference";
+import { SleepScreen } from "./SleepScreen";
+import { WakeUpPrompt } from "./WakeUpPrompt";
 
 interface NightPhaseProps {
   onEndNight?: () => void;
@@ -65,6 +67,12 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
   );
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [showIntro, setShowIntro] = useState(true);
+
+  // Auto-narrator mode state
+  const autoNarratorMode = gameState.setup.autoNarratorMode || false;
+  const [showSleepScreen, setShowSleepScreen] = useState(false);
+  const [showWakePrompt, setShowWakePrompt] = useState(false);
+  const [roleActionInProgress, setRoleActionInProgress] = useState(false);
 
   // Audio narration hook
   const {
@@ -279,6 +287,70 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
     }
   };
 
+  // Auto-narrator: Handle wake-up button click
+  const handleWakeUp = () => {
+    setShowWakePrompt(false);
+    setRoleActionInProgress(true);
+
+    // Play wake audio if available
+    if (currentRole && audioEnabled) {
+      const wakeAudioFile = getNarrationFile(
+        currentRole.id,
+        "wake",
+        selectedRoles,
+      );
+      if (wakeAudioFile) {
+        playAudio(wakeAudioFile);
+      }
+    }
+  };
+
+  // Auto-narrator: Handle role action completion
+  const handleRoleActionComplete = () => {
+    setRoleActionInProgress(false);
+
+    // Play sleep audio if available
+    if (currentRole && audioEnabled) {
+      const sleepAudioFile = getNarrationFile(
+        currentRole.id,
+        "sleep",
+        selectedRoles,
+      );
+      if (sleepAudioFile) {
+        playAudio(sleepAudioFile, () => {
+          // After sleep audio finishes, show sleep screen and advance after delay
+          showSleepScreenAndAdvance();
+        });
+        return;
+      }
+    }
+
+    // No sleep audio - show sleep screen and advance
+    showSleepScreenAndAdvance();
+  };
+
+  // Auto-narrator: Show sleep screen with 4-second delay before next role
+  const showSleepScreenAndAdvance = () => {
+    setShowSleepScreen(true);
+
+    // Wait 4 seconds, then advance to next role
+    setTimeout(() => {
+      setShowSleepScreen(false);
+
+      // Check if there's a next role
+      if (currentNightStep + 1 < activeRoles.length) {
+        nextNightStep();
+        // Show wake prompt for next role after a brief moment
+        setTimeout(() => {
+          setShowWakePrompt(true);
+        }, 300);
+      } else {
+        // End of night
+        handleEndNight();
+      }
+    }, 4000);
+  };
+
   const handleNext = () => {
     stopSpeaking();
 
@@ -286,6 +358,11 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
     if (showIntro && currentNightStep === 0) {
       stopAudio(); // Stop night-begins audio if still playing
       setShowIntro(false);
+
+      // In auto-narrator mode, immediately show wake prompt for first role
+      if (autoNarratorMode && !isLastStep) {
+        setTimeout(() => setShowWakePrompt(true), 300);
+      }
       return;
     }
 
@@ -294,7 +371,12 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
       return;
     }
 
-    // Play sleep audio for the current role before moving to next
+    // In auto-narrator mode, don't allow manual next - only through role completion
+    if (autoNarratorMode) {
+      return;
+    }
+
+    // Manual narrator mode: Play sleep audio for the current role before moving to next
     if (currentRole && audioEnabled) {
       const sleepAudioFile = getNarrationFile(
         currentRole.id,
@@ -314,6 +396,22 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
     // If no sleep audio, advance immediately
     nextNightStep();
   };
+
+  // Auto-narrator mode: Show sleep screen between roles
+  if (autoNarratorMode && showSleepScreen) {
+    return <SleepScreen message="Keep your eyes closed" />;
+  }
+
+  // Auto-narrator mode: Show wake-up prompt when it's a role's turn
+  if (autoNarratorMode && showWakePrompt && currentRole) {
+    return (
+      <WakeUpPrompt
+        roleName={currentRole.name}
+        team={currentRole.team}
+        onWakeUp={handleWakeUp}
+      />
+    );
+  }
 
   return (
     <div
@@ -448,98 +546,151 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
                 </button>
               </div>
             ) : currentRole ? (
-              <div className="text-center w-full">
-                <div
-                  className={`inline-block px-4 py-2 rounded-full text-sm mb-4 ${
-                    currentRole.team === "village"
-                      ? "bg-blue-600"
+              autoNarratorMode && roleActionInProgress ? (
+                // Simplified auto-narrator mode interface
+                <div className="text-center w-full space-y-6">
+                  <div
+                    className={`inline-block px-4 py-2 rounded-full text-sm ${
+                      currentRole.team === "village"
+                        ? "bg-blue-600"
+                        : currentRole.team === "werewolf"
+                          ? "bg-red-600"
+                          : "bg-purple-600"
+                    }`}
+                  >
+                    {currentRole.team === "village"
+                      ? "Village"
                       : currentRole.team === "werewolf"
-                        ? "bg-red-600"
-                        : "bg-purple-600"
-                  }`}
-                >
-                  {currentRole.team === "village"
-                    ? "Village"
-                    : currentRole.team === "werewolf"
-                      ? "Werewolf"
-                      : "Special"}
-                </div>
-                <h2 className="text-4xl font-bold mb-4 font-header text-[var(--color-text-gold)]">
-                  {currentRole.name}
-                </h2>
-                <p className="text-lg text-slate-300 mb-6">
-                  {currentRole.description}
-                </p>
-                <div className="bg-slate-700 rounded-lg p-4 text-left">
-                  <div className="flex items-start gap-3">
-                    <p className="text-sm italic text-slate-300 flex-1">
+                        ? "Werewolf"
+                        : "Special"}
+                  </div>
+                  <h2 className="text-4xl font-bold font-header text-[var(--color-text-gold)]">
+                    {currentRole.name}
+                  </h2>
+                  <p className="text-lg text-slate-300">
+                    {currentRole.description}
+                  </p>
+                  <div className="bg-slate-700/50 rounded-lg p-6 space-y-4">
+                    <p className="text-slate-300 italic">
                       {getNarrationText(currentRole)}
                     </p>
-                    {/* Audio narration button */}
-                    {audioEnabled &&
-                      getNarrationFile(
-                        currentRole.id,
-                        "wake",
-                        selectedRoles,
-                      ) && (
-                        <button
-                          onClick={() => {
-                            const filename = getNarrationFile(
-                              currentRole.id,
-                              "wake",
-                              selectedRoles,
-                            );
-                            if (filename) {
-                              playAudio(filename);
-                            }
-                          }}
-                          className={`flex-shrink-0 p-2 rounded-full transition-colors ${
-                            isAudioPlaying
-                              ? "bg-green-600 hover:bg-green-700"
-                              : "bg-blue-600 hover:bg-blue-700"
-                          }`}
-                          title="Play narration"
-                        >
-                          {isAudioPlaying ? (
-                            <Pause className="w-5 h-5 text-white" />
-                          ) : (
-                            <Play className="w-5 h-5 text-white" />
-                          )}
-                        </button>
-                      )}
+                    {currentRole.description.includes("no action needed") ? (
+                      <p className="text-sm text-slate-400">
+                        No action needed - just acknowledge and continue
+                      </p>
+                    ) : (
+                      <p className="text-sm text-slate-400">
+                        Complete your action, then tap "Done" below
+                      </p>
+                    )}
                   </div>
+                  <Button
+                    onClick={handleRoleActionComplete}
+                    variant="primary"
+                    size="lg"
+                    className="text-xl px-12 py-6 mx-auto"
+                  >
+                    Done - Continue
+                  </Button>
+                  <p className="text-xs text-slate-500 italic">
+                    Return the device and close your eyes after tapping "Done"
+                  </p>
                 </div>
+              ) : (
+                // Normal narrator mode interface
+                <div className="text-center w-full">
+                  <div
+                    className={`inline-block px-4 py-2 rounded-full text-sm mb-4 ${
+                      currentRole.team === "village"
+                        ? "bg-blue-600"
+                        : currentRole.team === "werewolf"
+                          ? "bg-red-600"
+                          : "bg-purple-600"
+                    }`}
+                  >
+                    {currentRole.team === "village"
+                      ? "Village"
+                      : currentRole.team === "werewolf"
+                        ? "Werewolf"
+                        : "Special"}
+                  </div>
+                  <h2 className="text-4xl font-bold mb-4 font-header text-[var(--color-text-gold)]">
+                    {currentRole.name}
+                  </h2>
+                  <p className="text-lg text-slate-300 mb-6">
+                    {currentRole.description}
+                  </p>
+                  <div className="bg-slate-700 rounded-lg p-4 text-left">
+                    <div className="flex items-start gap-3">
+                      <p className="text-sm italic text-slate-300 flex-1">
+                        {getNarrationText(currentRole)}
+                      </p>
+                      {/* Audio narration button */}
+                      {audioEnabled &&
+                        getNarrationFile(
+                          currentRole.id,
+                          "wake",
+                          selectedRoles,
+                        ) && (
+                          <button
+                            onClick={() => {
+                              const filename = getNarrationFile(
+                                currentRole.id,
+                                "wake",
+                                selectedRoles,
+                              );
+                              if (filename) {
+                                playAudio(filename);
+                              }
+                            }}
+                            className={`flex-shrink-0 p-2 rounded-full transition-colors ${
+                              isAudioPlaying
+                                ? "bg-green-600 hover:bg-green-700"
+                                : "bg-blue-600 hover:bg-blue-700"
+                            }`}
+                            title="Play narration"
+                          >
+                            {isAudioPlaying ? (
+                              <Pause className="w-5 h-5 text-white" />
+                            ) : (
+                              <Play className="w-5 h-5 text-white" />
+                            )}
+                          </button>
+                        )}
+                    </div>
+                  </div>
 
-                {/* Role-specific actions and narrator guide */}
-                {currentRole && (
-                  <RoleNarratorGuide
-                    roleId={currentRole.id}
-                    nightNumber={nightState.currentNightNumber}
-                    cursedWolfFatherInfectedPlayer={
-                      cursedWolfFatherInfectedPlayer
-                    }
-                    cupidLovers={cupidLovers}
-                    wildChildRoleModel={wildChildRoleModel}
-                    thiefChosenRole={gameState.thiefChosenRole}
-                    nightState={nightState}
-                    onSetCupidModal={modalOrchestrator.setShowCupidModal}
-                    onSetWildChildModal={
-                      modalOrchestrator.setShowWildChildModal
-                    }
-                    onSetWerewolfVictimModal={
-                      modalOrchestrator.setWerewolfVictimModal
-                    }
-                    onSetCursedWolfFatherModal={
-                      modalOrchestrator.setShowCursedWolfFatherModal
-                    }
-                    onSetWitchPotionModal={
-                      modalOrchestrator.setWitchPotionModal
-                    }
-                    onSetThiefModal={modalOrchestrator.setShowThiefModal}
-                    onToggleActionComplete={toggleActionComplete}
-                  />
-                )}
-              </div>
+                  {/* Role-specific actions and narrator guide */}
+                  {currentRole && (
+                    <RoleNarratorGuide
+                      roleId={currentRole.id}
+                      nightNumber={nightState.currentNightNumber}
+                      cursedWolfFatherInfectedPlayer={
+                        cursedWolfFatherInfectedPlayer
+                      }
+                      cupidLovers={cupidLovers}
+                      wildChildRoleModel={wildChildRoleModel}
+                      thiefChosenRole={gameState.thiefChosenRole}
+                      nightState={nightState}
+                      onSetCupidModal={modalOrchestrator.setShowCupidModal}
+                      onSetWildChildModal={
+                        modalOrchestrator.setShowWildChildModal
+                      }
+                      onSetWerewolfVictimModal={
+                        modalOrchestrator.setWerewolfVictimModal
+                      }
+                      onSetCursedWolfFatherModal={
+                        modalOrchestrator.setShowCursedWolfFatherModal
+                      }
+                      onSetWitchPotionModal={
+                        modalOrchestrator.setWitchPotionModal
+                      }
+                      onSetThiefModal={modalOrchestrator.setShowThiefModal}
+                      onToggleActionComplete={toggleActionComplete}
+                    />
+                  )}
+                </div>
+              )
             ) : null}
           </div>
 
