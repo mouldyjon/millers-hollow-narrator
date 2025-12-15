@@ -123,7 +123,8 @@ export const useGameState = () => {
     selectWerewolfVictim: nightActions.selectWerewolfVictim,
     setThiefChosenRole: nightActions.setThiefChosenRole,
     setSheriff: nightActions.setSheriff,
-    useStutteringJudgeDoubleVote: nightActions.useStutteringJudgeDoubleVote,
+    activateStutteringJudgeDoubleVote:
+      nightActions.activateStutteringJudgeDoubleVote,
     toggleActionComplete: nightActions.toggleActionComplete,
     // Game logic
     checkEliminationConsequences,

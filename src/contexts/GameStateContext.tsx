@@ -18,6 +18,7 @@ export const GameStateProvider = ({ children }: GameStateProviderProps) => {
 };
 
 // Custom hook to consume the game state context
+// eslint-disable-next-line react-refresh/only-export-components
 export const useGameContext = () => {
   const context = useContext(GameStateContext);
 

@@ -91,6 +91,7 @@ export const DawnPhase = ({ onStartDay }: DawnPhaseProps = {}) => {
         result.winner === "werewolves" ||
         result.winner === "solo"
       ) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setVictoryState({
           winner: result.winner,
           message: result.message,
@@ -157,7 +158,12 @@ export const DawnPhase = ({ onStartDay }: DawnPhaseProps = {}) => {
         .map((p) => p.number);
 
       setEliminationAlert({
-        type: consequences.type as any,
+        type: consequences.type as
+          | "lovers"
+          | "knight-rusty-sword"
+          | "hunter"
+          | "siblings"
+          | "wild-child-transform",
         message: consequences.message,
         affectedPlayers: consequences.affectedPlayers,
         requiresPlayerSelection: consequences.requiresPlayerSelection,
@@ -237,7 +243,12 @@ export const DawnPhase = ({ onStartDay }: DawnPhaseProps = {}) => {
         .map((p) => p.number);
 
       setEliminationAlert({
-        type: consequences.type as any,
+        type: consequences.type as
+          | "lovers"
+          | "knight-rusty-sword"
+          | "hunter"
+          | "siblings"
+          | "wild-child-transform",
         message: consequences.message,
         affectedPlayers: consequences.affectedPlayers,
         requiresPlayerSelection: consequences.requiresPlayerSelection,

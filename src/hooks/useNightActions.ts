@@ -91,7 +91,7 @@ export const useNightActions = (
     }));
   };
 
-  const useStutteringJudgeDoubleVote = () => {
+  const activateStutteringJudgeDoubleVote = () => {
     setGameState((prev) => ({
       ...prev,
       nightState: {
@@ -193,7 +193,7 @@ export const useNightActions = (
     setCupidLovers,
     setWildChildRoleModel,
     setSheriff,
-    useStutteringJudgeDoubleVote,
+    activateStutteringJudgeDoubleVote,
     setWolfHoundTeam,
     selectWerewolfVictim,
     setThiefChosenRole,

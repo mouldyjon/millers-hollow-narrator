@@ -6,6 +6,64 @@ interface RoleReferenceProps {
   isDayPhase?: boolean;
 }
 
+interface RoleListProps {
+  roleList: Array<{
+    id: RoleId;
+    name: string;
+    description: string;
+    team: string;
+    count: number;
+  }>;
+  team: string;
+  isDayPhase: boolean;
+  getTeamColor: (team: string) => string;
+}
+
+const RoleList = ({
+  roleList,
+  team,
+  isDayPhase,
+  getTeamColor,
+}: RoleListProps) => {
+  if (roleList.length === 0) return null;
+
+  return (
+    <div className="mb-4">
+      <h4
+        className={`text-sm font-bold mb-2 font-header ${getTeamColor(team).split(" ")[0]}`}
+      >
+        {team === "village"
+          ? "Village Team"
+          : team === "werewolf"
+            ? "Werewolf Team"
+            : "Special Roles"}
+      </h4>
+      <div className="space-y-2">
+        {roleList.map((role) => (
+          <div
+            key={role.id}
+            className={`p-2 rounded border ${isDayPhase ? "bg-white/50" : "bg-slate-700/50"} ${getTeamColor(team).split(" ")[1]}`}
+          >
+            <div className="flex items-center justify-between mb-1">
+              <span className="font-semibold text-sm">{role.name}</span>
+              {role.count > 1 && (
+                <span className="text-xs px-2 py-0.5 rounded-full bg-slate-600 text-white">
+                  ×{role.count}
+                </span>
+              )}
+            </div>
+            <p
+              className={`text-xs ${isDayPhase ? "text-slate-700" : "text-slate-400"}`}
+            >
+              {role.description}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 export const RoleReference = ({
   selectedRoles,
   isDayPhase = false,
@@ -56,52 +114,6 @@ export const RoleReference = ({
     }
   };
 
-  const RoleList = ({
-    roleList,
-    team,
-  }: {
-    roleList: Array<{ id: RoleId; name: string; description: string; team: string; count: number }>;
-    team: string;
-  }) => {
-    if (roleList.length === 0) return null;
-
-    return (
-      <div className="mb-4">
-        <h4
-          className={`text-sm font-bold mb-2 font-header ${getTeamColor(team).split(" ")[0]}`}
-        >
-          {team === "village"
-            ? "Village Team"
-            : team === "werewolf"
-              ? "Werewolf Team"
-              : "Special Roles"}
-        </h4>
-        <div className="space-y-2">
-          {roleList.map((role) => (
-            <div
-              key={role.id}
-              className={`p-2 rounded border ${isDayPhase ? "bg-white/50" : "bg-slate-700/50"} ${getTeamColor(team).split(" ")[1]}`}
-            >
-              <div className="flex items-center justify-between mb-1">
-                <span className="font-semibold text-sm">
-                  {role.name}
-                </span>
-                {role.count > 1 && (
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-slate-600 text-white">
-                    ×{role.count}
-                  </span>
-                )}
-              </div>
-              <p className={`text-xs ${isDayPhase ? "text-slate-700" : "text-slate-400"}`}>
-                {role.description}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  };
-
   return (
     <div className="h-full overflow-y-auto">
       <div className="p-4">
@@ -111,15 +123,33 @@ export const RoleReference = ({
           Roles in Game
         </h3>
 
-        <RoleList roleList={villageRoles} team="village" />
-        <RoleList roleList={werewolfRoles} team="werewolf" />
-        <RoleList roleList={soloRoles} team="solo" />
+        <RoleList
+          roleList={villageRoles}
+          team="village"
+          isDayPhase={isDayPhase}
+          getTeamColor={getTeamColor}
+        />
+        <RoleList
+          roleList={werewolfRoles}
+          team="werewolf"
+          isDayPhase={isDayPhase}
+          getTeamColor={getTeamColor}
+        />
+        <RoleList
+          roleList={soloRoles}
+          team="solo"
+          isDayPhase={isDayPhase}
+          getTeamColor={getTeamColor}
+        />
 
         <div
           className={`mt-4 pt-4 border-t ${isDayPhase ? "border-slate-300" : "border-slate-700"}`}
         >
-          <p className={`text-xs ${isDayPhase ? "text-slate-600" : "text-slate-400"}`}>
-            Total: {selectedRoles.length} role{selectedRoles.length !== 1 ? "s" : ""}
+          <p
+            className={`text-xs ${isDayPhase ? "text-slate-600" : "text-slate-400"}`}
+          >
+            Total: {selectedRoles.length} role
+            {selectedRoles.length !== 1 ? "s" : ""}
           </p>
         </div>
       </div>

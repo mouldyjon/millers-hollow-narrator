@@ -35,7 +35,7 @@ export const DayPhase = ({ onStartNight }: DayPhaseProps = {}) => {
     checkEliminationConsequences,
     addGameEvent,
     checkWinCondition,
-    useStutteringJudgeDoubleVote,
+    activateStutteringJudgeDoubleVote,
   } = useGameContext();
 
   const { selectedRoles } = gameState.setup;
@@ -83,6 +83,7 @@ export const DayPhase = ({ onStartNight }: DayPhaseProps = {}) => {
         result.winner === "werewolves" ||
         result.winner === "solo"
       ) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setVictoryState({
           winner: result.winner,
           message: result.message,
@@ -134,7 +135,7 @@ export const DayPhase = ({ onStartNight }: DayPhaseProps = {}) => {
     ((timerDuration - timeRemaining) / timerDuration) * 100;
 
   const handleActivateDoubleVote = () => {
-    useStutteringJudgeDoubleVote();
+    activateStutteringJudgeDoubleVote();
     addGameEvent(
       "special",
       "Stuttering Judge activated double elimination - TWO consecutive votes will happen (no debate between votes)",
