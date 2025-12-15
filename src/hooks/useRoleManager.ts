@@ -144,10 +144,21 @@ export const useRoleManager = (
     }));
   };
 
+  const setAutoNarratorMode = (enabled: boolean) => {
+    setGameState((prev) => ({
+      ...prev,
+      setup: {
+        ...prev.setup,
+        autoNarratorMode: enabled,
+      },
+    }));
+  };
+
   return {
     toggleRole,
     removeRole,
     setSelectedRoles,
     setUnusedRoles,
+    setAutoNarratorMode,
   };
 };

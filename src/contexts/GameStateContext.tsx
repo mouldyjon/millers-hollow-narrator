@@ -1,13 +1,6 @@
-import { createContext, useContext, type ReactNode } from "react";
+import { useContext, type ReactNode } from "react";
 import { useGameState } from "../hooks/useGameState";
-
-// Create the context type based on the return type of useGameState
-type GameStateContextType = ReturnType<typeof useGameState>;
-
-// Create the context with undefined as default (will be provided by the provider)
-const GameStateContext = createContext<GameStateContextType | undefined>(
-  undefined,
-);
+import { GameStateContext } from "./createGameStateContext";
 
 // Provider component that wraps the app and provides game state to all children
 interface GameStateProviderProps {

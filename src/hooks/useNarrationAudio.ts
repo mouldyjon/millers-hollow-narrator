@@ -48,7 +48,7 @@ export const useNarrationAudio = (options: UseNarrationAudioOptions = {}) => {
       audio.src = "";
       audioRef.current = null;
     };
-  }, [volume]);
+  }, [volume, onEnded]);
 
   // Play audio file
   const play = (filename: string, onPlayEnded?: () => void) => {

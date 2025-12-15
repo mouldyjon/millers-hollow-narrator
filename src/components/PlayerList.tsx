@@ -180,7 +180,13 @@ export const PlayerList = ({
         .map((p) => p.number);
 
       setEliminationAlert({
-        type: consequences.type as any,
+        type: consequences.type as
+          | "lovers"
+          | "knight-rusty-sword"
+          | "hunter"
+          | "siblings"
+          | "wild-child-transform"
+          | "none",
         message: consequences.message,
         affectedPlayers: consequences.affectedPlayers,
         requiresPlayerSelection: consequences.requiresPlayerSelection,

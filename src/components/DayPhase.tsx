@@ -133,6 +133,14 @@ export const DayPhase = ({ onStartNight }: DayPhaseProps = {}) => {
   const progressPercentage =
     ((timerDuration - timeRemaining) / timerDuration) * 100;
 
+  const handleActivateDoubleVote = () => {
+    useStutteringJudgeDoubleVote();
+    addGameEvent(
+      "special",
+      "Stuttering Judge activated double elimination - TWO consecutive votes will happen (no debate between votes)",
+    );
+  };
+
   return (
     <>
       {/* Victory Announcement */}
@@ -320,13 +328,7 @@ export const DayPhase = ({ onStartNight }: DayPhaseProps = {}) => {
                   </div>
                 ) : (
                   <Button
-                    onClick={() => {
-                      useStutteringJudgeDoubleVote();
-                      addGameEvent(
-                        "special",
-                        "Stuttering Judge activated double elimination - TWO consecutive votes will happen (no debate between votes)",
-                      );
-                    }}
+                    onClick={handleActivateDoubleVote}
                     variant="primary"
                     size="md"
                     className="bg-purple-600 hover:bg-purple-700"

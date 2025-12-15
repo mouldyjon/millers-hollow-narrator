@@ -26,6 +26,7 @@ export const SetupScreen = ({ onStartGame }: SetupScreenProps = {}) => {
     removeRole,
     setSelectedRoles,
     setUnusedRoles,
+    setAutoNarratorMode,
     setPlayerPrejudicedManipulatorGroup,
     setPrejudicedManipulatorTargetGroup,
     startGame,
@@ -236,23 +237,50 @@ export const SetupScreen = ({ onStartGame }: SetupScreenProps = {}) => {
           <ValidationBanner messages={validationMessages} />
         )}
 
-        {/* Optional Roles Toggle */}
-        <div className="bg-slate-800 rounded-lg p-4 mb-6">
-          <label className="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={showOptionalRoles}
-              onChange={(e) => setShowOptionalRoles(e.target.checked)}
-              className="w-5 h-5 rounded border-slate-600 bg-slate-700 text-amber-500 focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:ring-offset-slate-800 cursor-pointer"
-            />
-            <div className="flex-1">
-              <span className="text-lg font-semibold">Show Optional Roles</span>
-              <p className="text-sm text-slate-400">
-                Include advanced roles: Three Brothers, Prejudiced Manipulator,
-                Thief, Stuttering Judge, Actor, Devoted Servant
-              </p>
-            </div>
-          </label>
+        {/* Game Mode Options */}
+        <div className="space-y-4 mb-6">
+          {/* Optional Roles Toggle */}
+          <div className="bg-slate-800 rounded-lg p-4">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={showOptionalRoles}
+                onChange={(e) => setShowOptionalRoles(e.target.checked)}
+                className="w-5 h-5 rounded border-slate-600 bg-slate-700 text-amber-500 focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:ring-offset-slate-800 cursor-pointer"
+              />
+              <div className="flex-1">
+                <span className="text-lg font-semibold">
+                  Show Optional Roles
+                </span>
+                <p className="text-sm text-slate-400">
+                  Include advanced roles: Three Brothers, Prejudiced
+                  Manipulator, Thief, Stuttering Judge, Actor, Devoted Servant
+                </p>
+              </div>
+            </label>
+          </div>
+
+          {/* Auto-Narrator Mode Toggle */}
+          <div className="bg-gradient-to-r from-purple-900/40 to-indigo-900/40 rounded-lg p-4 border border-purple-700/50">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={gameState.setup.autoNarratorMode || false}
+                onChange={(e) => setAutoNarratorMode(e.target.checked)}
+                className="w-5 h-5 rounded border-slate-600 bg-slate-700 text-purple-500 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-slate-800 cursor-pointer"
+              />
+              <div className="flex-1">
+                <span className="text-lg font-semibold text-purple-100">
+                  🎮 Auto-Narrator Mode (Beta)
+                </span>
+                <p className="text-sm text-purple-200">
+                  Automated gameplay where players interact directly with a
+                  shared device. The game controls timing and flow
+                  automatically.
+                </p>
+              </div>
+            </label>
+          </div>
         </div>
 
         {/* Role Selection - Card Grid Layout */}

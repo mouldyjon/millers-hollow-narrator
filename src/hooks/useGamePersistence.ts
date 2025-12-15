@@ -48,10 +48,12 @@ const loadSavedState = (initialState: GameState): GameState => {
       const parsed = JSON.parse(saved);
       // Restore Date objects for gameEvents
       if (parsed.gameEvents) {
-        parsed.gameEvents = parsed.gameEvents.map((event: any) => ({
-          ...event,
-          timestamp: new Date(event.timestamp),
-        }));
+        parsed.gameEvents = parsed.gameEvents.map(
+          (event: { timestamp: string | number | Date }) => ({
+            ...event,
+            timestamp: new Date(event.timestamp),
+          }),
+        );
       }
       return parsed;
     }

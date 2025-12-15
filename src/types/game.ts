@@ -47,6 +47,7 @@ export interface GameSetup {
   playerCount: number;
   selectedRoles: RoleId[];
   unusedRoles?: [RoleId, RoleId]; // Two unused roles for the Thief
+  autoNarratorMode?: boolean; // Automated narrator mode where players interact directly with device
 }
 
 export interface NightState {
