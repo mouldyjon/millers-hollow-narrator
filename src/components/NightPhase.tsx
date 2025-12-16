@@ -66,12 +66,14 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
     "players",
   );
   const [audioEnabled, setAudioEnabled] = useState(true);
-  const [showIntro, setShowIntro] = useState(true);
 
   // Auto-narrator mode state
   const autoNarratorMode = gameState.setup.autoNarratorMode || false;
+  const [showIntro, setShowIntro] = useState(!autoNarratorMode); // Skip intro in auto-narrator mode
   const [showSleepScreen, setShowSleepScreen] = useState(false);
-  const [showWakePrompt, setShowWakePrompt] = useState(false);
+  const [showWakePrompt, setShowWakePrompt] = useState(
+    autoNarratorMode && currentNightStep === 0,
+  );
   const [roleActionInProgress, setRoleActionInProgress] = useState(false);
 
   // Audio narration hook
@@ -307,7 +309,9 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
 
   // Auto-narrator: Handle role action completion
   const handleRoleActionComplete = () => {
+    // Immediately show sleep screen to hide role action UI
     setRoleActionInProgress(false);
+    setShowSleepScreen(true);
 
     // Play sleep audio if available
     if (currentRole && audioEnabled) {
@@ -318,37 +322,36 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
       );
       if (sleepAudioFile) {
         playAudio(sleepAudioFile, () => {
-          // After sleep audio finishes, show sleep screen and advance after delay
-          showSleepScreenAndAdvance();
+          // After sleep audio finishes, wait 4 seconds then advance
+          setTimeout(() => {
+            setShowSleepScreen(false);
+            advanceToNextRole();
+          }, 4000);
         });
         return;
       }
     }
 
-    // No sleep audio - show sleep screen and advance
-    showSleepScreenAndAdvance();
-  };
-
-  // Auto-narrator: Show sleep screen with 4-second delay before next role
-  const showSleepScreenAndAdvance = () => {
-    setShowSleepScreen(true);
-
-    // Wait 4 seconds, then advance to next role
+    // No sleep audio - wait 4 seconds then advance
     setTimeout(() => {
       setShowSleepScreen(false);
-
-      // Check if there's a next role
-      if (currentNightStep + 1 < activeRoles.length) {
-        nextNightStep();
-        // Show wake prompt for next role after a brief moment
-        setTimeout(() => {
-          setShowWakePrompt(true);
-        }, 300);
-      } else {
-        // End of night
-        handleEndNight();
-      }
+      advanceToNextRole();
     }, 4000);
+  };
+
+  // Auto-narrator: Advance to next role or end night
+  const advanceToNextRole = () => {
+    // Check if there's a next role
+    if (currentNightStep + 1 < activeRoles.length) {
+      nextNightStep();
+      // Show wake prompt for next role after a brief moment
+      setTimeout(() => {
+        setShowWakePrompt(true);
+      }, 300);
+    } else {
+      // End of night
+      handleEndNight();
+    }
   };
 
   const handleNext = () => {
@@ -660,8 +663,8 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
                     </div>
                   </div>
 
-                  {/* Role-specific actions and narrator guide */}
-                  {currentRole && (
+                  {/* Role-specific actions and narrator guide - only in manual mode */}
+                  {currentRole && !autoNarratorMode && (
                     <RoleNarratorGuide
                       roleId={currentRole.id}
                       nightNumber={nightState.currentNightNumber}
@@ -694,144 +697,154 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
             ) : null}
           </div>
 
-          {/* Controls */}
-          <div className="flex gap-4 justify-center">
-            <Button
-              onClick={handlePlayPause}
-              disabled={isLastStep}
-              variant="primary"
-              size="lg"
-              className="bg-indigo-600 hover:bg-indigo-700"
-            >
-              {isAudioPlaying || isSpeaking ? (
-                <>
-                  <Pause className="w-5 h-5" />
-                  Pause
-                </>
-              ) : (
-                <>
-                  <Volume2 className="w-5 h-5" />
-                  Play
-                </>
-              )}
-            </Button>
+          {/* Controls - only show in manual narrator mode */}
+          {!autoNarratorMode && (
+            <div className="flex gap-4 justify-center">
+              <Button
+                onClick={handlePlayPause}
+                disabled={isLastStep}
+                variant="primary"
+                size="lg"
+                className="bg-indigo-600 hover:bg-indigo-700"
+              >
+                {isAudioPlaying || isSpeaking ? (
+                  <>
+                    <Pause className="w-5 h-5" />
+                    Pause
+                  </>
+                ) : (
+                  <>
+                    <Volume2 className="w-5 h-5" />
+                    Play
+                  </>
+                )}
+              </Button>
 
-            <Button
-              onClick={handleNext}
-              variant={isLastStep ? "gold" : "success"}
-              size="lg"
-            >
-              {isLastStep ? (
-                <>
-                  <Sun className="w-5 h-5" />
-                  Start Day
-                </>
-              ) : (
-                <>
-                  <SkipForward className="w-5 h-5" />
-                  Next
-                </>
-              )}
-            </Button>
-          </div>
-
-          {/* Progress bar */}
-          <div className="mt-8">
-            <div className="bg-slate-700 rounded-full h-2 overflow-hidden">
-              <div
-                className="bg-indigo-600 h-full transition-all duration-300"
-                style={{
-                  width: `${((currentNightStep + 1) / (activeRoles.length + 1)) * 100}%`,
-                }}
-              />
+              <Button
+                onClick={handleNext}
+                variant={isLastStep ? "gold" : "success"}
+                size="lg"
+              >
+                {isLastStep ? (
+                  <>
+                    <Sun className="w-5 h-5" />
+                    Start Day
+                  </>
+                ) : (
+                  <>
+                    <SkipForward className="w-5 h-5" />
+                    Next
+                  </>
+                )}
+              </Button>
             </div>
-          </div>
-        </div>
+          )}
 
-        {/* Sidebar */}
-        <div
-          className={`transition-all duration-300 ${showSidebar ? "w-96" : "w-0 overflow-hidden"}`}
-        >
-          {showSidebar && (
-            <div className="sticky top-6">
-              {/* Sidebar Tabs */}
-              <div className="flex gap-2 mb-4 bg-slate-800 p-2 rounded-lg">
-                <button
-                  onClick={() => setSidebarTab("players")}
-                  className={`flex-1 px-3 py-2 rounded text-sm font-semibold transition-colors ${
-                    sidebarTab === "players"
-                      ? "bg-blue-600 text-white"
-                      : "bg-slate-700 text-slate-300 hover:bg-slate-600"
-                  }`}
-                >
-                  Players
-                </button>
-                <button
-                  onClick={() => setSidebarTab("events")}
-                  className={`flex-1 px-3 py-2 rounded text-sm font-semibold transition-colors ${
-                    sidebarTab === "events"
-                      ? "bg-blue-600 text-white"
-                      : "bg-slate-700 text-slate-300 hover:bg-slate-600"
-                  }`}
-                >
-                  Events
-                </button>
-                <button
-                  onClick={() => setSidebarTab("roles")}
-                  className={`flex-1 px-3 py-2 rounded text-sm font-semibold transition-colors ${
-                    sidebarTab === "roles"
-                      ? "bg-blue-600 text-white"
-                      : "bg-slate-700 text-slate-300 hover:bg-slate-600"
-                  }`}
-                >
-                  Roles
-                </button>
-              </div>
-
-              {/* Sidebar Content */}
-              {sidebarTab === "players" && (
-                <PlayerList
-                  playerCount={players.length}
-                  players={players}
-                  selectedRoles={selectedRoles}
-                  cursedWolfFatherInfectedPlayer={
-                    cursedWolfFatherInfectedPlayer
-                  }
-                  cupidLovers={cupidLovers}
-                  onToggleAlive={togglePlayerAlive}
-                  onSetRevealedRole={setPlayerRevealedRole}
-                  onUpdateNotes={updatePlayerNotes}
-                  onSetWolfHoundTeam={setPlayerWolfHoundTeam}
-                  onCheckEliminationConsequences={checkEliminationConsequences}
-                  onAddGameEvent={addGameEvent}
+          {/* Progress bar - only in manual narrator mode */}
+          {!autoNarratorMode && (
+            <div className="mt-8">
+              <div className="bg-slate-700 rounded-full h-2 overflow-hidden">
+                <div
+                  className="bg-indigo-600 h-full transition-all duration-300"
+                  style={{
+                    width: `${((currentNightStep + 1) / (activeRoles.length + 1)) * 100}%`,
+                  }}
                 />
-              )}
-              {sidebarTab === "events" && <EventLog events={gameEvents} />}
-              {sidebarTab === "roles" && (
-                <RoleReference selectedRoles={selectedRoles} />
-              )}
+              </div>
             </div>
           )}
         </div>
 
-        {/* Sidebar Toggle Button */}
-        <Button
-          onClick={() => setShowSidebar(!showSidebar)}
-          variant="ghost"
-          size="md"
-          className="fixed right-6 top-6 bg-slate-800 hover:bg-slate-700 shadow-lg z-10"
-          title={showSidebar ? "Hide sidebar" : "Show sidebar"}
-        >
-          {showSidebar ? (
-            <PanelLeftClose className="w-5 h-5" />
-          ) : (
-            <PanelLeftOpen className="w-5 h-5" />
-          )}
-        </Button>
+        {/* Sidebar - only in manual narrator mode */}
+        {!autoNarratorMode && (
+          <div
+            className={`transition-all duration-300 ${showSidebar ? "w-96" : "w-0 overflow-hidden"}`}
+          >
+            {showSidebar && (
+              <div className="sticky top-6">
+                {/* Sidebar Tabs */}
+                <div className="flex gap-2 mb-4 bg-slate-800 p-2 rounded-lg">
+                  <button
+                    onClick={() => setSidebarTab("players")}
+                    className={`flex-1 px-3 py-2 rounded text-sm font-semibold transition-colors ${
+                      sidebarTab === "players"
+                        ? "bg-blue-600 text-white"
+                        : "bg-slate-700 text-slate-300 hover:bg-slate-600"
+                    }`}
+                  >
+                    Players
+                  </button>
+                  <button
+                    onClick={() => setSidebarTab("events")}
+                    className={`flex-1 px-3 py-2 rounded text-sm font-semibold transition-colors ${
+                      sidebarTab === "events"
+                        ? "bg-blue-600 text-white"
+                        : "bg-slate-700 text-slate-300 hover:bg-slate-600"
+                    }`}
+                  >
+                    Events
+                  </button>
+                  <button
+                    onClick={() => setSidebarTab("roles")}
+                    className={`flex-1 px-3 py-2 rounded text-sm font-semibold transition-colors ${
+                      sidebarTab === "roles"
+                        ? "bg-blue-600 text-white"
+                        : "bg-slate-700 text-slate-300 hover:bg-slate-600"
+                    }`}
+                  >
+                    Roles
+                  </button>
+                </div>
+
+                {/* Sidebar Content */}
+                {sidebarTab === "players" && (
+                  <PlayerList
+                    playerCount={players.length}
+                    players={players}
+                    selectedRoles={selectedRoles}
+                    cursedWolfFatherInfectedPlayer={
+                      cursedWolfFatherInfectedPlayer
+                    }
+                    cupidLovers={cupidLovers}
+                    onToggleAlive={togglePlayerAlive}
+                    onSetRevealedRole={setPlayerRevealedRole}
+                    onUpdateNotes={updatePlayerNotes}
+                    onSetWolfHoundTeam={setPlayerWolfHoundTeam}
+                    onCheckEliminationConsequences={
+                      checkEliminationConsequences
+                    }
+                    onAddGameEvent={addGameEvent}
+                  />
+                )}
+                {sidebarTab === "events" && <EventLog events={gameEvents} />}
+                {sidebarTab === "roles" && (
+                  <RoleReference selectedRoles={selectedRoles} />
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Sidebar Toggle Button - only in manual narrator mode */}
+        {!autoNarratorMode && (
+          <Button
+            onClick={() => setShowSidebar(!showSidebar)}
+            variant="ghost"
+            size="md"
+            className="fixed right-6 top-6 bg-slate-800 hover:bg-slate-700 shadow-lg z-10"
+            title={showSidebar ? "Hide sidebar" : "Show sidebar"}
+          >
+            {showSidebar ? (
+              <PanelLeftClose className="w-5 h-5" />
+            ) : (
+              <PanelLeftOpen className="w-5 h-5" />
+            )}
+          </Button>
+        )}
       </div>
 
-      {/* All role-specific modals */}
-      {modalOrchestrator.renderModals()}
+      {/* All role-specific modals - only in manual narrator mode */}
+      {!autoNarratorMode && modalOrchestrator.renderModals()}
 
       {/* Role Assignment Reference Panel */}
       <RoleAssignmentReference players={players} />
