@@ -305,6 +305,20 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
     };
   }, []);
 
+  // Auto-narrator: Auto-advance when night ends
+  useEffect(() => {
+    if (autoNarratorMode && isLastStep) {
+      console.log(
+        "[Auto-Narrator] Night complete, auto-advancing to dawn in 3s",
+      );
+      const timer = setTimeout(() => {
+        console.log("[Auto-Narrator] Advancing to dawn phase");
+        handleEndNight();
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [autoNarratorMode, isLastStep, handleEndNight]);
+
   const getNarrationText = (role: typeof currentRole): string => {
     if (!role) return "";
 
@@ -628,44 +642,50 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
                 )}
               </div>
             ) : isLastStep ? (
-              <div className="text-center">
-                <Sun className="w-16 h-16 text-yellow-400 mx-auto mb-4" />
-                <h2 className="text-2xl font-bold mb-2 font-header text-[var(--color-text-gold)]">
-                  Night is Over
-                </h2>
-                <p className="text-slate-300 mb-4">
-                  The night ends. Prepare for dawn announcements...
-                </p>
-                <button
-                  onClick={() => {
-                    if (isAudioPlaying) {
-                      stopAudio();
-                    } else if (audioEnabled) {
-                      playAudio("night-ending.mp3");
+              autoNarratorMode ? (
+                // Auto-narrator mode: Show sleep screen and auto-advance to dawn
+                <SleepScreen message="Night is ending..." countdown={3} />
+              ) : (
+                // Manual narrator mode: Show "Night is Over" with audio button
+                <div className="text-center">
+                  <Sun className="w-16 h-16 text-yellow-400 mx-auto mb-4" />
+                  <h2 className="text-2xl font-bold mb-2 font-header text-[var(--color-text-gold)]">
+                    Night is Over
+                  </h2>
+                  <p className="text-slate-300 mb-4">
+                    The night ends. Prepare for dawn announcements...
+                  </p>
+                  <button
+                    onClick={() => {
+                      if (isAudioPlaying) {
+                        stopAudio();
+                      } else if (audioEnabled) {
+                        playAudio("night-ending.mp3");
+                      }
+                    }}
+                    className={`mx-auto px-6 py-3 rounded-lg transition-colors ${
+                      isAudioPlaying
+                        ? "bg-green-600 hover:bg-green-700"
+                        : "bg-yellow-600 hover:bg-yellow-700"
+                    } text-white font-semibold flex items-center gap-2`}
+                    title={
+                      isAudioPlaying ? "Stop narration" : "Play night ending"
                     }
-                  }}
-                  className={`mx-auto px-6 py-3 rounded-lg transition-colors ${
-                    isAudioPlaying
-                      ? "bg-green-600 hover:bg-green-700"
-                      : "bg-yellow-600 hover:bg-yellow-700"
-                  } text-white font-semibold flex items-center gap-2`}
-                  title={
-                    isAudioPlaying ? "Stop narration" : "Play night ending"
-                  }
-                >
-                  {isAudioPlaying ? (
-                    <>
-                      <Pause className="w-5 h-5" />
-                      Stop
-                    </>
-                  ) : (
-                    <>
-                      <Volume2 className="w-5 h-5" />
-                      Play Night Ending
-                    </>
-                  )}
-                </button>
-              </div>
+                  >
+                    {isAudioPlaying ? (
+                      <>
+                        <Pause className="w-5 h-5" />
+                        Stop
+                      </>
+                    ) : (
+                      <>
+                        <Volume2 className="w-5 h-5" />
+                        Play Night Ending
+                      </>
+                    )}
+                  </button>
+                </div>
+              )
             ) : currentRole ? (
               autoNarratorMode && roleActionInProgress ? (
                 // Auto-narrator mode interface - show modal or acknowledgement
