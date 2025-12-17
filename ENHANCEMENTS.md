@@ -274,34 +274,89 @@ The Actor can use powers from three pre-selected role cards each night, choosing
 ## 🎨 Medium Priority - To Do
 
 ### 1. Auto-Narrator Mode Implementation
-**Status**: In Progress  
+**Status**: Phase 1 Incomplete - Experimental Feature  
 **Priority**: High  
 **Effort**: Medium-Large | **Impact**: Very High
 
 **Why**: Enables fully automated gameplay where players interact directly with a shared device, eliminating the need for a human narrator.
 
-**Work Required**:
-- [ ] Finish implementing night phase automation
-  - [ ] Integrate SleepScreen and WakeUpPrompt components into NightPhase
-  - [ ] Implement 4-second delay between role transitions
-  - [ ] Add auto-advance logic after role actions complete
-- [ ] Add role-specific action screens for player interaction
-  - [ ] Simplified, player-facing UI for each role's actions
-  - [ ] Touch-friendly buttons for selections
-  - [ ] Clear "Done" confirmation buttons
-- [ ] Implement sleep screen transitions
-  - [ ] Dark screen with "Keep your eyes closed" message
-  - [ ] Smooth fade in/out animations
-  - [ ] 4-second countdown before next role
-- [ ] Test the full automated flow
-  - [ ] End-to-end testing of complete night phase
-  - [ ] Ensure audio timing works correctly
-  - [ ] Verify all role actions work in auto mode
+**Phase 1 Completed** ✅ (2025-12-17):
+- [x] Auto-narrator mode toggle in SetupScreen
+- [x] Created SleepScreen component for between-role transitions
+- [x] Created WakeUpPrompt component with team-coloured wake screens
+- [x] Modified NightPhase to handle auto-narrator flow
+- [x] State management for showIntro, showSleepScreen, showWakePrompt
+- [x] Hidden narrator controls, progress bar, and sidebar in auto-narrator mode
+- [x] Implemented 4-second delays between roles
+- [x] Integrated audio callbacks for wake/sleep transitions
+- [x] Added "Tap to Start Night" button for intro sequence
+- [x] Basic flow working for acknowledgement roles (e.g., Simple Villager, Thief viewing cards)
+
+**Current State - NOT PRODUCTION READY**:
+The auto-narrator mode works for simple acknowledgement roles but is incomplete for interactive roles. The flow sequence is:
+1. ✅ Intro screen with "Tap to Start Night" button
+2. ✅ Wake prompt showing role name and team colour
+3. ❌ Generic role action screen with "Done - Continue" button (missing role-specific UI)
+4. ✅ Sleep screen with "Keep your eyes closed" message
+5. ⚠️ Auto-advance to next role (works but audio auto-play issues)
+
+**Critical Issues Identified**:
+- **No role-specific action screens**: Generic "Done" button doesn't provide way to perform actions
+  - Cupid can't select lovers (no player selection UI)
+  - Seer can't peek at cards (no card selection UI)
+  - Werewolves can't select victims (no victim selection UI)
+  - Hunter can't select shot target
+  - Witch can't choose potions
+  - Wild Child can't select role model
+  - etc.
+- **Audio auto-play restrictions**: Browser policies prevent audio from playing automatically
+- **Sleep screen advancement**: No clear mechanism for non-action roles to advance
+- **No end-to-end testing**: Full night phase flow not validated
+
+**Remaining Work - Phase 2** (Large Effort):
+- [ ] Design and implement role-specific action screens:
+  - [ ] CupidActionScreen: Player pair selection UI
+  - [ ] SeerActionScreen: Card peek UI (show role card image)
+  - [ ] WerewolfActionScreen: Victim voting UI (all werewolves coordinate)
+  - [ ] WitchActionScreen: Potion selection UI (healing/death)
+  - [ ] HunterActionScreen: Shot target selection
+  - [ ] WildChildActionScreen: Role model selection
+  - [ ] GuardActionScreen: Player protection selection
+  - [ ] FoxActionScreen: Group investigation UI
+  - [ ] BearTamerActionScreen: Simple acknowledgement (use generic)
+  - [ ] ThiefActionScreen: Role card swap UI
+  - [ ] ActorActionScreen: Power selection from 3 available roles
+  - [ ] All other interactive roles
+- [ ] Implement sleep screen auto-advance logic
+  - [ ] Countdown timer visible on screen
+  - [ ] Audio completion detection
+  - [ ] Manual skip option
+- [ ] Resolve audio auto-play issues
+  - [ ] User interaction requirement for audio playback
+  - [ ] Fallback to manual audio triggers
+  - [ ] Clear visual indicators when audio should play
+- [ ] End-to-end testing and refinement
+  - [ ] Test complete night phase with all role types
+  - [ ] Test with 5, 8, 12, 16, 20 player games
+  - [ ] Edge case handling (lovers die, hunter shoots hunter, etc.)
+  - [ ] Mobile device testing (iOS, Android)
 - [ ] Day phase voting remains manual (as planned)
+
+**Design Principles for Role Action Screens**:
+- Touch-friendly large buttons (minimum 44px touch targets)
+- Clear role instructions at top of screen
+- Team-coloured theming (blue/red/purple)
+- Visual feedback for selections
+- Confirmation step before submitting action
+- "Skip" option for optional actions
+- Clean, minimal UI (no narrator-specific elements)
+- Dark mode friendly (night gameplay)
 
 **Notes**:
 - Phase 1 approach: single-device pass-and-play
-- Future enhancement: multi-device networked gameplay
+- Feature marked as "Experimental" in SetupScreen (consider adding beta badge)
+- Future Phase 3: multi-device networked gameplay
+- Consider adding warning in SetupScreen: "Auto-narrator mode is experimental and incomplete. Best used for simple games with few interactive roles."
 
 ### 2. Additional Features & Enhancements
 
