@@ -334,8 +334,9 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
         "White Werewolf, wake up. You may eliminate another werewolf.",
       "big-bad-wolf":
         "Big Bad Wolf, wake up. You may devour an additional victim.",
-      "cursed-wolf-father":
-        "Cursed Wolf-Father, wake up. You may infect a victim to turn them into a werewolf.",
+      "cursed-wolf-father": autoNarratorMode
+        ? "Cursed Wolf-Father, wake up. Select a player to infect. After selecting, discreetly tap them on the shoulder to notify them. If you receive a tap during this phase, you have been infected and are now a werewolf - you will wake with the werewolves."
+        : "Cursed Wolf-Father, wake up. You may infect a victim to turn them into a werewolf.",
       witch: `Witch, wake up. ${nightState.witchHealingPotionUsed ? "Your healing potion has been used." : "You may use your healing potion."} ${nightState.witchDeathPotionUsed ? "Your death potion has been used." : "You may use your death potion."}`,
       fox: "Fox, wake up. Point to three adjacent players to learn if at least one is a werewolf.",
       "bear-tamer":
