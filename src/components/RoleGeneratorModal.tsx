@@ -11,12 +11,14 @@ import { Button } from "./ui";
 
 interface RoleGeneratorModalProps {
   playerCount: number;
+  includeOptionalRoles: boolean;
   onConfirm: (roles: RoleId[]) => void;
   onClose: () => void;
 }
 
 export const RoleGeneratorModal = ({
   playerCount,
+  includeOptionalRoles,
   onConfirm,
   onClose,
 }: RoleGeneratorModalProps) => {
@@ -33,7 +35,7 @@ export const RoleGeneratorModal = ({
     setIsGenerating(true);
     // Add small delay for visual feedback
     setTimeout(() => {
-      const roles = generateBalancedRoles(playerCount);
+      const roles = generateBalancedRoles(playerCount, includeOptionalRoles);
       setGeneratedRoles(roles);
       setIsGenerating(false);
     }, 300);

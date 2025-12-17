@@ -51,13 +51,22 @@ export const calculateWerewolfCount = (playerCount: number): number => {
 /**
  * Generate a balanced role setup based on player count
  */
-export const generateBalancedRoles = (playerCount: number): RoleId[] => {
+export const generateBalancedRoles = (
+  playerCount: number,
+  includeOptionalRoles = true,
+): RoleId[] => {
   if (playerCount < 5) {
     throw new Error("Minimum 5 players required");
   }
   if (playerCount > 20) {
     throw new Error("Maximum 20 players supported");
   }
+
+  // Helper to filter optional roles if needed
+  const filterOptional = <T extends RoleId>(roleArray: T[]): T[] => {
+    if (includeOptionalRoles) return roleArray;
+    return roleArray.filter((roleId) => !roles[roleId].isOptional);
+  };
 
   const selectedRoles: RoleId[] = [];
   const werewolfCount = calculateWerewolfCount(playerCount);
@@ -77,9 +86,12 @@ export const generateBalancedRoles = (playerCount: number): RoleId[] => {
 
   // Optionally add a special werewolf for variety (if we need more werewolves)
   if (werewolvesAdded < werewolfCount && playerCount >= 8) {
-    const specialWerewolf = getRandomElement(SPECIAL_WEREWOLF_ROLES);
-    selectedRoles.push(specialWerewolf);
-    werewolvesAdded++;
+    const availableSpecialWerewolves = filterOptional(SPECIAL_WEREWOLF_ROLES);
+    if (availableSpecialWerewolves.length > 0) {
+      const specialWerewolf = getRandomElement(availableSpecialWerewolves);
+      selectedRoles.push(specialWerewolf);
+      werewolvesAdded++;
+    }
   }
 
   // Fill remaining werewolf slots with simple werewolves
@@ -89,44 +101,59 @@ export const generateBalancedRoles = (playerCount: number): RoleId[] => {
   }
 
   // Step 2: Add at least one investigative role
-  const investigativeRole = getRandomElement(INVESTIGATIVE_ROLES);
-  selectedRoles.push(investigativeRole);
+  const availableInvestigative = filterOptional(INVESTIGATIVE_ROLES);
+  if (availableInvestigative.length > 0) {
+    const investigativeRole = getRandomElement(availableInvestigative);
+    selectedRoles.push(investigativeRole);
+  }
 
   // Step 3: Add protective/action roles based on player count
   if (playerCount >= 7) {
-    const protectiveRole = getRandomElement(PROTECTIVE_ROLES);
-    selectedRoles.push(protectiveRole);
+    const availableProtective = filterOptional(PROTECTIVE_ROLES);
+    if (availableProtective.length > 0) {
+      const protectiveRole = getRandomElement(availableProtective);
+      selectedRoles.push(protectiveRole);
+    }
   }
 
   // Step 4: Add social roles for more players
   if (playerCount >= 8) {
-    const socialRole = getRandomElement(
-      SOCIAL_ROLES.filter((r) => {
-        // Don't add two-sisters or three-brothers if we don't have space
-        const currentSlots = calculateTotalSlots(selectedRoles);
-        if (r === "two-sisters" && currentSlots + 2 > playerCount) return false;
-        if (r === "three-brothers" && currentSlots + 3 > playerCount)
-          return false;
-        return true;
-      }),
-    );
+    const availableSocial = filterOptional(SOCIAL_ROLES).filter((r) => {
+      // Don't add two-sisters or three-brothers if we don't have space
+      const currentSlots = calculateTotalSlots(selectedRoles);
+      if (r === "two-sisters" && currentSlots + 2 > playerCount) return false;
+      if (r === "three-brothers" && currentSlots + 3 > playerCount)
+        return false;
+      return true;
+    });
 
-    // All roles are added only once - getRoleSlotCount() handles multi-player slots
-    selectedRoles.push(socialRole);
+    if (availableSocial.length > 0) {
+      const socialRole = getRandomElement(availableSocial);
+      // All roles are added only once - getRoleSlotCount() handles multi-player slots
+      selectedRoles.push(socialRole);
+    }
   }
 
   // Step 5: Add special roles for larger games
   if (playerCount >= 10 && Math.random() > 0.5) {
-    const specialRole = getRandomElement(SPECIAL_VILLAGE_ROLES);
-    if (calculateTotalSlots(selectedRoles) < playerCount) {
+    const availableSpecial = filterOptional(SPECIAL_VILLAGE_ROLES);
+    if (
+      availableSpecial.length > 0 &&
+      calculateTotalSlots(selectedRoles) < playerCount
+    ) {
+      const specialRole = getRandomElement(availableSpecial);
       selectedRoles.push(specialRole);
     }
   }
 
   // Step 6: Optionally add a solo role for experienced games (10+ players)
   if (playerCount >= 10 && Math.random() > 0.7) {
-    const soloRole = getRandomElement(SOLO_ROLES);
-    if (calculateTotalSlots(selectedRoles) < playerCount) {
+    const availableSolo = filterOptional(SOLO_ROLES);
+    if (
+      availableSolo.length > 0 &&
+      calculateTotalSlots(selectedRoles) < playerCount
+    ) {
+      const soloRole = getRandomElement(availableSolo);
       selectedRoles.push(soloRole);
     }
   }

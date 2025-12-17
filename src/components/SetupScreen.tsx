@@ -921,6 +921,7 @@ export const SetupScreen = ({ onStartGame }: SetupScreenProps = {}) => {
       {showGeneratorModal && (
         <RoleGeneratorModal
           playerCount={playerCount}
+          includeOptionalRoles={showOptionalRoles}
           onConfirm={handleGeneratedRoles}
           onClose={() => setShowGeneratorModal(false)}
         />
