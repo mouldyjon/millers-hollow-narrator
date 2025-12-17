@@ -69,11 +69,9 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
 
   // Auto-narrator mode state
   const autoNarratorMode = gameState.setup.autoNarratorMode || false;
-  const [showIntro, setShowIntro] = useState(!autoNarratorMode); // Skip intro in auto-narrator mode
+  const [showIntro, setShowIntro] = useState(true); // Always show intro initially
   const [showSleepScreen, setShowSleepScreen] = useState(false);
-  const [showWakePrompt, setShowWakePrompt] = useState(
-    autoNarratorMode && currentNightStep === 0,
-  );
+  const [showWakePrompt, setShowWakePrompt] = useState(false); // Don't show wake prompt until after intro
   const [roleActionInProgress, setRoleActionInProgress] = useState(false);
 
   // Audio narration hook
@@ -87,6 +85,10 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
       // When night-begins audio ends, hide intro
       if (showIntro && currentNightStep === 0) {
         setShowIntro(false);
+        // In auto-narrator mode, show wake prompt for first role after intro
+        if (autoNarratorMode) {
+          setTimeout(() => setShowWakePrompt(true), 300);
+        }
       }
     },
   });
@@ -493,21 +495,41 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
                 <p className="text-lg text-slate-300 mb-6 italic">
                   The village sleeps as darkness descends...
                 </p>
-                <div className="flex items-center justify-center gap-2 text-sm text-slate-400">
-                  {isAudioPlaying ? (
-                    <>
+                {autoNarratorMode ? (
+                  <div className="space-y-4">
+                    <p className="text-sm text-slate-400 flex items-center justify-center gap-2">
                       <Volume2 className="w-4 h-4 animate-pulse" />
-                      <span>Playing narration...</span>
-                    </>
-                  ) : audioEnabled ? (
-                    <>
-                      <Volume2 className="w-4 h-4" />
-                      <span>Click Play below to hear narration</span>
-                    </>
-                  ) : (
-                    <span>Click Next to begin</span>
-                  )}
-                </div>
+                      <span>Preparing the night...</span>
+                    </p>
+                    <Button
+                      onClick={() => {
+                        setShowIntro(false);
+                        setTimeout(() => setShowWakePrompt(true), 300);
+                      }}
+                      variant="primary"
+                      size="lg"
+                      className="text-xl px-12 py-6"
+                    >
+                      Tap to Start Night
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center gap-2 text-sm text-slate-400">
+                    {isAudioPlaying ? (
+                      <>
+                        <Volume2 className="w-4 h-4 animate-pulse" />
+                        <span>Playing narration...</span>
+                      </>
+                    ) : audioEnabled ? (
+                      <>
+                        <Volume2 className="w-4 h-4" />
+                        <span>Click Play below to hear narration</span>
+                      </>
+                    ) : (
+                      <span>Click Next to begin</span>
+                    )}
+                  </div>
+                )}
               </div>
             ) : isLastStep ? (
               <div className="text-center">
