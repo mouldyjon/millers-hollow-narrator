@@ -93,22 +93,8 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
     },
   });
 
-  // Modal orchestrator for role-specific modals
-  const modalOrchestrator = RoleModalOrchestrator({
-    players,
-    cupidLovers,
-    wildChildRoleModel,
-    cursedWolfFatherInfectedPlayer,
-    unusedRoles: gameState.setup.unusedRoles,
-    onUseWitchHealingPotion: useWitchHealingPotion,
-    onUseWitchDeathPotion: useWitchDeathPotion,
-    onSetCupidLovers: setCupidLovers,
-    onSetWildChildRoleModel: setWildChildRoleModel,
-    onSelectWerewolfVictim: selectWerewolfVictim,
-    onUseCursedWolfFatherInfection: useCursedWolfFatherInfection,
-    onSetThiefChosenRole: setThiefChosenRole,
-    onAddGameEvent: addGameEvent,
-  });
+  // Placeholder - modal orchestrator will be created after helper functions are defined
+  let modalOrchestrator: ReturnType<typeof RoleModalOrchestrator>;
 
   const isFirstNight = nightState.currentNightNumber === 1;
 
@@ -164,6 +150,107 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
 
   const currentRole = activeRoles[currentNightStep];
   const isLastStep = currentNightStep >= activeRoles.length;
+
+  // Auto-narrator: Advance to next role or end night
+  const advanceToNextRole = () => {
+    console.log("[Auto-Narrator] advanceToNextRole called", {
+      currentNightStep,
+      activeRolesLength: activeRoles.length,
+      hasNext: currentNightStep + 1 < activeRoles.length,
+    });
+
+    // Check if there's a next role
+    if (currentNightStep + 1 < activeRoles.length) {
+      console.log("[Auto-Narrator] Moving to next role");
+      nextNightStep();
+      // Show wake prompt for next role after a brief moment
+      setTimeout(() => {
+        console.log("[Auto-Narrator] Showing wake prompt for next role");
+        setShowWakePrompt(true);
+      }, 300);
+    } else {
+      // End of night
+      console.log("[Auto-Narrator] Ending night phase");
+      handleEndNight();
+    }
+  };
+
+  // Auto-narrator: Handle role action completion (for acknowledgement roles and after modals)
+  const handleRoleActionComplete = () => {
+    console.log("[Auto-Narrator] Role action complete, showing sleep screen");
+    // Immediately show sleep screen to hide role action UI
+    setRoleActionInProgress(false);
+    setShowSleepScreen(true);
+
+    // Always set a timeout to advance, regardless of audio success
+    // This ensures the flow continues even if audio fails
+    setTimeout(() => {
+      console.log("[Auto-Narrator] Timeout fired, advancing to next role");
+      setShowSleepScreen(false);
+      advanceToNextRole();
+    }, 4000);
+
+    // Try to play sleep audio if available (optional, won't block flow)
+    if (currentRole && audioEnabled) {
+      const sleepAudioFile = getNarrationFile(
+        currentRole.id,
+        "sleep",
+        selectedRoles,
+      );
+      if (sleepAudioFile) {
+        console.log(
+          "[Auto-Narrator] Attempting to play sleep audio:",
+          sleepAudioFile,
+        );
+        // Fire and forget - don't wait for audio completion
+        playAudio(sleepAudioFile);
+      }
+    }
+  };
+
+  // Auto-narrator: Wrapper to auto-advance after modal actions
+  const wrapModalCallback = <T extends unknown[]>(
+    originalCallback: (...args: T) => void,
+  ) => {
+    return (...args: T) => {
+      originalCallback(...args);
+      if (autoNarratorMode && roleActionInProgress) {
+        handleRoleActionComplete();
+      }
+    };
+  };
+
+  // Modal orchestrator for role-specific modals
+  // In auto-narrator mode, callbacks are wrapped to auto-advance after completion
+  modalOrchestrator = RoleModalOrchestrator({
+    players,
+    cupidLovers,
+    wildChildRoleModel,
+    cursedWolfFatherInfectedPlayer,
+    unusedRoles: gameState.setup.unusedRoles,
+    onUseWitchHealingPotion: autoNarratorMode
+      ? wrapModalCallback(useWitchHealingPotion)
+      : useWitchHealingPotion,
+    onUseWitchDeathPotion: autoNarratorMode
+      ? wrapModalCallback(useWitchDeathPotion)
+      : useWitchDeathPotion,
+    onSetCupidLovers: autoNarratorMode
+      ? wrapModalCallback(setCupidLovers)
+      : setCupidLovers,
+    onSetWildChildRoleModel: autoNarratorMode
+      ? wrapModalCallback(setWildChildRoleModel)
+      : setWildChildRoleModel,
+    onSelectWerewolfVictim: autoNarratorMode
+      ? wrapModalCallback(selectWerewolfVictim)
+      : selectWerewolfVictim,
+    onUseCursedWolfFatherInfection: autoNarratorMode
+      ? wrapModalCallback(useCursedWolfFatherInfection)
+      : useCursedWolfFatherInfection,
+    onSetThiefChosenRole: autoNarratorMode
+      ? wrapModalCallback(setThiefChosenRole)
+      : setThiefChosenRole,
+    onAddGameEvent: addGameEvent,
+  });
 
   const speak = (text: string) => {
     if ("speechSynthesis" in window) {
@@ -309,53 +396,6 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
     }
   };
 
-  // Auto-narrator: Handle role action completion
-  const handleRoleActionComplete = () => {
-    // Immediately show sleep screen to hide role action UI
-    setRoleActionInProgress(false);
-    setShowSleepScreen(true);
-
-    // Play sleep audio if available
-    if (currentRole && audioEnabled) {
-      const sleepAudioFile = getNarrationFile(
-        currentRole.id,
-        "sleep",
-        selectedRoles,
-      );
-      if (sleepAudioFile) {
-        playAudio(sleepAudioFile, () => {
-          // After sleep audio finishes, wait 4 seconds then advance
-          setTimeout(() => {
-            setShowSleepScreen(false);
-            advanceToNextRole();
-          }, 4000);
-        });
-        return;
-      }
-    }
-
-    // No sleep audio - wait 4 seconds then advance
-    setTimeout(() => {
-      setShowSleepScreen(false);
-      advanceToNextRole();
-    }, 4000);
-  };
-
-  // Auto-narrator: Advance to next role or end night
-  const advanceToNextRole = () => {
-    // Check if there's a next role
-    if (currentNightStep + 1 < activeRoles.length) {
-      nextNightStep();
-      // Show wake prompt for next role after a brief moment
-      setTimeout(() => {
-        setShowWakePrompt(true);
-      }, 300);
-    } else {
-      // End of night
-      handleEndNight();
-    }
-  };
-
   const handleNext = () => {
     stopSpeaking();
 
@@ -404,7 +444,7 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
 
   // Auto-narrator mode: Show sleep screen between roles
   if (autoNarratorMode && showSleepScreen) {
-    return <SleepScreen message="Keep your eyes closed" />;
+    return <SleepScreen message="Keep your eyes closed" countdown={4} />;
   }
 
   // Auto-narrator mode: Show wake-up prompt when it's a role's turn
@@ -417,6 +457,61 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
       />
     );
   }
+
+  // Auto-narrator: Helper to trigger appropriate modal for each role
+  const triggerRoleModal = (roleId: string) => {
+    switch (roleId) {
+      case "cupid":
+        modalOrchestrator.setShowCupidModal(true);
+        break;
+      case "wild-child":
+        modalOrchestrator.setShowWildChildModal(true);
+        break;
+      case "simple-werewolf":
+        modalOrchestrator.setWerewolfVictimModal("simple");
+        break;
+      case "big-bad-wolf":
+        modalOrchestrator.setWerewolfVictimModal("big-bad");
+        break;
+      case "white-werewolf":
+        modalOrchestrator.setWerewolfVictimModal("white");
+        break;
+      case "cursed-wolf-father":
+        modalOrchestrator.setShowCursedWolfFatherModal(true);
+        break;
+      case "witch":
+        // For witch, we need to check which potions are available
+        // For now, let's default to healing potion modal
+        // TODO: Show a choice screen for which potion to use
+        if (!nightState.witchHealingPotionUsed) {
+          modalOrchestrator.setWitchPotionModal("healing");
+        } else if (!nightState.witchDeathPotionUsed) {
+          modalOrchestrator.setWitchPotionModal("death");
+        }
+        break;
+      case "thief":
+        modalOrchestrator.setShowThiefModal(true);
+        break;
+      default:
+        // For roles without modals (acknowledgement roles), just continue
+        handleRoleActionComplete();
+        break;
+    }
+  };
+
+  // Auto-narrator: Determine if role needs a modal interaction
+  const roleNeedsModal = (roleId: string): boolean => {
+    return [
+      "cupid",
+      "wild-child",
+      "simple-werewolf",
+      "big-bad-wolf",
+      "white-werewolf",
+      "cursed-wolf-father",
+      "witch",
+      "thief",
+    ].includes(roleId);
+  };
 
   return (
     <div
@@ -572,7 +667,7 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
               </div>
             ) : currentRole ? (
               autoNarratorMode && roleActionInProgress ? (
-                // Simplified auto-narrator mode interface
+                // Auto-narrator mode interface - show modal or acknowledgement
                 <div className="text-center w-full space-y-6">
                   <div
                     className={`inline-block px-4 py-2 rounded-full text-sm ${
@@ -599,26 +694,30 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
                     <p className="text-slate-300 italic">
                       {getNarrationText(currentRole)}
                     </p>
-                    {currentRole.description.includes("no action needed") ? (
+                    {roleNeedsModal(currentRole.id) ? (
                       <p className="text-sm text-slate-400">
-                        No action needed - just acknowledge and continue
+                        Tap the button below to perform your action
                       </p>
                     ) : (
                       <p className="text-sm text-slate-400">
-                        Complete your action, then tap "Done" below
+                        No action needed - tap "Done" to continue
                       </p>
                     )}
                   </div>
                   <Button
-                    onClick={handleRoleActionComplete}
+                    onClick={() => triggerRoleModal(currentRole.id)}
                     variant="primary"
                     size="lg"
                     className="text-xl px-12 py-6 mx-auto"
                   >
-                    Done - Continue
+                    {roleNeedsModal(currentRole.id)
+                      ? `Perform Action`
+                      : "Done - Continue"}
                   </Button>
                   <p className="text-xs text-slate-500 italic">
-                    Return the device and close your eyes after tapping "Done"
+                    {roleNeedsModal(currentRole.id)
+                      ? "Complete your action in the next screen"
+                      : "Return the device and close your eyes after tapping Done"}
                   </p>
                 </div>
               ) : (

@@ -1,7 +1,9 @@
 import { Moon } from "lucide-react";
+import { useState, useEffect } from "react";
 
 interface SleepScreenProps {
   message?: string;
+  countdown?: number; // Countdown duration in seconds
 }
 
 /**
@@ -10,7 +12,27 @@ interface SleepScreenProps {
  */
 export const SleepScreen = ({
   message = "Keep your eyes closed",
+  countdown,
 }: SleepScreenProps) => {
+  const [timeRemaining, setTimeRemaining] = useState(countdown);
+
+  useEffect(() => {
+    if (!countdown) return;
+
+    setTimeRemaining(countdown);
+    const interval = setInterval(() => {
+      setTimeRemaining((prev) => {
+        if (prev === undefined || prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [countdown]);
+
   return (
     <div
       className="min-h-screen flex items-center justify-center p-6"
@@ -32,6 +54,11 @@ export const SleepScreen = ({
           <p className="text-slate-700 text-lg">
             Wait for your role to be called...
           </p>
+          {countdown !== undefined && timeRemaining !== undefined && (
+            <p className="text-slate-600 text-2xl font-mono">
+              {timeRemaining}s
+            </p>
+          )}
         </div>
 
         {/* Subtle pulsing indicator */}
