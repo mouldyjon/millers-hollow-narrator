@@ -964,8 +964,8 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
         )}
       </div>
 
-      {/* All role-specific modals - only in manual narrator mode */}
-      {!autoNarratorMode && modalOrchestrator.renderModals()}
+      {/* All role-specific modals - shown in both manual and auto-narrator modes */}
+      {modalOrchestrator.renderModals()}
 
       {/* Role Assignment Reference Panel */}
       <RoleAssignmentReference players={players} />
