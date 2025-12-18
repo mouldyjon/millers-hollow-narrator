@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { Users, X } from "lucide-react";
+import { Users, X, Shield } from "lucide-react";
 import { Button } from "./ui";
 import type { Player } from "../types/game";
 
 interface DayVotingModalProps {
   players: Player[];
+  sheriff?: number;
   isSecondVote?: boolean;
   onEliminate: (playerNumber: number) => void;
   onNoElimination: () => void;
@@ -13,6 +14,7 @@ interface DayVotingModalProps {
 
 export const DayVotingModal = ({
   players,
+  sheriff,
   isSecondVote = false,
   onEliminate,
   onNoElimination,
@@ -23,6 +25,7 @@ export const DayVotingModal = ({
   const [selectedPlayer, setSelectedPlayer] = useState<number | null>(null);
 
   const alivePlayers = players.filter((p) => p.isAlive);
+  const sheriffPlayer = players.find((p) => p.number === sheriff);
 
   const handleStartCountdown = () => {
     setCountdown(3);
@@ -73,6 +76,19 @@ export const DayVotingModal = ({
           </div>
 
           <div className="p-6">
+            {/* Sheriff Reminder */}
+            {sheriff && sheriffPlayer?.isAlive && (
+              <div className="bg-blue-900/50 border border-blue-400 rounded p-3 mb-4">
+                <div className="flex items-center gap-2">
+                  <Shield className="w-5 h-5 text-yellow-500" />
+                  <span className="text-yellow-500 font-bold">
+                    Player {sheriff} is the Sheriff - their vote counts as 2
+                    votes
+                  </span>
+                </div>
+              </div>
+            )}
+
             <p className="text-slate-300 mb-6">
               {isSecondVote
                 ? "Mark the second player eliminated by the village vote:"

@@ -1,5 +1,6 @@
 import type { RoleId } from "../types/game";
 import { roles } from "../data/roles";
+import { getRoleSlotCount } from "../logic/roleSlotCalculations";
 
 export type ValidationSeverity = "error" | "warning" | "info";
 
@@ -29,11 +30,9 @@ export const validateSetup = (
     (roleId) => roles[roleId]?.team === "solo",
   );
 
-  // Calculate role slots (accounting for multi-card roles)
+  // Calculate role slots (accounting for multi-card roles and game modifiers like Sheriff)
   const totalSlots = selectedRoles.reduce((sum, roleId) => {
-    if (roleId === "two-sisters") return sum + 2;
-    if (roleId === "three-brothers") return sum + 3;
-    return sum + 1;
+    return sum + getRoleSlotCount(roleId);
   }, 0);
 
   // Error: No werewolves

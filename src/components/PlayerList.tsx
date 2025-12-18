@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { User, Skull, Eye, Users, Moon, Heart } from "lucide-react";
+import { User, Skull, Eye, Users, Moon, Heart, Shield } from "lucide-react";
 import { RoleRevealModal } from "./RoleRevealModal";
 import { EliminationAlert } from "./EliminationAlert";
 import type { RoleId } from "../types/game";
@@ -23,6 +23,7 @@ interface PlayerListProps {
   selectedRoles: RoleId[];
   cursedWolfFatherInfectedPlayer?: number;
   cupidLovers?: [number, number] | null;
+  sheriff?: number;
   theme?: "night" | "day";
   onToggleAlive: (playerNumber: number) => void;
   onSetRevealedRole: (
@@ -62,6 +63,7 @@ export const PlayerList = ({
   selectedRoles,
   cursedWolfFatherInfectedPlayer,
   cupidLovers,
+  sheriff,
   theme = "night",
   onToggleAlive,
   onSetRevealedRole,
@@ -349,6 +351,13 @@ export const PlayerList = ({
                         </span>
                       )}
                     </div>
+
+                    {player.number === sheriff && (
+                      <span className="px-2 py-0.5 bg-yellow-600 text-white text-xs font-bold rounded-full border border-yellow-400 flex items-center gap-1">
+                        <Shield className="w-3 h-3" />
+                        SHERIFF
+                      </span>
+                    )}
 
                     {player.number === cursedWolfFatherInfectedPlayer && (
                       <span className="px-2 py-0.5 bg-orange-600 text-white text-xs font-bold rounded-full border border-orange-400">

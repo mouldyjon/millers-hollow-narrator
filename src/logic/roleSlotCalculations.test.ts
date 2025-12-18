@@ -35,7 +35,6 @@ describe("Role Slot Calculations", () => {
         "wild-child",
         "wolf-hound",
         "thief",
-        "sheriff",
       ];
 
       singlePlayerRoles.forEach((roleId) => {
@@ -105,12 +104,7 @@ describe("Role Slot Calculations", () => {
     });
 
     it("should handle array with only villagers", () => {
-      const roles: RoleId[] = [
-        "villager",
-        "villager",
-        "villager",
-        "villager",
-      ];
+      const roles: RoleId[] = ["villager", "villager", "villager", "villager"];
 
       expect(calculateTotalSlots(roles)).toBe(4);
     });

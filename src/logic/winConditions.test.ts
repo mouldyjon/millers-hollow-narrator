@@ -35,6 +35,7 @@ const createGameState = (overrides?: Partial<GameState>): GameState => ({
     currentDayNumber: 0,
     votingInProgress: false,
     discussionTimerActive: false,
+    sheriffElected: false,
   },
   players: [],
   eliminatedPlayers: [],

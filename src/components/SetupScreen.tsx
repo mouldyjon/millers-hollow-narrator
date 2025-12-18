@@ -44,6 +44,7 @@ export const SetupScreen = ({ onStartGame }: SetupScreenProps = {}) => {
     setShowGeneratorModal(false);
   };
   const getRoleCount = (roleId: RoleId): number => {
+    if (roleId === "sheriff") return 0; // Sheriff is not a card
     if (roleId === "two-sisters") return 2;
     if (roleId === "three-brothers") return 3;
     return 1;
@@ -67,14 +68,22 @@ export const SetupScreen = ({ onStartGame }: SetupScreenProps = {}) => {
   const isValidSetup = canStartGame(selectedRoles, playerCount);
 
   const villageTeamRoles = Object.values(roles).filter(
-    (r) => r.team === "village" && (showOptionalRoles || !r.isOptional),
+    (r) =>
+      r.team === "village" &&
+      r.id !== "sheriff" &&
+      (showOptionalRoles || !r.isOptional),
   );
   const werewolfTeamRoles = Object.values(roles).filter(
     (r) => r.team === "werewolf" && (showOptionalRoles || !r.isOptional),
   );
+  // Special roles: solo team + sheriff (sheriff always visible)
   const soloTeamRoles = Object.values(roles).filter(
     (r) => r.team === "solo" && (showOptionalRoles || !r.isOptional),
   );
+  const sheriffRole = roles["sheriff"];
+  const specialRoles = sheriffRole
+    ? [sheriffRole, ...soloTeamRoles]
+    : soloTeamRoles;
 
   // Role assignment helpers
   const showRoleAssignment = isValidSetup && totalRoleSlots === playerCount;
@@ -506,7 +515,7 @@ export const SetupScreen = ({ onStartGame }: SetupScreenProps = {}) => {
               Special Roles
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {soloTeamRoles.map((role) => {
+              {specialRoles.map((role) => {
                 const selectedCount = getSelectedCount(role.id);
                 const isSelected = selectedCount > 0;
 

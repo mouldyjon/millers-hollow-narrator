@@ -277,7 +277,8 @@ export const roles: Record<string, Role> = {
     id: "sheriff",
     name: "Sheriff",
     team: "village",
-    description: "Elected during day phase, has special voting power",
+    description:
+      "Elected position (not a card). Vote counts as 2 during village voting",
     nightOrder: 999,
     wakeEveryNight: false,
     wakeFirstNightOnly: false,

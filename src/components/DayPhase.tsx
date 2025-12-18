@@ -11,12 +11,15 @@ import {
   Volume2,
   AlertCircle,
   Users,
+  Shield,
 } from "lucide-react";
 import { PlayerList } from "./PlayerList";
 import { EventLog } from "./EventLog";
 import { RoleReference } from "./RoleReference";
 import { VictoryAnnouncement } from "./VictoryAnnouncement";
 import { DayVotingModal } from "./DayVotingModal";
+import { SheriffElectionModal } from "./SheriffElectionModal";
+import { SheriffSuccessorModal } from "./SheriffSuccessorModal";
 import { Button } from "./ui";
 import { useNarrationAudio } from "../hooks/useNarrationAudio";
 import { useGameContext } from "../contexts/GameStateContext";
@@ -38,6 +41,7 @@ export const DayPhase = ({ onStartNight }: DayPhaseProps = {}) => {
     addGameEvent,
     checkWinCondition,
     activateStutteringJudgeDoubleVote,
+    setSheriff,
   } = useGameContext();
 
   const { selectedRoles } = gameState.setup;
@@ -52,6 +56,11 @@ export const DayPhase = ({ onStartNight }: DayPhaseProps = {}) => {
   const [showSidebar, setShowSidebar] = useState(true);
   const [showVotingModal, setShowVotingModal] = useState(false);
   const [isSecondVote, setIsSecondVote] = useState(false);
+  const [showSheriffElection, setShowSheriffElection] = useState(false);
+  const [showSuccessorSelection, setShowSuccessorSelection] = useState(false);
+  const [deadSheriffNumber, setDeadSheriffNumber] = useState<number | null>(
+    null,
+  );
 
   // Audio narration
   const { play: playAudio } = useNarrationAudio({
@@ -166,6 +175,17 @@ export const DayPhase = ({ onStartNight }: DayPhaseProps = {}) => {
       `Player ${playerNumber}${eliminatedPlayer?.name ? ` (${eliminatedPlayer.name})` : ""} eliminated by village vote on Day ${gameState.dayState.currentDayNumber}${isSecondVote ? " (Second Vote)" : ""}`,
     );
 
+    // Check if eliminated player was the Sheriff
+    if (playerNumber === gameState.sheriff) {
+      addGameEvent(
+        "special",
+        `Sheriff (Player ${playerNumber}) has been eliminated!`,
+      );
+      playAudio("sheriff-died.mp3");
+      setDeadSheriffNumber(playerNumber);
+      setShowSuccessorSelection(true);
+    }
+
     // Check for elimination consequences
     checkEliminationConsequences(playerNumber);
 
@@ -192,6 +212,46 @@ export const DayPhase = ({ onStartNight }: DayPhaseProps = {}) => {
     );
     setShowVotingModal(false);
     setIsSecondVote(false);
+  };
+
+  const handleElectSheriff = (playerNumber: number) => {
+    setSheriff(playerNumber);
+    addGameEvent(
+      "special",
+      `Player ${playerNumber} elected as Sheriff (vote counts as 2)`,
+    );
+    setShowSheriffElection(false);
+    playAudio("sheriff-elected.mp3");
+  };
+
+  const handleSkipElection = () => {
+    addGameEvent("special", "Village decided not to elect a Sheriff");
+    setShowSheriffElection(false);
+  };
+
+  const needsSheriffElection =
+    selectedRoles.includes("sheriff") &&
+    gameState.dayState.currentDayNumber === 1 &&
+    !gameState.sheriff;
+
+  const handleNameSuccessor = (successorNumber: number) => {
+    setSheriff(successorNumber);
+    addGameEvent(
+      "special",
+      `Player ${deadSheriffNumber} named Player ${successorNumber} as the new Sheriff`,
+    );
+    setShowSuccessorSelection(false);
+    setDeadSheriffNumber(null);
+  };
+
+  const handleNoSuccessor = () => {
+    setSheriff(undefined as any); // Clear sheriff
+    addGameEvent(
+      "special",
+      `Sheriff (Player ${deadSheriffNumber}) died without naming a successor`,
+    );
+    setShowSuccessorSelection(false);
+    setDeadSheriffNumber(null);
   };
 
   return (
@@ -361,6 +421,22 @@ export const DayPhase = ({ onStartNight }: DayPhaseProps = {}) => {
                   </p>
                 </div>
               </div>
+
+              {/* Sheriff Election Button (Day 1 only) */}
+              {needsSheriffElection && (
+                <div className="mt-6">
+                  <Button
+                    onClick={() => setShowSheriffElection(true)}
+                    variant="primary"
+                    size="lg"
+                    fullWidth
+                    className="bg-yellow-600 hover:bg-yellow-700 text-xl py-4"
+                  >
+                    <Shield className="w-6 h-6" />
+                    Elect Village Sheriff
+                  </Button>
+                </div>
+              )}
 
               {/* Start Voting Button */}
               <div className="mt-6">
@@ -565,6 +641,7 @@ export const DayPhase = ({ onStartNight }: DayPhaseProps = {}) => {
                       cursedWolfFatherInfectedPlayer
                     }
                     cupidLovers={cupidLovers}
+                    sheriff={gameState.sheriff}
                     theme="day"
                     onToggleAlive={togglePlayerAlive}
                     onSetRevealedRole={setPlayerRevealedRole}
@@ -613,10 +690,30 @@ export const DayPhase = ({ onStartNight }: DayPhaseProps = {}) => {
       {showVotingModal && (
         <DayVotingModal
           players={players}
+          sheriff={gameState.sheriff}
           isSecondVote={isSecondVote}
           onEliminate={handleElimination}
           onNoElimination={handleNoElimination}
           onCancel={() => setShowVotingModal(false)}
+        />
+      )}
+
+      {/* Sheriff Election Modal */}
+      {showSheriffElection && (
+        <SheriffElectionModal
+          players={players}
+          onElectSheriff={handleElectSheriff}
+          onSkipElection={handleSkipElection}
+        />
+      )}
+
+      {/* Sheriff Successor Modal */}
+      {showSuccessorSelection && deadSheriffNumber !== null && (
+        <SheriffSuccessorModal
+          players={players}
+          deadSheriffNumber={deadSheriffNumber}
+          onNameSuccessor={handleNameSuccessor}
+          onNoSuccessor={handleNoSuccessor}
         />
       )}
     </>

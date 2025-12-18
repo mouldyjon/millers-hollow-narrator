@@ -962,6 +962,7 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
                       cursedWolfFatherInfectedPlayer
                     }
                     cupidLovers={cupidLovers}
+                    sheriff={gameState.sheriff}
                     onToggleAlive={togglePlayerAlive}
                     onSetRevealedRole={setPlayerRevealedRole}
                     onUpdateNotes={updatePlayerNotes}

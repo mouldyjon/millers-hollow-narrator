@@ -68,6 +68,7 @@ export interface DayState {
   currentDayNumber: number;
   votingInProgress: boolean;
   discussionTimerActive: boolean;
+  sheriffElected: boolean;
 }
 
 export interface Player {

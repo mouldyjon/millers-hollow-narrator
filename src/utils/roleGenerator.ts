@@ -27,6 +27,7 @@ const SPECIAL_VILLAGE_ROLES: RoleId[] = [
   "wolf-hound",
   "thief",
 ];
+const GAME_MODIFIERS: RoleId[] = ["sheriff"]; // Not cards, but game features
 const SOLO_ROLES: RoleId[] = ["angel", "prejudiced-manipulator"];
 const SPECIAL_WEREWOLF_ROLES: RoleId[] = [
   "big-bad-wolf",
@@ -161,6 +162,14 @@ export const generateBalancedRoles = (
   // Step 7: Fill remaining slots with villagers
   while (calculateTotalSlots(selectedRoles) < playerCount) {
     selectedRoles.push("villager");
+  }
+
+  // Step 8: Add game modifiers (Sheriff) - 50% chance for games with 8+ players
+  if (includeOptionalRoles && playerCount >= 8 && Math.random() > 0.5) {
+    const availableModifiers = filterOptional(GAME_MODIFIERS);
+    if (availableModifiers.length > 0) {
+      selectedRoles.push(...availableModifiers); // Add all modifiers (currently just Sheriff)
+    }
   }
 
   return selectedRoles;

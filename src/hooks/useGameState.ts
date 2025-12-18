@@ -44,6 +44,7 @@ const initialGameState: GameState = {
     currentDayNumber: 0,
     votingInProgress: false,
     discussionTimerActive: false,
+    sheriffElected: false,
   },
   players: createInitialPlayers(8),
   eliminatedPlayers: [],
