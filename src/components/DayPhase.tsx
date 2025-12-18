@@ -10,11 +10,13 @@ import {
   PanelLeftClose,
   Volume2,
   AlertCircle,
+  Users,
 } from "lucide-react";
 import { PlayerList } from "./PlayerList";
 import { EventLog } from "./EventLog";
 import { RoleReference } from "./RoleReference";
 import { VictoryAnnouncement } from "./VictoryAnnouncement";
+import { DayVotingModal } from "./DayVotingModal";
 import { Button } from "./ui";
 import { useNarrationAudio } from "../hooks/useNarrationAudio";
 import { useGameContext } from "../contexts/GameStateContext";
@@ -48,6 +50,8 @@ export const DayPhase = ({ onStartNight }: DayPhaseProps = {}) => {
   const [isRunning, setIsRunning] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showSidebar, setShowSidebar] = useState(true);
+  const [showVotingModal, setShowVotingModal] = useState(false);
+  const [isSecondVote, setIsSecondVote] = useState(false);
 
   // Audio narration
   const { play: playAudio } = useNarrationAudio({
@@ -140,6 +144,54 @@ export const DayPhase = ({ onStartNight }: DayPhaseProps = {}) => {
       "special",
       "Stuttering Judge activated double elimination - TWO consecutive votes will happen (no debate between votes)",
     );
+    // Start the first vote
+    handleStartVoting();
+  };
+
+  const handleStartVoting = () => {
+    setIsRunning(false); // Stop the timer
+    setShowVotingModal(true);
+    playAudio("voting-time.mp3");
+  };
+
+  const handleElimination = (playerNumber: number) => {
+    const eliminatedPlayer = players.find((p) => p.number === playerNumber);
+
+    // Mark player as eliminated
+    togglePlayerAlive(playerNumber);
+
+    // Log the elimination
+    addGameEvent(
+      "day_vote",
+      `Player ${playerNumber}${eliminatedPlayer?.name ? ` (${eliminatedPlayer.name})` : ""} eliminated by village vote on Day ${gameState.dayState.currentDayNumber}${isSecondVote ? " (Second Vote)" : ""}`,
+    );
+
+    // Check for elimination consequences
+    checkEliminationConsequences(playerNumber);
+
+    // Close the modal
+    setShowVotingModal(false);
+
+    // If Stuttering Judge is active and this was the first vote, trigger second vote
+    if (!isSecondVote && gameState.nightState.stutteringJudgeDoubleVoteUsed) {
+      setIsSecondVote(true);
+      // Brief pause before second vote
+      setTimeout(() => {
+        setShowVotingModal(true);
+      }, 1500);
+    } else if (isSecondVote) {
+      // Second vote complete, reset flag
+      setIsSecondVote(false);
+    }
+  };
+
+  const handleNoElimination = () => {
+    addGameEvent(
+      "day_vote",
+      `Village voted for no elimination on Day ${gameState.dayState.currentDayNumber}`,
+    );
+    setShowVotingModal(false);
+    setIsSecondVote(false);
   };
 
   return (
@@ -308,6 +360,20 @@ export const DayPhase = ({ onStartNight }: DayPhaseProps = {}) => {
                     eliminated, Stuttering Judge can force double vote
                   </p>
                 </div>
+              </div>
+
+              {/* Start Voting Button */}
+              <div className="mt-6">
+                <Button
+                  onClick={handleStartVoting}
+                  variant="primary"
+                  size="lg"
+                  fullWidth
+                  className="bg-amber-600 hover:bg-amber-700 text-xl py-4"
+                >
+                  <Users className="w-6 h-6" />
+                  Start Village Voting
+                </Button>
               </div>
             </div>
 
@@ -542,6 +608,17 @@ export const DayPhase = ({ onStartNight }: DayPhaseProps = {}) => {
 
       {/* Role Assignment Reference Panel */}
       <RoleAssignmentReference players={players} />
+
+      {/* Day Voting Modal */}
+      {showVotingModal && (
+        <DayVotingModal
+          players={players}
+          isSecondVote={isSecondVote}
+          onEliminate={handleElimination}
+          onNoElimination={handleNoElimination}
+          onCancel={() => setShowVotingModal(false)}
+        />
+      )}
     </>
   );
 };

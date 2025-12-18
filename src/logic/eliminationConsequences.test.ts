@@ -31,6 +31,11 @@ const createGameState = (overrides?: Partial<GameState>): GameState => ({
     bigBadWolfVictimSelectedThisNight: false,
     whiteWerewolfVictimSelectedThisNight: false,
   },
+  dayState: {
+    currentDayNumber: 0,
+    votingInProgress: false,
+    discussionTimerActive: false,
+  },
   players: [],
   eliminatedPlayers: [],
   pendingRoleReveals: [],
@@ -111,7 +116,11 @@ describe("Elimination Consequences", () => {
       const players = createPlayers(8);
       const state = createGameState({ players });
 
-      const result = checkEliminationConsequences(state, 3, "knight-rusty-sword");
+      const result = checkEliminationConsequences(
+        state,
+        3,
+        "knight-rusty-sword",
+      );
 
       expect(result.type).toBe("knight-rusty-sword");
       expect(result.affectedPlayers).toEqual([4]);
@@ -124,7 +133,11 @@ describe("Elimination Consequences", () => {
       const players = createPlayers(8);
       const state = createGameState({ players });
 
-      const result = checkEliminationConsequences(state, 8, "knight-rusty-sword");
+      const result = checkEliminationConsequences(
+        state,
+        8,
+        "knight-rusty-sword",
+      );
 
       expect(result.type).toBe("knight-rusty-sword");
       expect(result.affectedPlayers).toEqual([1]);
@@ -137,7 +150,11 @@ describe("Elimination Consequences", () => {
 
       const state = createGameState({ players });
 
-      const result = checkEliminationConsequences(state, 3, "knight-rusty-sword");
+      const result = checkEliminationConsequences(
+        state,
+        3,
+        "knight-rusty-sword",
+      );
 
       expect(result.type).toBe("none");
       expect(result.affectedPlayers).toEqual([]);
@@ -294,7 +311,11 @@ describe("Elimination Consequences", () => {
         wildChildRoleModel: 3,
       });
 
-      const result = checkEliminationConsequences(state, 3, "knight-rusty-sword");
+      const result = checkEliminationConsequences(
+        state,
+        3,
+        "knight-rusty-sword",
+      );
 
       // Wild Child transformation should take priority
       expect(result.type).toBe("wild-child-transform");

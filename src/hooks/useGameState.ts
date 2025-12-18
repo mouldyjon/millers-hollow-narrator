@@ -40,6 +40,11 @@ const initialGameState: GameState = {
     bigBadWolfVictimSelectedThisNight: false,
     whiteWerewolfVictimSelectedThisNight: false,
   },
+  dayState: {
+    currentDayNumber: 0,
+    votingInProgress: false,
+    discussionTimerActive: false,
+  },
   players: createInitialPlayers(8),
   eliminatedPlayers: [],
   pendingRoleReveals: [],

@@ -228,12 +228,21 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
     wildChildRoleModel,
     cursedWolfFatherInfectedPlayer,
     unusedRoles: gameState.setup.unusedRoles,
+    witchHealingPotionUsed: nightState.witchHealingPotionUsed,
+    witchDeathPotionUsed: nightState.witchDeathPotionUsed,
     onUseWitchHealingPotion: autoNarratorMode
       ? wrapModalCallback(useWitchHealingPotion)
       : useWitchHealingPotion,
     onUseWitchDeathPotion: autoNarratorMode
       ? wrapModalCallback(useWitchDeathPotion)
       : useWitchDeathPotion,
+    onWitchDoNothing: autoNarratorMode
+      ? () => {
+          if (roleActionInProgress) {
+            handleRoleActionComplete();
+          }
+        }
+      : undefined,
     onSetCupidLovers: autoNarratorMode
       ? wrapModalCallback(setCupidLovers)
       : setCupidLovers,
@@ -249,6 +258,9 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
     onSetThiefChosenRole: autoNarratorMode
       ? wrapModalCallback(setThiefChosenRole)
       : setThiefChosenRole,
+    onFoxInvestigationComplete: autoNarratorMode
+      ? wrapModalCallback(() => {})
+      : undefined,
     onAddGameEvent: addGameEvent,
   });
 
@@ -304,6 +316,21 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
       stopSpeaking();
     };
   }, []);
+
+  // Auto-narrator: Play wake audio when wake prompt appears
+  useEffect(() => {
+    if (autoNarratorMode && showWakePrompt && currentRole && audioEnabled) {
+      const wakeAudioFile = getNarrationFile(
+        currentRole.id,
+        "wake",
+        selectedRoles,
+      );
+      if (wakeAudioFile) {
+        console.log("[Auto-Narrator] Playing wake audio:", wakeAudioFile);
+        playAudio(wakeAudioFile);
+      }
+    }
+  }, [autoNarratorMode, showWakePrompt, currentRole, audioEnabled]);
 
   // Auto-narrator: Auto-advance when night ends
   useEffect(() => {
@@ -397,18 +424,7 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
   const handleWakeUp = () => {
     setShowWakePrompt(false);
     setRoleActionInProgress(true);
-
-    // Play wake audio if available
-    if (currentRole && audioEnabled) {
-      const wakeAudioFile = getNarrationFile(
-        currentRole.id,
-        "wake",
-        selectedRoles,
-      );
-      if (wakeAudioFile) {
-        playAudio(wakeAudioFile);
-      }
-    }
+    // Audio is already playing from the wake prompt screen
   };
 
   const handleNext = () => {
@@ -494,15 +510,12 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
       case "cursed-wolf-father":
         modalOrchestrator.setShowCursedWolfFatherModal(true);
         break;
+      case "fox":
+        modalOrchestrator.setShowFoxModal(true);
+        break;
       case "witch":
-        // For witch, we need to check which potions are available
-        // For now, let's default to healing potion modal
-        // TODO: Show a choice screen for which potion to use
-        if (!nightState.witchHealingPotionUsed) {
-          modalOrchestrator.setWitchPotionModal("healing");
-        } else if (!nightState.witchDeathPotionUsed) {
-          modalOrchestrator.setWitchPotionModal("death");
-        }
+        // Show action choice modal first
+        modalOrchestrator.setShowWitchActionChoice(true);
         break;
       case "thief":
         modalOrchestrator.setShowThiefModal(true);
@@ -523,6 +536,7 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
       "big-bad-wolf",
       "white-werewolf",
       "cursed-wolf-father",
+      "fox",
       "witch",
       "thief",
     ].includes(roleId);

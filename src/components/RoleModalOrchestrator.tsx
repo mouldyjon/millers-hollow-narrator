@@ -1,11 +1,13 @@
 import { useState } from "react";
 import type { Player, RoleId } from "../types/game";
 import { WitchPotionModal } from "./WitchPotionModal";
+import { WitchActionChoiceModal } from "./WitchActionChoiceModal";
 import { CupidLoversModal } from "./CupidLoversModal";
 import { WerewolfVictimModal } from "./WerewolfVictimModal";
 import { WildChildRoleModelModal } from "./WildChildRoleModelModal";
 import { CursedWolfFatherModal } from "./CursedWolfFatherModal";
 import { ThiefSwapModal } from "./ThiefSwapModal";
+import { FoxInvestigationModal } from "./FoxInvestigationModal";
 import { roles } from "../data/roles";
 
 interface RoleModalOrchestratorProps {
@@ -14,8 +16,11 @@ interface RoleModalOrchestratorProps {
   wildChildRoleModel: number | null | undefined;
   cursedWolfFatherInfectedPlayer: number | undefined;
   unusedRoles: [RoleId, RoleId] | undefined;
+  witchHealingPotionUsed: boolean;
+  witchDeathPotionUsed: boolean;
   onUseWitchHealingPotion: (playerNumber: number) => void;
   onUseWitchDeathPotion: (playerNumber: number) => void;
+  onWitchDoNothing?: () => void;
   onSetCupidLovers: (lover1: number, lover2: number) => void;
   onSetWildChildRoleModel: (roleModelNumber: number) => void;
   onSelectWerewolfVictim: (
@@ -24,6 +29,9 @@ interface RoleModalOrchestratorProps {
   ) => void;
   onUseCursedWolfFatherInfection: (playerNumber: number) => void;
   onSetThiefChosenRole: (roleId: RoleId | null) => void;
+  onFoxInvestigationComplete?: (
+    playerNumbers: [number, number, number],
+  ) => void;
   onAddGameEvent: (
     type: "elimination" | "role_action" | "day_vote" | "special",
     description: string,
@@ -36,18 +44,23 @@ export const RoleModalOrchestrator = ({
   wildChildRoleModel,
   cursedWolfFatherInfectedPlayer,
   unusedRoles,
+  witchHealingPotionUsed,
+  witchDeathPotionUsed,
   onUseWitchHealingPotion,
   onUseWitchDeathPotion,
+  onWitchDoNothing,
   onSetCupidLovers,
   onSetWildChildRoleModel,
   onSelectWerewolfVictim,
   onUseCursedWolfFatherInfection,
   onSetThiefChosenRole,
+  onFoxInvestigationComplete,
   onAddGameEvent,
 }: RoleModalOrchestratorProps) => {
   const [witchPotionModal, setWitchPotionModal] = useState<
     "healing" | "death" | null
   >(null);
+  const [showWitchActionChoice, setShowWitchActionChoice] = useState(false);
   const [showCupidModal, setShowCupidModal] = useState(false);
   const [showWildChildModal, setShowWildChildModal] = useState(false);
   const [werewolfVictimModal, setWerewolfVictimModal] = useState<
@@ -56,6 +69,7 @@ export const RoleModalOrchestrator = ({
   const [showCursedWolfFatherModal, setShowCursedWolfFatherModal] =
     useState(false);
   const [showThiefModal, setShowThiefModal] = useState(false);
+  const [showFoxModal, setShowFoxModal] = useState(false);
 
   return {
     // Modal state setters for RoleNarratorGuide
@@ -64,11 +78,35 @@ export const RoleModalOrchestrator = ({
     setWerewolfVictimModal,
     setShowCursedWolfFatherModal,
     setWitchPotionModal,
+    setShowWitchActionChoice,
     setShowThiefModal,
+    setShowFoxModal,
 
     // Render all modals
     renderModals: () => (
       <>
+        {/* Witch Action Choice Modal */}
+        {showWitchActionChoice && (
+          <WitchActionChoiceModal
+            healingPotionUsed={witchHealingPotionUsed}
+            deathPotionUsed={witchDeathPotionUsed}
+            onChooseHealing={() => {
+              setShowWitchActionChoice(false);
+              setWitchPotionModal("healing");
+            }}
+            onChooseDeath={() => {
+              setShowWitchActionChoice(false);
+              setWitchPotionModal("death");
+            }}
+            onChooseNothing={() => {
+              setShowWitchActionChoice(false);
+              onAddGameEvent("role_action", "Witch chose to do nothing");
+              onWitchDoNothing?.();
+            }}
+            onCancel={() => setShowWitchActionChoice(false)}
+          />
+        )}
+
         {/* Witch Potion Modal */}
         {witchPotionModal && (
           <WitchPotionModal
@@ -192,6 +230,23 @@ export const RoleModalOrchestrator = ({
               setShowThiefModal(false);
             }}
             onCancel={() => setShowThiefModal(false)}
+          />
+        )}
+
+        {/* Fox Investigation Modal */}
+        {showFoxModal && (
+          <FoxInvestigationModal
+            players={players}
+            cursedWolfFatherInfectedPlayer={cursedWolfFatherInfectedPlayer}
+            onConfirm={(playerNumbers) => {
+              onAddGameEvent(
+                "role_action",
+                `Fox investigated Players ${playerNumbers.join(", ")}`,
+              );
+              setShowFoxModal(false);
+              onFoxInvestigationComplete?.(playerNumbers);
+            }}
+            onCancel={() => setShowFoxModal(false)}
           />
         )}
       </>

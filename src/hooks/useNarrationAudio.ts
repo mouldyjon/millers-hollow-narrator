@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 
 interface UseNarrationAudioOptions {
   autoPlay?: boolean;
@@ -13,13 +13,36 @@ export const useNarrationAudio = (options: UseNarrationAudioOptions = {}) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const onEndedCallbackRef = useRef<(() => void) | null>(null);
 
-  // Initialize audio element
-  useEffect(() => {
-    const audio = new Audio();
-    audio.volume = volume;
+  // Play audio file
+  const play = (filename: string, onPlayEnded?: () => void) => {
+    // Use import.meta.env.BASE_URL to get the correct base path for both dev and production
+    const basePath = import.meta.env.BASE_URL;
+    const audioPath = `${basePath}audio/narration/${filename}`;
 
-    const handleEnded = () => {
+    console.log("Attempting to play audio:", audioPath);
+
+    // Stop current audio if playing
+    if (audioRef.current && isPlaying) {
+      console.log("Stopping current audio");
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      audioRef.current = null;
       setIsPlaying(false);
+    }
+
+    // Create a fresh Audio element for each play
+    const audio = new Audio(audioPath);
+    audio.volume = volume;
+    audioRef.current = audio;
+
+    // Store the per-play callback
+    onEndedCallbackRef.current = onPlayEnded || null;
+
+    // Set up event handlers
+    const handleEnded = () => {
+      console.log("Audio ended:", filename);
+      setIsPlaying(false);
+      setCurrentAudio(null);
       // Call per-play callback if provided
       if (onEndedCallbackRef.current) {
         onEndedCallbackRef.current();
@@ -33,49 +56,19 @@ export const useNarrationAudio = (options: UseNarrationAudioOptions = {}) => {
 
     const handleError = (e: Event) => {
       console.error("Audio playback error:", e);
+      console.error("Audio error code:", audio.error?.code);
+      console.error("Audio error message:", audio.error?.message);
       setIsPlaying(false);
+      setCurrentAudio(null);
+      onEndedCallbackRef.current = null;
     };
 
     audio.addEventListener("ended", handleEnded);
     audio.addEventListener("error", handleError);
 
-    audioRef.current = audio;
-
-    return () => {
-      audio.removeEventListener("ended", handleEnded);
-      audio.removeEventListener("error", handleError);
-      audio.pause();
-      audio.src = "";
-      audioRef.current = null;
-    };
-  }, [volume, onEnded]);
-
-  // Play audio file
-  const play = (filename: string, onPlayEnded?: () => void) => {
-    if (!audioRef.current) {
-      console.error("Audio ref not initialized");
-      return;
-    }
-
-    const audio = audioRef.current;
-    // Use import.meta.env.BASE_URL to get the correct base path for both dev and production
-    const basePath = import.meta.env.BASE_URL;
-    const audioPath = `${basePath}audio/narration/${filename}`;
-
-    console.log("Attempting to play audio:", audioPath);
-
-    // Stop current audio if playing
-    if (isPlaying) {
-      audio.pause();
-      audio.currentTime = 0;
-    }
-
-    // Store the per-play callback
-    onEndedCallbackRef.current = onPlayEnded || null;
-
-    audio.src = audioPath;
     setCurrentAudio(filename);
 
+    // Play the audio
     audio
       .play()
       .then(() => {
@@ -84,9 +77,11 @@ export const useNarrationAudio = (options: UseNarrationAudioOptions = {}) => {
       })
       .catch((error) => {
         console.error("Failed to play audio:", error);
+        console.error("Error name:", error.name);
+        console.error("Error message:", error.message);
         console.error("Audio path:", audioPath);
         setIsPlaying(false);
-        // Clear callback on error
+        setCurrentAudio(null);
         onEndedCallbackRef.current = null;
       });
   };
@@ -96,9 +91,9 @@ export const useNarrationAudio = (options: UseNarrationAudioOptions = {}) => {
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
+      audioRef.current = null;
       setIsPlaying(false);
       setCurrentAudio(null);
-      // Clear any pending callback
       onEndedCallbackRef.current = null;
     }
   };

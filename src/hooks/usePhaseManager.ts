@@ -31,6 +31,12 @@ export const usePhaseManager = (
     setGameState((prev) => ({
       ...prev,
       phase: "day",
+      dayState: {
+        ...prev.dayState,
+        currentDayNumber: prev.dayState.currentDayNumber + 1,
+        votingInProgress: false,
+        discussionTimerActive: false,
+      },
     }));
   };
 
@@ -47,6 +53,11 @@ export const usePhaseManager = (
         werewolfVictimSelectedThisNight: false,
         bigBadWolfVictimSelectedThisNight: false,
         whiteWerewolfVictimSelectedThisNight: false,
+      },
+      dayState: {
+        ...prev.dayState,
+        votingInProgress: false,
+        discussionTimerActive: false,
       },
     }));
   };

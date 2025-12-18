@@ -64,6 +64,12 @@ export interface NightState {
   whiteWerewolfVictimSelectedThisNight: boolean;
 }
 
+export interface DayState {
+  currentDayNumber: number;
+  votingInProgress: boolean;
+  discussionTimerActive: boolean;
+}
+
 export interface Player {
   number: number;
   name?: string; // Optional player name
@@ -87,6 +93,7 @@ export interface GameState {
   setup: GameSetup;
   phase: GamePhase;
   nightState: NightState;
+  dayState: DayState;
   players: Player[];
   eliminatedPlayers: number[];
   pendingRoleReveals: number[]; // Players who died this night and need role revealed at dawn
