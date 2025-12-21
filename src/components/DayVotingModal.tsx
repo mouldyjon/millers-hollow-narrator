@@ -32,13 +32,17 @@ export const DayVotingModal = ({
   };
 
   useEffect(() => {
-    if (countdown === null || countdown === 0) {
-      if (countdown === 0) {
-        // Countdown finished, show player selection
+    if (countdown === null) {
+      return;
+    }
+
+    if (countdown === 0) {
+      // Countdown finished, show player selection after a brief delay
+      const timer = setTimeout(() => {
         setShowPlayerSelection(true);
         setCountdown(null);
-      }
-      return;
+      }, 0);
+      return () => clearTimeout(timer);
     }
 
     const timer = setTimeout(() => {

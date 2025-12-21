@@ -14,12 +14,20 @@ export const SleepScreen = ({
   message = "Keep your eyes closed",
   countdown,
 }: SleepScreenProps) => {
-  const [timeRemaining, setTimeRemaining] = useState(countdown);
+  const [timeRemaining, setTimeRemaining] = useState<number | undefined>(
+    countdown,
+  );
 
   useEffect(() => {
-    if (!countdown) return;
+    if (!countdown) {
+      // Use setTimeout to make this asynchronous
+      const timer = setTimeout(() => setTimeRemaining(undefined), 0);
+      return () => clearTimeout(timer);
+    }
 
-    setTimeRemaining(countdown);
+    // Reset time remaining when countdown prop changes (asynchronously)
+    const resetTimer = setTimeout(() => setTimeRemaining(countdown), 0);
+
     const interval = setInterval(() => {
       setTimeRemaining((prev) => {
         if (prev === undefined || prev <= 1) {
@@ -30,7 +38,10 @@ export const SleepScreen = ({
       });
     }, 1000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearTimeout(resetTimer);
+      clearInterval(interval);
+    };
   }, [countdown]);
 
   return (
