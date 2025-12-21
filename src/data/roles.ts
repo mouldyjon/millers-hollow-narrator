@@ -166,6 +166,19 @@ export const roles: Record<string, Role> = {
     allowMultiple: false,
     isOptional: true,
   },
+  elder: {
+    id: "elder",
+    name: "Elder",
+    team: "village",
+    description:
+      "Survives first werewolf attack. If executed by village, all powers lost",
+    nightOrder: 999,
+    nightOrderFirstNight: 3.5,
+    wakeEveryNight: false,
+    wakeFirstNightOnly: true,
+    hasLimitedUse: false,
+    allowMultiple: false,
+  },
   "simple-werewolf": {
     id: "simple-werewolf",
     name: "Simple Werewolf",
@@ -234,6 +247,17 @@ export const roles: Record<string, Role> = {
     hasLimitedUse: false,
     allowMultiple: false,
     isOptional: true,
+  },
+  "pied-piper": {
+    id: "pied-piper",
+    name: "Pied Piper",
+    team: "solo",
+    description: "Charms players each night, wins when all charmed are alive",
+    nightOrder: 9,
+    wakeEveryNight: true,
+    wakeFirstNightOnly: false,
+    hasLimitedUse: false,
+    allowMultiple: false,
   },
   "wild-child": {
     id: "wild-child",

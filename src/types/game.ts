@@ -13,12 +13,14 @@ export type RoleId =
   | "bear-tamer"
   | "devoted-servant"
   | "actor"
+  | "elder"
   | "simple-werewolf"
   | "big-bad-wolf"
   | "white-werewolf"
   | "cursed-wolf-father"
   | "angel"
   | "prejudiced-manipulator"
+  | "pied-piper"
   | "wild-child"
   | "wolf-hound"
   | "thief"
@@ -26,7 +28,13 @@ export type RoleId =
 
 export type Team = "village" | "werewolf" | "solo";
 
-export type GamePhase = "setup" | "night" | "dawn" | "day" | "ended";
+export type GamePhase =
+  | "setup"
+  | "role-assignment"
+  | "night"
+  | "dawn"
+  | "day"
+  | "ended";
 
 export interface Role {
   id: RoleId;

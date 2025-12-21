@@ -12,7 +12,12 @@ export interface RoleDistribution {
 
 // Categorise roles by their importance and utility
 const INVESTIGATIVE_ROLES: RoleId[] = ["seer", "fox", "bear-tamer"];
-const PROTECTIVE_ROLES: RoleId[] = ["witch", "hunter", "knight-rusty-sword"];
+const PROTECTIVE_ROLES: RoleId[] = [
+  "witch",
+  "hunter",
+  "knight-rusty-sword",
+  "elder",
+];
 const SOCIAL_ROLES: RoleId[] = [
   "two-sisters",
   "three-brothers",
@@ -28,7 +33,11 @@ const SPECIAL_VILLAGE_ROLES: RoleId[] = [
   "thief",
 ];
 const GAME_MODIFIERS: RoleId[] = ["sheriff"]; // Not cards, but game features
-const SOLO_ROLES: RoleId[] = ["angel", "prejudiced-manipulator"];
+const SOLO_ROLES: RoleId[] = [
+  "angel",
+  "prejudiced-manipulator",
+  "pied-piper",
+];
 const SPECIAL_WEREWOLF_ROLES: RoleId[] = [
   "big-bad-wolf",
   "white-werewolf",
@@ -149,7 +158,14 @@ export const generateBalancedRoles = (
 
   // Step 6: Optionally add a solo role for experienced games (10+ players)
   if (playerCount >= 10 && Math.random() > 0.7) {
-    const availableSolo = filterOptional(SOLO_ROLES);
+    // Pied Piper requires larger games (12+ players)
+    const availableSolo = filterOptional(SOLO_ROLES).filter((roleId) => {
+      if (roleId === "pied-piper") {
+        return playerCount >= 12;
+      }
+      return true;
+    });
+
     if (
       availableSolo.length > 0 &&
       calculateTotalSlots(selectedRoles) < playerCount

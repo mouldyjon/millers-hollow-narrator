@@ -49,6 +49,10 @@ export const narrationFiles = {
       wake: "lovers-wake.mp3",
       sleep: "lovers-sleep.mp3",
     },
+    charmed: {
+      wake: "charmed-wake.mp3",
+      sleep: "charmed-sleep.mp3",
+    },
     fox: {
       wake: "fox-wake.mp3",
       sleep: "fox-sleep.mp3",
@@ -81,6 +85,10 @@ export const narrationFiles = {
       wake: "actor-wake.mp3",
       sleep: "actor-sleep.mp3",
     },
+    elder: {
+      wake: "elder-wake.mp3",
+      sleep: "elder-sleep.mp3",
+    },
     thief: {
       wake: "thief-first-night.mp3",
       sleep: "thief-sleep.mp3",
@@ -96,6 +104,10 @@ export const narrationFiles = {
     "prejudiced-manipulator": {
       wake: "prejudiced-manipulator-wake.mp3",
       sleep: "prejudiced-manipulator-sleep.mp3",
+    },
+    "pied-piper": {
+      wake: "pied-piper-wake.mp3",
+      sleep: "pied-piper-sleep.mp3",
     },
     sheriff: {
       wake: "role-wake.mp3",

@@ -91,6 +91,12 @@ This document contains all the narration text for voice recording with ElevenLab
 #### `lovers-sleep.mp3`
 "Lovers, close your eyes and return to sleep."
 
+#### `charmed-wake.mp3`
+"Charmed players, wake up and recognise each other. The Pied Piper's melody has bound you together. You know not who plays the flute, but you share this enchantment."
+
+#### `charmed-sleep.mp3`
+"Charmed players, close your eyes and return to sleep. The music lingers in your minds."
+
 #### `two-sisters-wake.mp3`
 "Two Sisters, wake up and recognise each other. You share a bond known only to the two of you."
 
@@ -148,6 +154,12 @@ This document contains all the narration text for voice recording with ElevenLab
 #### `actor-sleep.mp3`
 "Actor, close your eyes and return to the shadows."
 
+#### `elder-wake.mp3`
+"Elder, wake up. You are a respected member of the village, blessed with resilience. You will survive your first werewolf attack. But beware... if the village executes you by mistake, all special powers will be lost."
+
+#### `elder-sleep.mp3`
+"Elder, close your eyes and rest. Your wisdom protects you."
+
 ### Special Roles
 
 #### `thief-first-night.mp3`
@@ -173,6 +185,12 @@ This document contains all the narration text for voice recording with ElevenLab
 
 #### `prejudiced-manipulator-sleep.mp3`
 "Prejudiced Manipulator, go back to sleep."
+
+#### `pied-piper-wake.mp3`
+"Pied Piper, wake up. Your enchanted flute holds dark power. Choose two players to charm with your music."
+
+#### `pied-piper-sleep.mp3`
+"Pied Piper, your melody fades. Return to sleep and await the day."
 
 ### Generic
 
@@ -254,7 +272,7 @@ This document contains all the narration text for voice recording with ElevenLab
 
 Save files as: `/public/audio/narration/{filename}.mp3`
 
-**Total Files Needed:** ~66 audio files (includes conditional werewolf narration)
+**Total Files Needed:** ~70 audio files (includes conditional werewolf narration)
 
 **Estimated Total Size:** 6-10 MB
 
@@ -276,9 +294,19 @@ Save files as: `/public/audio/narration/{filename}.mp3`
   - Game automatically selects correct version based on selected roles
 
 ### Enhanced Day Phase
-- **Voting Time**: Updated with countdown for synchronized voting
+- **Voting Time**: Updated with countdown for synchronised voting
   - Includes dramatic "One... Two... Three... Vote now!" countdown
   - Creates clear voting moment for all players
+
+### New Roles Added
+- **Elder**: Village role with resilience (survives first werewolf attack, but if executed by village, all powers are lost)
+  - `elder-wake.mp3` - First night introduction
+  - `elder-sleep.mp3` - Return to sleep
+- **Pied Piper**: Solo role with charming ability (wins if charmed players are eliminated by village)
+  - `pied-piper-wake.mp3` - Choose players to charm
+  - `pied-piper-sleep.mp3` - Return to sleep
+  - `charmed-wake.mp3` - Charmed players recognise each other
+  - `charmed-sleep.mp3` - Charmed players return to sleep
 
 ## Next Steps
 
