@@ -154,11 +154,46 @@ export const useRoleManager = (
     }));
   };
 
+  /**
+   * Shuffle and randomly assign roles to players (for auto-narrator mode)
+   * Builds a deck of role cards based on selectedRoles, shuffles them, and assigns to players
+   */
+  const shuffleAndAssignRoles = () => {
+    setGameState((prev) => {
+      const roleCards: RoleId[] = [];
+
+      // Build deck of role cards based on selectedRoles
+      prev.setup.selectedRoles.forEach((roleId) => {
+        const count = getRoleSlotCount(roleId);
+        for (let i = 0; i < count; i++) {
+          roleCards.push(roleId);
+        }
+      });
+
+      // Shuffle roles using Fisher-Yates algorithm
+      const shuffled = [...roleCards];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+
+      // Assign to players
+      return {
+        ...prev,
+        players: prev.players.map((player, index) => ({
+          ...player,
+          assignedRole: shuffled[index],
+        })),
+      };
+    });
+  };
+
   return {
     toggleRole,
     removeRole,
     setSelectedRoles,
     setUnusedRoles,
     setAutoNarratorMode,
+    shuffleAndAssignRoles,
   };
 };

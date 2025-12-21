@@ -107,8 +107,10 @@ export const useGameState = () => {
     setSelectedRoles: roleManager.setSelectedRoles,
     setUnusedRoles: roleManager.setUnusedRoles,
     setAutoNarratorMode: roleManager.setAutoNarratorMode,
+    shuffleAndAssignRoles: roleManager.shuffleAndAssignRoles,
     // Phase management (from usePhaseManager)
     startGame: phaseManager.startGame,
+    startNightFromRoleAssignment: phaseManager.startNightFromRoleAssignment,
     startDawn: phaseManager.startDawn,
     startDay: phaseManager.startDay,
     startNight: phaseManager.startNight,

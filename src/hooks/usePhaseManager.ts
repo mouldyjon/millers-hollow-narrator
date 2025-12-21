@@ -10,6 +10,31 @@ export const usePhaseManager = (
   setGameState: Dispatch<SetStateAction<GameState>>,
 ) => {
   const startGame = () => {
+    setGameState((prev) => {
+      // Check if auto-narrator mode is enabled
+      const isAutoNarrator = prev.setup.autoNarratorMode || false;
+
+      if (isAutoNarrator) {
+        // Transition to role assignment phase first
+        return {
+          ...prev,
+          phase: "role-assignment",
+        };
+      } else {
+        // Traditional flow: go directly to night
+        return {
+          ...prev,
+          phase: "night",
+          nightState: {
+            ...prev.nightState,
+            currentNightNumber: 1,
+          },
+        };
+      }
+    });
+  };
+
+  const startNightFromRoleAssignment = () => {
     setGameState((prev) => ({
       ...prev,
       phase: "night",
@@ -110,6 +135,7 @@ export const usePhaseManager = (
 
   return {
     startGame,
+    startNightFromRoleAssignment,
     startDawn,
     startDay,
     startNight,

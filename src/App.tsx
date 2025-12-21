@@ -1,14 +1,22 @@
 import { useState } from "react";
 import { GameStateProvider, useGameContext } from "./contexts/GameStateContext";
 import { SetupScreen } from "./components/SetupScreen";
+import { RoleSelfSelectionPhase } from "./components/RoleSelfSelectionPhase";
 import { NightPhase } from "./components/NightPhase";
 import { DawnPhase } from "./components/DawnPhase";
 import { DayPhase } from "./components/DayPhase";
 import { PhaseTransition } from "./components/PhaseTransition";
 
 function AppContent() {
-  const { gameState, startGame, startDawn, startDay, startNight, resetGame } =
-    useGameContext();
+  const {
+    gameState,
+    startGame,
+    startNightFromRoleAssignment,
+    startDawn,
+    startDay,
+    startNight,
+    resetGame,
+  } = useGameContext();
 
   // Note: All phase components now get their functions from context directly
   // AppContent only needs phase transition functions
@@ -19,8 +27,22 @@ function AppContent() {
 
   // Wrapper functions to trigger transitions
   const handleStartGame = () => {
-    // Special case: starting from setup, we need to change phase first
+    // Special case: starting from setup
+    // Check auto-narrator mode BEFORE calling startGame (state is current)
+    const isAutoNarrator = gameState.setup.autoNarratorMode || false;
+
     startGame();
+
+    // If NOT auto-narrator mode, show transition to night
+    // (Auto-narrator mode goes to role-assignment with no transition)
+    if (!isAutoNarrator) {
+      setTransitionType("night");
+    }
+  };
+
+  const handleRoleAssignmentComplete = () => {
+    // Transition from role-assignment to night
+    startNightFromRoleAssignment();
     setTransitionType("night");
   };
 
@@ -52,6 +74,11 @@ function AppContent() {
     <>
       {gameState.phase === "setup" && (
         <SetupScreen onStartGame={handleStartGame} />
+      )}
+
+      {/* Role Assignment Phase (auto-narrator only) */}
+      {gameState.phase === "role-assignment" && (
+        <RoleSelfSelectionPhase onComplete={handleRoleAssignmentComplete} />
       )}
 
       {gameState.phase === "night" && (

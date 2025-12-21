@@ -193,5 +193,8 @@ export const canStartGame = (
 ): boolean => {
   const messages = validateSetup(selectedRoles, playerCount);
   const hasErrors = messages.some((m) => m.severity === "error");
+
+  // In auto-narrator mode, players self-select roles during the game
+  // So we don't require pre-assignment
   return !hasErrors && playerCount >= 5;
 };

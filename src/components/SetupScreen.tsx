@@ -66,6 +66,7 @@ export const SetupScreen = ({ onStartGame }: SetupScreenProps = {}) => {
   const validationMessages = validateSetup(selectedRoles, playerCount);
   const recommendedRoles = getRecommendedRoles(selectedRoles, playerCount);
   const isValidSetup = canStartGame(selectedRoles, playerCount);
+  const isRoleSelectionValid = isValidSetup;
 
   const villageTeamRoles = Object.values(roles).filter(
     (r) =>
@@ -290,6 +291,28 @@ export const SetupScreen = ({ onStartGame }: SetupScreenProps = {}) => {
               </div>
             </label>
           </div>
+
+          {/* Role Entry Info (Auto-Narrator Mode Only) */}
+          {gameState.setup.autoNarratorMode && isRoleSelectionValid && (
+            <div className="bg-purple-900/40 border border-purple-700/50 rounded-lg p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <h3 className="text-xl font-semibold text-purple-100 mb-2">
+                    Role Entry
+                  </h3>
+                  <p className="text-sm text-purple-200">
+                    When you start the game, each player will privately enter
+                    the role they were dealt, passing the device around one at a time.
+                    {players.every((p) => p.assignedRole !== undefined) && (
+                      <span className="block mt-2 text-green-400 font-semibold">
+                        ✓ All roles have been entered
+                      </span>
+                    )}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Role Selection - Card Grid Layout */}
