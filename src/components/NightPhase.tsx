@@ -94,7 +94,6 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
   });
 
   // Placeholder - modal orchestrator will be created after helper functions are defined
-  let modalOrchestrator: ReturnType<typeof RoleModalOrchestrator>;
 
   const isFirstNight = nightState.currentNightNumber === 1;
 
@@ -222,7 +221,7 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
 
   // Modal orchestrator for role-specific modals
   // In auto-narrator mode, callbacks are wrapped to auto-advance after completion
-  modalOrchestrator = RoleModalOrchestrator({
+  const modalOrchestrator = RoleModalOrchestrator({
     players,
     cupidLovers,
     wildChildRoleModel,
@@ -330,7 +329,7 @@ export const NightPhase = ({ onEndNight }: NightPhaseProps = {}) => {
         playAudio(wakeAudioFile);
       }
     }
-  }, [autoNarratorMode, showWakePrompt, currentRole, audioEnabled]);
+  }, [autoNarratorMode, showWakePrompt, currentRole, audioEnabled, playAudio, selectedRoles]);
 
   // Auto-narrator: Auto-advance when night ends
   useEffect(() => {

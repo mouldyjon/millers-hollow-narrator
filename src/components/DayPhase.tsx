@@ -245,7 +245,7 @@ export const DayPhase = ({ onStartNight }: DayPhaseProps = {}) => {
   };
 
   const handleNoSuccessor = () => {
-    setSheriff(undefined as any); // Clear sheriff
+    setSheriff(undefined); // Clear sheriff
     addGameEvent(
       "special",
       `Sheriff (Player ${deadSheriffNumber}) died without naming a successor`,

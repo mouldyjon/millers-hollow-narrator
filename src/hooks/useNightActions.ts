@@ -84,7 +84,7 @@ export const useNightActions = (
     }));
   };
 
-  const setSheriff = (playerNumber: number) => {
+  const setSheriff = (playerNumber: number | undefined) => {
     setGameState((prev) => ({
       ...prev,
       sheriff: playerNumber,
